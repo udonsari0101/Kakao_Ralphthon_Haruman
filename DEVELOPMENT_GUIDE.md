@@ -1,8 +1,8 @@
 # 랄프톤 MVP 개발 가이드
 
-> **최신 v2:** 스크린샷 추가와 직접 입력이 핵심이다. 링크 파싱은 미지원 틀만, 이미지 API는 문서 제공 전 미연결 틀만 준비한다. 빨강 기반 라이트·다크·시스템 테마와 반응형·모션을 포함한 현재 범위는 [GOAL_SPEC.md](./GOAL_SPEC.md)와 [todo.md](./todo.md)를 따른다. 아래 기술 스택/연계 계획은 초기 구상이며 현재 구현 상태가 아니다.
+> **최신 v3:** 링크 입력/Android 공유 → 지정 상품 설명 API → 정상 응답 자동 추가·수동 보완/수정이 핵심이다. 스크린샷/이미지 전송은 제외했다. API/캐릭터 문서 수령 전에는 설계만 작성한다. [GOAL_SPEC.md](./GOAL_SPEC.md), [todo.md](./todo.md), [LINK_API_DESIGN.md](./LINK_API_DESIGN.md), [UI_CHARACTER_DESIGN.md](./UI_CHARACTER_DESIGN.md)가 현재 기준이며 아래는 초기 구상이다.
 
-> **2026-09-29 범위 변경:** 이 문서는 초기 3개 플랫폼 구상이다. 현재는 **쿠팡 전용**, 인스타그램 보류, 유튜브 제외다. 실행 우선순위는 [GOAL_SPEC.md](./GOAL_SPEC.md) → [todo.md](./todo.md)를 따른다. 실제 구현/검증 상태는 [CHECKPOINT.md](./CHECKPOINT.md), 쿠팡 실페이지 조사는 [COUPANG_PARSING_TECHNICAL.md](./COUPANG_PARSING_TECHNICAL.md)에 정리했다. 현재 저장소는 SharedPreferences JSON을 사용하며 아래 Room/FastAPI 제안은 구현된 상태가 아니다.
+> 이 문서는 초기 3개 플랫폼 구상이다. 현재는 쿠팡 연계만 대상이며 인스타그램 보류, 유튜브 제외다. 실제 구현은 [CHECKPOINT.md](./CHECKPOINT.md)를 따른다. 현재 저장소는 SharedPreferences JSON이며 아래 Room/FastAPI 제안은 구현된 상태가 아니다.
 
 > 기준 문서: [랄프톤 제품 브리프 v4](<./ralphthon-product-brief-b58jYyjbQYHVtRNKNPE6hpmB-20260926-v4 (1).md>)  
 > 작성일: 2026-09-29  

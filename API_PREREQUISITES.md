@@ -1,8 +1,8 @@
 # 랄프톤 API 사전 조사
 
-> **최신 v2:** 실제 연동 대상은 추후 사용자가 문서를 제공할 이미지 분석 API이며 현재 사양 미정이다. 링크 파싱은 미지원, 인스타그램 보류, 유튜브 제외다. 아래 API 조사는 과거 참고 자료로 유지하며 키 발급·서버 설정의 실행 지시가 아니다. 현재 계획은 [GOAL_SPEC.md](./GOAL_SPEC.md)와 [todo.md](./todo.md)를 따른다.
+> **최신 v3:** 실제 연동 대상은 추후 사용자가 문서를 제공할 **링크 기반 상품 설명 API**다. 스크린샷/이미지 전송은 제외했고 인스타그램 보류, 유튜브 제외는 유지한다. 사양 미정 항목은 [LINK_API_DESIGN.md](./LINK_API_DESIGN.md)에 정리했다. 아래 API 조사는 과거 참고 자료이며 키 발급·서버 설정의 실행 지시가 아니다. 현재 범위는 [GOAL_SPEC.md](./GOAL_SPEC.md)와 [todo.md](./todo.md)를 따른다.
 
-> **2026-09-29 범위 변경:** 인스타그램은 보류하고 유튜브는 제외했다. 아래는 초기 API 조사 기록이다. 이후 제공된 쿠팡 링크 3개를 실제 조사한 결과와 파싱 설계는 [COUPANG_PARSING_TECHNICAL.md](./COUPANG_PARSING_TECHNICAL.md)를 따른다. 다음 작업 범위는 [GOAL_SPEC.md](./GOAL_SPEC.md), 현재 APK 상태는 [CHECKPOINT.md](./CHECKPOINT.md)를 참고한다.
+> 초기 플랫폼 API 조사와 [쿠팡 페이지 분석](./COUPANG_PARSING_TECHNICAL.md)은 이력으로 보존한다. 현재 APK 상태는 [CHECKPOINT.md](./CHECKPOINT.md)를 참고한다.
 
 > 조사일: 2026-09-29  
 > 대상: [제품 브리프 v4](<./ralphthon-product-brief-b58jYyjbQYHVtRNKNPE6hpmB-20260926-v4 (1).md>)의 쿠팡·유튜브·인스타그램 공유 수집  
