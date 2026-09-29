@@ -2,9 +2,21 @@
 
 상태: **사용자 요청으로 앱 구현 중지** · 기준일: **2026-09-29, Asia/Seoul**
 
-> **최신 요구 v3:** 링크 직접 입력/Android 공유 → 지정 상품 설명 API → 정상 응답 자동 추가 → 문제 정보 보완·저장 후 수정으로 설계한다. 스크린샷/이미지 전송은 제외했다. API와 캐릭터 디자인 문서는 추후 제공 예정이며 현재는 설계 파일만 작성한다. 빨강 테마·라이트/다크/시스템·반응형·모션은 유지한다. 아래는 변경되지 않은 기존 코드의 기록이다. 최신 기준은 [GOAL_SPEC.md](./GOAL_SPEC.md), [todo.md](./todo.md), [LINK_API_DESIGN.md](./LINK_API_DESIGN.md), [UI_CHARACTER_DESIGN.md](./UI_CHARACTER_DESIGN.md)다.
+> **재개 기록:** 2026-09-29 12:04:47 KST에 사용자가 구현 재개를 지시했다. 15:04:47 KST를 목표 마감으로 `md_plus` 감시·API/애셋 반영·연결 폰 검수·release 작업을 시작한다. 아래 중지 체크포인트는 이전 코드의 보존 기록이며, 현재 진척은 [todo.md](./todo.md)의 실시간 진행판과 실행 기록을 따른다. 재개 직전 원본 소스 50개 해시 일치를 다시 확인했다.
+
+> **최신 요구 v3.1:** 링크 직접 입력/Android 공유 → 지정 상품 설명 API → 정상 응답 자동 추가 → 문제 정보 보완·저장 후 수정으로 설계한다. 스크린샷/이미지 전송은 제외했다. API 계약 초안은 수령했고 실제 접속·인증과 캐릭터 MD를 기다리며 설계 파일만 작성한다. 빨강 테마·라이트/다크/시스템·반응형·모션에 제공 애셋/필요 이미지 생성, 친근한 해요체, 실기기 반복 검수·todo·GitHub·release 운영을 추가했다. 아래는 변경되지 않은 기존 코드의 기록이다. 최신 기준은 [GOAL_SPEC.md](./GOAL_SPEC.md), [todo.md](./todo.md), [LINK_API_DESIGN.md](./LINK_API_DESIGN.md), [UI_CHARACTER_DESIGN.md](./UI_CHARACTER_DESIGN.md)다.
 
 이 문서는 현재 구현과 이미 생성된 증거를 보존한 기록이다. 중지 이후 앱 소스 수정, Gradle 빌드, Android 테스트, adb 명령은 실행하지 않았다. 앱 관련 작업은 문서 작성과 기존 파일의 복사·압축·해시 확인으로 한정했고, 별도로 제공된 쿠팡 링크를 읽기 전용으로 조사했다.
+
+### v3.1 설계 추가 체크포인트
+
+- 사용자가 이번에는 **spec·todo 반영**으로 범위를 확인했다. 180분 개발 목표/타이머는 미시작이다.
+- [ASSET_PLAN.md](./ASSET_PLAN.md): 작업 도중 교체된 최신 img의 내용·알파·크기·해시 재점검, 화면별 배치와 필요한 이미지 생성 계획. Android 리소스 적용·이미지 생성은 하지 않았다.
+- HARUMAN_API_RESPONSE_SPEC.md / HARUMAN_PRODUCT_API_PLAN.md가 작업 중 추가되어 문서상 계약을 검토했다. 실제 endpoint·인증·서버·Mac 상태를 확인하거나 서버 작업을 실행한 것은 아니다. API 계약에 description 필드는 없다.
+- [DEVELOPMENT_RUNBOOK.md](./DEVELOPMENT_RUNBOOK.md): 재개 후 자율 목표, 연결 폰 UI/모션/반응형 반복 검수, todo 즉시 갱신, 단계별 main 반영.
+- [RELEASE_WORKFLOW.md](./RELEASE_WORKFLOW.md): 기존 데이터/서명 충돌 구분, 최종 APK 검증, GitHub Release asset 업로드·다운로드 해시 확인.
+- [`releases/`](./releases/README.md)를 마련했다. release APK는 아직 제작·서명·검증·업로드하지 않았다. 기존 debug APK를 release로 이름만 바꾸어 보관하지 않는다.
+- 이미지 원본과 명세는 Git에 보존한다. 향후 APK는 GitHub Release asset으로 제공하고 로컬 `releases/<versionName>-<versionCode>/`에 각각 저장한다. 원시 기기 증거·키·빌드 산출물은 소스 commit에서 제외한다.
 
 ## 현재 요구와 구현의 차이
 
@@ -14,7 +26,7 @@
 - 마지막 변경은 결정 화면 내용 열에 `fillMaxWidth()`를 추가한 중앙 정렬 수정이다. 수정 후 APK 빌드와 연결 테스트는 완료했으나 **수정된 화면을 다시 촬영해 시각적으로 확인하지는 않았다.**
 - 기존 휴대전화의 앱 데이터는 지우지 않았다. 이번 보존물에는 휴대전화 내부 SharedPreferences 백업이 포함되지 않는다.
 
-후속 작업 범위는 [GOAL_SPEC.md](GOAL_SPEC.md), 실행 순서는 [todo.md](todo.md), 쿠팡 정보 수집 검토는 [COUPANG_PARSING_TECHNICAL.md](COUPANG_PARSING_TECHNICAL.md)를 기준으로 이어간다.
+후속 작업 범위는 [GOAL_SPEC.md](GOAL_SPEC.md), 실행 순서는 [todo.md](todo.md), 지정 API 기반 상품 추가는 [LINK_API_DESIGN.md](LINK_API_DESIGN.md)를 기준으로 이어간다. [쿠팡 파싱 조사](COUPANG_PARSING_TECHNICAL.md)는 과거 기술 조사이며 실행 계획에서 보류한다.
 
 ## 보존 위치와 무결성
 

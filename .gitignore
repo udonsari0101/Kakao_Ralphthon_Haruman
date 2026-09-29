@@ -40,3 +40,6 @@ Thumbs.db
 /checkpoints/**/apks/
 /checkpoints/**/test-results/
 /checkpoints/**/screenshots/*.png
+/releases/**/evidence/
+/releases/**/download-verification/
+/releases/**/staging/

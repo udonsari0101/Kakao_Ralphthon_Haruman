@@ -1,0 +1,1637 @@
+{
+  "schema_version": 2,
+  "inspected_date": "2026-09-29",
+  "source_directory": "img",
+  "application_status": "not_applied",
+  "generated_assets": [],
+  "derived_assets": [],
+  "originals_modified": false,
+  "summary": {
+    "image_count": 45,
+    "png_count": 42,
+    "ico_count": 3,
+    "unique_file_sha256_count": 29,
+    "duplicate_group_count": 14,
+    "manifest_excluded_from_image_count": true
+  },
+  "design": {
+    "description": "Red shopping basket and handles, smiling pale receipt/paper mascot, white basket slots and fasteners; Korean Haruman wordmark retains small clock detail in color version.",
+    "character_name": "not_finalized",
+    "state_specific_character_sheet": "not_provided",
+    "symbol_filename_warning": "symbol and badge variants include the stacked wordmark; use app_icon or mascot_basket_raw for a wordmark-free reference."
+  },
+  "inspection": {
+    "metadata_method": "Pillow Image.open, RGBA decode, alpha channel getbbox/getextrema; ICO per-frame decode",
+    "file_hash_method": "SHA-256 of original file bytes",
+    "pixel_hash_method": "SHA-256 of decoded RGBA bytes at recorded width and height",
+    "alpha_bbox_convention": "left, top, right-exclusive, bottom-exclusive; may include stray translucent pixels",
+    "representative_pngs_viewed": [
+      "haruman_app_icon.png",
+      "haruman_app_icon_tile.png",
+      "haruman_symbol.png",
+      "haruman_mascot_basket_raw.png",
+      "haruman_logo_horizontal.png",
+      "haruman_logo_horizontal_red_single.png",
+      "haruman_logo_horizontal_white.png",
+      "haruman_symbol_1024.png",
+      "haruman_logo_stacked.png",
+      "haruman_logo_stacked_red_single.png",
+      "haruman_logo_stacked_white.png",
+      "haruman_wordmark.png",
+      "haruman_wordmark_red_single.png",
+      "haruman_wordmark_white.png",
+      "haruman_symbol_badge_red.png",
+      "backup_haruman_app_icon_with_padding.png",
+      "haruman_app_icon_64.png"
+    ],
+    "representative_png_count": 17,
+    "remaining_family_review": "Metadata and hashes checked for every original; duplicate files and other resolutions covered by family representatives, not claimed as individually visually reviewed.",
+    "ico_frame_png_comparisons": [
+      {
+        "ico": "haruman_app_icon.ico",
+        "frame_size": [
+          16,
+          16
+        ],
+        "png": "haruman_app_icon_16.png",
+        "pixel_sha256_equal": true
+      },
+      {
+        "ico": "haruman_app_icon.ico",
+        "frame_size": [
+          32,
+          32
+        ],
+        "png": "haruman_app_icon_32.png",
+        "pixel_sha256_equal": true
+      },
+      {
+        "ico": "haruman_app_icon.ico",
+        "frame_size": [
+          48,
+          48
+        ],
+        "png": "haruman_app_icon_48.png",
+        "pixel_sha256_equal": true
+      },
+      {
+        "ico": "haruman_app_icon.ico",
+        "frame_size": [
+          64,
+          64
+        ],
+        "png": "haruman_app_icon_64.png",
+        "pixel_sha256_equal": true
+      },
+      {
+        "ico": "haruman_app_icon.ico",
+        "frame_size": [
+          128,
+          128
+        ],
+        "png": "haruman_app_icon_128.png",
+        "pixel_sha256_equal": true
+      },
+      {
+        "ico": "haruman_app_icon.ico",
+        "frame_size": [
+          256,
+          256
+        ],
+        "png": "haruman_app_icon_256.png",
+        "pixel_sha256_equal": true
+      },
+      {
+        "ico": "haruman_app_icon_no_margin.ico",
+        "frame_size": [
+          16,
+          16
+        ],
+        "png": "haruman_app_icon_no_margin_16.png",
+        "pixel_sha256_equal": true
+      },
+      {
+        "ico": "haruman_app_icon_no_margin.ico",
+        "frame_size": [
+          32,
+          32
+        ],
+        "png": "haruman_app_icon_no_margin_32.png",
+        "pixel_sha256_equal": true
+      },
+      {
+        "ico": "haruman_app_icon_no_margin.ico",
+        "frame_size": [
+          48,
+          48
+        ],
+        "png": "haruman_app_icon_no_margin_48.png",
+        "pixel_sha256_equal": true
+      },
+      {
+        "ico": "haruman_app_icon_no_margin.ico",
+        "frame_size": [
+          64,
+          64
+        ],
+        "png": "haruman_app_icon_no_margin_64.png",
+        "pixel_sha256_equal": true
+      },
+      {
+        "ico": "haruman_app_icon_no_margin.ico",
+        "frame_size": [
+          128,
+          128
+        ],
+        "png": "haruman_app_icon_no_margin_128.png",
+        "pixel_sha256_equal": true
+      },
+      {
+        "ico": "haruman_app_icon_no_margin.ico",
+        "frame_size": [
+          256,
+          256
+        ],
+        "png": "haruman_app_icon_no_margin_256.png",
+        "pixel_sha256_equal": true
+      }
+    ],
+    "original_files_match_initial_scan_before_write": true
+  },
+  "files": [
+    {
+      "path": "img/backup_haruman_app_icon_with_padding.ico",
+      "name": "backup_haruman_app_icon_with_padding.ico",
+      "bytes": 73969,
+      "sha256": "fd2e68d8cfa0d13fcd72f62ebf5d66e7c3ea297608cfa79c0a1a73b4f4517583",
+      "format": "ICO",
+      "mode": "RGBA",
+      "width": 256,
+      "height": 235,
+      "alpha_bbox": [
+        31,
+        8,
+        236,
+        209
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "fa9ee6498b31f2fa3ba36fe8d0da8c42c333b9009e95687bd9edc0b1a1298a4e",
+      "frames": [
+        {
+          "size": [
+            16,
+            15
+          ],
+          "pixel_sha256_rgba": "d4dc59f3ddcb93d9432292a18f5869e32bc55ea9dfe5f3c3a7ba6d75526ebcb2"
+        },
+        {
+          "size": [
+            32,
+            29
+          ],
+          "pixel_sha256_rgba": "f0e9ef67fb1353c30eda22de7cd5b4bb17a3b5c9593001b87a28836db5bceafa"
+        },
+        {
+          "size": [
+            48,
+            44
+          ],
+          "pixel_sha256_rgba": "db5898c08cc5a38d4db371b249787843eba14fc7e9ceab0ab31a6d135e9ce474"
+        },
+        {
+          "size": [
+            64,
+            59
+          ],
+          "pixel_sha256_rgba": "f3efbd4ca3b3143c6757ee0871f6b8dba0e17389bfda37e5098686ade1ca36ca"
+        },
+        {
+          "size": [
+            128,
+            117
+          ],
+          "pixel_sha256_rgba": "39087732edc4bf6f92b79587969c31309ac9d661eed9e91fc718bdbf5fcd118b"
+        },
+        {
+          "size": [
+            256,
+            235
+          ],
+          "pixel_sha256_rgba": "fa9ee6498b31f2fa3ba36fe8d0da8c42c333b9009e95687bd9edc0b1a1298a4e"
+        }
+      ]
+    },
+    {
+      "path": "img/backup_haruman_app_icon_with_padding.png",
+      "name": "backup_haruman_app_icon_with_padding.png",
+      "bytes": 717201,
+      "sha256": "c5194391b5e8b82927466415032133ab9f64303d577fdac4a6c6dc9e3a656576",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 1202,
+      "height": 1103,
+      "alpha_bbox": [
+        0,
+        0,
+        1202,
+        1103
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "60bc4ddf04d2183e07b763ec0882229751c029bdd74cf243ea060c0e9e0dc387"
+    },
+    {
+      "path": "img/haruman_app_icon.ico",
+      "name": "haruman_app_icon.ico",
+      "bytes": 82731,
+      "sha256": "e1a1e0f7b96ec4be4922822b0660dcc189eb65e371d6549427d1ea42c428484e",
+      "format": "ICO",
+      "mode": "RGBA",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        1,
+        0,
+        256,
+        242
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "a6e4e06b6960b6660573555fac32c159af9185960cc0166ca4849b9743b68667",
+      "frames": [
+        {
+          "size": [
+            16,
+            16
+          ],
+          "pixel_sha256_rgba": "8c15dec9ec4638d22950c81a588b47882c955fd8aab0d4b0af35b77501b10880"
+        },
+        {
+          "size": [
+            32,
+            32
+          ],
+          "pixel_sha256_rgba": "61c72847fdf63602255fad19bfecd737b666d01c139ecb038e46d438824908ae"
+        },
+        {
+          "size": [
+            48,
+            48
+          ],
+          "pixel_sha256_rgba": "e617a63086935afe1e85b65a0da3c4c7389114c6d3ea0b7ebb56d6a48ffe366b"
+        },
+        {
+          "size": [
+            64,
+            64
+          ],
+          "pixel_sha256_rgba": "d86aed68d14c8692f304219517edff6bb8ab4cff48f263b660e36c982d634ceb"
+        },
+        {
+          "size": [
+            128,
+            128
+          ],
+          "pixel_sha256_rgba": "82efe9efa988968a808f75bf1263e24db580568cb353a1cb8e09fe6cad568412"
+        },
+        {
+          "size": [
+            256,
+            256
+          ],
+          "pixel_sha256_rgba": "a6e4e06b6960b6660573555fac32c159af9185960cc0166ca4849b9743b68667"
+        }
+      ]
+    },
+    {
+      "path": "img/haruman_app_icon.png",
+      "name": "haruman_app_icon.png",
+      "bytes": 614767,
+      "sha256": "5c4454aad88775d5097a3a6ec0e541656fc95d132dbac7bd118877b3f7a165f7",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1024,
+      "alpha_bbox": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "3be698118d01dcaa793b25a98f774a9ddd712ecbd14f775eab1d0c94374102c9"
+    },
+    {
+      "path": "img/haruman_app_icon_1024.png",
+      "name": "haruman_app_icon_1024.png",
+      "bytes": 614767,
+      "sha256": "5c4454aad88775d5097a3a6ec0e541656fc95d132dbac7bd118877b3f7a165f7",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1024,
+      "alpha_bbox": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "3be698118d01dcaa793b25a98f774a9ddd712ecbd14f775eab1d0c94374102c9"
+    },
+    {
+      "path": "img/haruman_app_icon_128.png",
+      "name": "haruman_app_icon_128.png",
+      "bytes": 16818,
+      "sha256": "400d03329a349344a8015b9b8f5eca4b3360031bd9ea18ff3e64554c2158c00e",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 128,
+      "height": 128,
+      "alpha_bbox": [
+        0,
+        0,
+        128,
+        122
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "82efe9efa988968a808f75bf1263e24db580568cb353a1cb8e09fe6cad568412"
+    },
+    {
+      "path": "img/haruman_app_icon_16.png",
+      "name": "haruman_app_icon_16.png",
+      "bytes": 845,
+      "sha256": "97c9c7a9e0ecd1d04ae45713d15a34d08f0a6ae7a93495df61c1a12632b630d5",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 16,
+      "height": 16,
+      "alpha_bbox": [
+        0,
+        0,
+        16,
+        16
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "8c15dec9ec4638d22950c81a588b47882c955fd8aab0d4b0af35b77501b10880"
+    },
+    {
+      "path": "img/haruman_app_icon_180.png",
+      "name": "haruman_app_icon_180.png",
+      "bytes": 28897,
+      "sha256": "b8f545e748c71deb53441c60af69e979a844174d311f1e51d9df383017c19858",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 180,
+      "height": 180,
+      "alpha_bbox": [
+        0,
+        0,
+        180,
+        171
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "8cdfee1fa91126282775f98e5999dd7c02cb1ed20340e5a0ba99acd82e4602f6"
+    },
+    {
+      "path": "img/haruman_app_icon_192.png",
+      "name": "haruman_app_icon_192.png",
+      "bytes": 32173,
+      "sha256": "03147f7e2da331a840a9d58463abade3860ce5014ed561c876a064906912839f",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 192,
+      "height": 192,
+      "alpha_bbox": [
+        0,
+        0,
+        192,
+        182
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "3ae4fa532389ae25eb2011bd4878edf67bd3483610d428b854c14be6a712c88a"
+    },
+    {
+      "path": "img/haruman_app_icon_256.png",
+      "name": "haruman_app_icon_256.png",
+      "bytes": 52799,
+      "sha256": "4fe4104a25dd7c54beba37b46392507103b9f868ed86436c026b225d3f6eeef3",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        1,
+        0,
+        256,
+        242
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "a6e4e06b6960b6660573555fac32c159af9185960cc0166ca4849b9743b68667"
+    },
+    {
+      "path": "img/haruman_app_icon_32.png",
+      "name": "haruman_app_icon_32.png",
+      "bytes": 2157,
+      "sha256": "c3a78462752c34d453379793d2b31277b2629285d88c0a25fa77efa35be4e624",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 32,
+      "height": 32,
+      "alpha_bbox": [
+        0,
+        0,
+        32,
+        32
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "61c72847fdf63602255fad19bfecd737b666d01c139ecb038e46d438824908ae"
+    },
+    {
+      "path": "img/haruman_app_icon_48.png",
+      "name": "haruman_app_icon_48.png",
+      "bytes": 3964,
+      "sha256": "898eccf529270e313ee1b8978a4f73e194e93ad8807c7ee94b410472ab2947df",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 48,
+      "height": 48,
+      "alpha_bbox": [
+        0,
+        0,
+        48,
+        47
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "e617a63086935afe1e85b65a0da3c4c7389114c6d3ea0b7ebb56d6a48ffe366b"
+    },
+    {
+      "path": "img/haruman_app_icon_512.png",
+      "name": "haruman_app_icon_512.png",
+      "bytes": 188027,
+      "sha256": "e4d36bf0b4ba4ee397059dd8334405dbeb9568466f9e0c7f2b76da4a01d47d74",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 512,
+      "height": 512,
+      "alpha_bbox": [
+        4,
+        0,
+        512,
+        481
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "1a5e8d13f4ad782f5005d154f173299e3f24607d0f2700d3a21b7f2ecdf6dd89"
+    },
+    {
+      "path": "img/haruman_app_icon_64.png",
+      "name": "haruman_app_icon_64.png",
+      "bytes": 6046,
+      "sha256": "fe615d8b461d791e77b6c5963e088275190f097a6071c4d6e1f8367f86c4e7cc",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 64,
+      "height": 64,
+      "alpha_bbox": [
+        0,
+        0,
+        64,
+        62
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "d86aed68d14c8692f304219517edff6bb8ab4cff48f263b660e36c982d634ceb"
+    },
+    {
+      "path": "img/haruman_app_icon_no_margin.ico",
+      "name": "haruman_app_icon_no_margin.ico",
+      "bytes": 82731,
+      "sha256": "e1a1e0f7b96ec4be4922822b0660dcc189eb65e371d6549427d1ea42c428484e",
+      "format": "ICO",
+      "mode": "RGBA",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        1,
+        0,
+        256,
+        242
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "a6e4e06b6960b6660573555fac32c159af9185960cc0166ca4849b9743b68667",
+      "frames": [
+        {
+          "size": [
+            16,
+            16
+          ],
+          "pixel_sha256_rgba": "8c15dec9ec4638d22950c81a588b47882c955fd8aab0d4b0af35b77501b10880"
+        },
+        {
+          "size": [
+            32,
+            32
+          ],
+          "pixel_sha256_rgba": "61c72847fdf63602255fad19bfecd737b666d01c139ecb038e46d438824908ae"
+        },
+        {
+          "size": [
+            48,
+            48
+          ],
+          "pixel_sha256_rgba": "e617a63086935afe1e85b65a0da3c4c7389114c6d3ea0b7ebb56d6a48ffe366b"
+        },
+        {
+          "size": [
+            64,
+            64
+          ],
+          "pixel_sha256_rgba": "d86aed68d14c8692f304219517edff6bb8ab4cff48f263b660e36c982d634ceb"
+        },
+        {
+          "size": [
+            128,
+            128
+          ],
+          "pixel_sha256_rgba": "82efe9efa988968a808f75bf1263e24db580568cb353a1cb8e09fe6cad568412"
+        },
+        {
+          "size": [
+            256,
+            256
+          ],
+          "pixel_sha256_rgba": "a6e4e06b6960b6660573555fac32c159af9185960cc0166ca4849b9743b68667"
+        }
+      ]
+    },
+    {
+      "path": "img/haruman_app_icon_no_margin.png",
+      "name": "haruman_app_icon_no_margin.png",
+      "bytes": 614767,
+      "sha256": "5c4454aad88775d5097a3a6ec0e541656fc95d132dbac7bd118877b3f7a165f7",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1024,
+      "alpha_bbox": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "3be698118d01dcaa793b25a98f774a9ddd712ecbd14f775eab1d0c94374102c9"
+    },
+    {
+      "path": "img/haruman_app_icon_no_margin_1024.png",
+      "name": "haruman_app_icon_no_margin_1024.png",
+      "bytes": 614767,
+      "sha256": "5c4454aad88775d5097a3a6ec0e541656fc95d132dbac7bd118877b3f7a165f7",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1024,
+      "alpha_bbox": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "3be698118d01dcaa793b25a98f774a9ddd712ecbd14f775eab1d0c94374102c9"
+    },
+    {
+      "path": "img/haruman_app_icon_no_margin_128.png",
+      "name": "haruman_app_icon_no_margin_128.png",
+      "bytes": 16818,
+      "sha256": "400d03329a349344a8015b9b8f5eca4b3360031bd9ea18ff3e64554c2158c00e",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 128,
+      "height": 128,
+      "alpha_bbox": [
+        0,
+        0,
+        128,
+        122
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "82efe9efa988968a808f75bf1263e24db580568cb353a1cb8e09fe6cad568412"
+    },
+    {
+      "path": "img/haruman_app_icon_no_margin_16.png",
+      "name": "haruman_app_icon_no_margin_16.png",
+      "bytes": 845,
+      "sha256": "97c9c7a9e0ecd1d04ae45713d15a34d08f0a6ae7a93495df61c1a12632b630d5",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 16,
+      "height": 16,
+      "alpha_bbox": [
+        0,
+        0,
+        16,
+        16
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "8c15dec9ec4638d22950c81a588b47882c955fd8aab0d4b0af35b77501b10880"
+    },
+    {
+      "path": "img/haruman_app_icon_no_margin_180.png",
+      "name": "haruman_app_icon_no_margin_180.png",
+      "bytes": 28897,
+      "sha256": "b8f545e748c71deb53441c60af69e979a844174d311f1e51d9df383017c19858",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 180,
+      "height": 180,
+      "alpha_bbox": [
+        0,
+        0,
+        180,
+        171
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "8cdfee1fa91126282775f98e5999dd7c02cb1ed20340e5a0ba99acd82e4602f6"
+    },
+    {
+      "path": "img/haruman_app_icon_no_margin_192.png",
+      "name": "haruman_app_icon_no_margin_192.png",
+      "bytes": 32173,
+      "sha256": "03147f7e2da331a840a9d58463abade3860ce5014ed561c876a064906912839f",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 192,
+      "height": 192,
+      "alpha_bbox": [
+        0,
+        0,
+        192,
+        182
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "3ae4fa532389ae25eb2011bd4878edf67bd3483610d428b854c14be6a712c88a"
+    },
+    {
+      "path": "img/haruman_app_icon_no_margin_256.png",
+      "name": "haruman_app_icon_no_margin_256.png",
+      "bytes": 52799,
+      "sha256": "4fe4104a25dd7c54beba37b46392507103b9f868ed86436c026b225d3f6eeef3",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        1,
+        0,
+        256,
+        242
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "a6e4e06b6960b6660573555fac32c159af9185960cc0166ca4849b9743b68667"
+    },
+    {
+      "path": "img/haruman_app_icon_no_margin_32.png",
+      "name": "haruman_app_icon_no_margin_32.png",
+      "bytes": 2157,
+      "sha256": "c3a78462752c34d453379793d2b31277b2629285d88c0a25fa77efa35be4e624",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 32,
+      "height": 32,
+      "alpha_bbox": [
+        0,
+        0,
+        32,
+        32
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "61c72847fdf63602255fad19bfecd737b666d01c139ecb038e46d438824908ae"
+    },
+    {
+      "path": "img/haruman_app_icon_no_margin_48.png",
+      "name": "haruman_app_icon_no_margin_48.png",
+      "bytes": 3964,
+      "sha256": "898eccf529270e313ee1b8978a4f73e194e93ad8807c7ee94b410472ab2947df",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 48,
+      "height": 48,
+      "alpha_bbox": [
+        0,
+        0,
+        48,
+        47
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "e617a63086935afe1e85b65a0da3c4c7389114c6d3ea0b7ebb56d6a48ffe366b"
+    },
+    {
+      "path": "img/haruman_app_icon_no_margin_512.png",
+      "name": "haruman_app_icon_no_margin_512.png",
+      "bytes": 188027,
+      "sha256": "e4d36bf0b4ba4ee397059dd8334405dbeb9568466f9e0c7f2b76da4a01d47d74",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 512,
+      "height": 512,
+      "alpha_bbox": [
+        4,
+        0,
+        512,
+        481
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "1a5e8d13f4ad782f5005d154f173299e3f24607d0f2700d3a21b7f2ecdf6dd89"
+    },
+    {
+      "path": "img/haruman_app_icon_no_margin_64.png",
+      "name": "haruman_app_icon_no_margin_64.png",
+      "bytes": 6046,
+      "sha256": "fe615d8b461d791e77b6c5963e088275190f097a6071c4d6e1f8367f86c4e7cc",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 64,
+      "height": 64,
+      "alpha_bbox": [
+        0,
+        0,
+        64,
+        62
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "d86aed68d14c8692f304219517edff6bb8ab4cff48f263b660e36c982d634ceb"
+    },
+    {
+      "path": "img/haruman_app_icon_tile.png",
+      "name": "haruman_app_icon_tile.png",
+      "bytes": 381938,
+      "sha256": "4a2c89a040f54c3b53ecaa9c4ea87654ddb0b7eb2fe74b8e420a8cd3a6ce9e31",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1024,
+      "alpha_bbox": [
+        24,
+        24,
+        1001,
+        1001
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "fae4ed622f9eec89ce201137eb8be5dad51061683965e9748334508af2faf54e"
+    },
+    {
+      "path": "img/haruman_logo_horizontal.png",
+      "name": "haruman_logo_horizontal.png",
+      "bytes": 551718,
+      "sha256": "701f69e24673d87f1392a882679d248130152619b62a35c485914d48d9e377d8",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 2025,
+      "height": 668,
+      "alpha_bbox": [
+        0,
+        0,
+        2025,
+        668
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "cf864e0e1dfe914a50b4ddf5183b2fa9ede369aa862c7cbe3f3f3bad9d02ed35"
+    },
+    {
+      "path": "img/haruman_logo_horizontal_red_single.png",
+      "name": "haruman_logo_horizontal_red_single.png",
+      "bytes": 121253,
+      "sha256": "fb85a4f8a03e4722a2ad083749112cfa4ec259b64c8a39f8e3b8637c991b1987",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 2025,
+      "height": 668,
+      "alpha_bbox": [
+        0,
+        0,
+        2025,
+        668
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "2b31381bf109ad59c34e6401316f28becae2640aa8981675cd9dcff9c14b677c"
+    },
+    {
+      "path": "img/haruman_logo_horizontal_white.png",
+      "name": "haruman_logo_horizontal_white.png",
+      "bytes": 120480,
+      "sha256": "a9cf81beb8fb085d2d2f4c8ae23f406561dc3dbf93c48724fce5643e651c4d62",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 2025,
+      "height": 668,
+      "alpha_bbox": [
+        0,
+        0,
+        2025,
+        668
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "ed1f331099c74962d904d516d1f9fe4df9c42bd48bbcc1043152ecc390130955"
+    },
+    {
+      "path": "img/haruman_logo_stacked.png",
+      "name": "haruman_logo_stacked.png",
+      "bytes": 603394,
+      "sha256": "c99910077d322f44131a12e6e3fbdb337a0615d88fb50a3ceded2d189ae7dfa2",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 1068,
+      "height": 1233,
+      "alpha_bbox": [
+        0,
+        0,
+        1068,
+        1233
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "d8fc9a3dd81d19587e8a26fdf4d2d50a110a5ba08428762c2e81093fd8b9198c"
+    },
+    {
+      "path": "img/haruman_logo_stacked_red_single.png",
+      "name": "haruman_logo_stacked_red_single.png",
+      "bytes": 122110,
+      "sha256": "4b69145eff670c2fa34eeea9fb061e04ed549b31a00209de1ed6f70db85a2309",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 1068,
+      "height": 1233,
+      "alpha_bbox": [
+        0,
+        0,
+        1068,
+        1233
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "a3d9de05b7e5a201c7333efc1161ca39387c3bb5ed67a44394d9ebfc17f3e660"
+    },
+    {
+      "path": "img/haruman_logo_stacked_white.png",
+      "name": "haruman_logo_stacked_white.png",
+      "bytes": 121458,
+      "sha256": "31db8914b1bf0b8a86d6b1de7b38da3c53384ac32be3fff904d5797a85415ec0",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 1068,
+      "height": 1233,
+      "alpha_bbox": [
+        0,
+        0,
+        1068,
+        1233
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "5ea0ef62b03e62ab87c47f8f5ee8c6627c2a43a462930ac1033b376af3b9f27c"
+    },
+    {
+      "path": "img/haruman_mascot_basket_raw.png",
+      "name": "haruman_mascot_basket_raw.png",
+      "bytes": 786254,
+      "sha256": "5bfed21e2c934af4a9e77df06c8b36824c744b0b3133e43ce4bf6aa77286e570",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 1254,
+      "height": 1254,
+      "alpha_bbox": [
+        0,
+        75,
+        1240,
+        1222
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "b4631f611d3e48c4899c727b3afd1e547b9c07ae290284916a2b65ca8ed489fb"
+    },
+    {
+      "path": "img/haruman_symbol.png",
+      "name": "haruman_symbol.png",
+      "bytes": 603394,
+      "sha256": "c99910077d322f44131a12e6e3fbdb337a0615d88fb50a3ceded2d189ae7dfa2",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 1068,
+      "height": 1233,
+      "alpha_bbox": [
+        0,
+        0,
+        1068,
+        1233
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "d8fc9a3dd81d19587e8a26fdf4d2d50a110a5ba08428762c2e81093fd8b9198c"
+    },
+    {
+      "path": "img/haruman_symbol_1024.png",
+      "name": "haruman_symbol_1024.png",
+      "bytes": 521564,
+      "sha256": "107a478fcb197fb3d85c7a1013cb6c58da33e46215b5d7e65d1e12edecd660db",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1024,
+      "alpha_bbox": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "4a0a993e41aadf84a3cf56dbeaf2f0e6543ea8d6632c6c346fc176af8ef9a3bb"
+    },
+    {
+      "path": "img/haruman_symbol_128.png",
+      "name": "haruman_symbol_128.png",
+      "bytes": 16475,
+      "sha256": "462ddf253f4c85a8d29a845fe4eddbc239dfb5bb314551f2a37f1984e2a09afb",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 128,
+      "height": 128,
+      "alpha_bbox": [
+        10,
+        7,
+        128,
+        124
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "cdeb4a519d7664fcb013a7c2534153aa4292e903eee15110812147b6391fd756"
+    },
+    {
+      "path": "img/haruman_symbol_256.png",
+      "name": "haruman_symbol_256.png",
+      "bytes": 48783,
+      "sha256": "a1fb7caa40ad65b3e7aa96c93db233aedb31bf27d6b6fa7ed702711b2d46dffe",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        23,
+        16,
+        256,
+        245
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "4c19ea6c8cc1799c005570145cfd74d56ba24d810258e07676ed4e60f155dd9a"
+    },
+    {
+      "path": "img/haruman_symbol_512.png",
+      "name": "haruman_symbol_512.png",
+      "bytes": 159530,
+      "sha256": "ea1338944c83108b24ffbf44cc7cb278c86717b5845cf345fc1591c4bb22a271",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 512,
+      "height": 512,
+      "alpha_bbox": [
+        49,
+        34,
+        512,
+        490
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "c20db9bb055920da9dcdcbcc16f6897188e32f28c8f8c7aa5a278029097cec68"
+    },
+    {
+      "path": "img/haruman_symbol_badge_red.png",
+      "name": "haruman_symbol_badge_red.png",
+      "bytes": 76384,
+      "sha256": "2b6506d8d58792d88164ed7df7283b81ad81e2016ac15c5b2050a606c7d5253a",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1024,
+      "alpha_bbox": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "6198f3f746b094b1affbcc3ed8e1d9f6ecde5d845670ab809b649f36d65bed42"
+    },
+    {
+      "path": "img/haruman_symbol_red_single.png",
+      "name": "haruman_symbol_red_single.png",
+      "bytes": 122110,
+      "sha256": "4b69145eff670c2fa34eeea9fb061e04ed549b31a00209de1ed6f70db85a2309",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 1068,
+      "height": 1233,
+      "alpha_bbox": [
+        0,
+        0,
+        1068,
+        1233
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "a3d9de05b7e5a201c7333efc1161ca39387c3bb5ed67a44394d9ebfc17f3e660"
+    },
+    {
+      "path": "img/haruman_symbol_white.png",
+      "name": "haruman_symbol_white.png",
+      "bytes": 121458,
+      "sha256": "31db8914b1bf0b8a86d6b1de7b38da3c53384ac32be3fff904d5797a85415ec0",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 1068,
+      "height": 1233,
+      "alpha_bbox": [
+        0,
+        0,
+        1068,
+        1233
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "5ea0ef62b03e62ab87c47f8f5ee8c6627c2a43a462930ac1033b376af3b9f27c"
+    },
+    {
+      "path": "img/haruman_wordmark.png",
+      "name": "haruman_wordmark.png",
+      "bytes": 539051,
+      "sha256": "ae198dbaa6de80f2ffc79696efcfd9b282782c8a094ec51151783ed7285f6288",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 1976,
+      "height": 649,
+      "alpha_bbox": [
+        0,
+        0,
+        1976,
+        649
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "d0e3f7e4b73eed49a43fb98a8d06d4685d4649c95ac409ea538a9283e894aadd"
+    },
+    {
+      "path": "img/haruman_wordmark_red_single.png",
+      "name": "haruman_wordmark_red_single.png",
+      "bytes": 103576,
+      "sha256": "5f398e13266ed6c01dcb2f2c6e2b3d880a7713f745fa8746d7319f0fb1bc7428",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 1976,
+      "height": 649,
+      "alpha_bbox": [
+        0,
+        0,
+        1976,
+        649
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "740ae15438dbfa79a8c04b6e5948a4ef2f70c7caea1cc7eb3d2469398a312583"
+    },
+    {
+      "path": "img/haruman_wordmark_white.png",
+      "name": "haruman_wordmark_white.png",
+      "bytes": 102874,
+      "sha256": "54158204a600ed18c45e634ae5e2e5bfa220d62ab74dc06ef50e298605118484",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 1976,
+      "height": 649,
+      "alpha_bbox": [
+        0,
+        0,
+        1976,
+        649
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "pixel_sha256_rgba": "d42479f78ffca6eed19d8bb348b6a167d6e53a3fd00d6a87667d4244bffa5e5c"
+    }
+  ],
+  "duplicate_groups": [
+    [
+      "haruman_app_icon.ico",
+      "haruman_app_icon_no_margin.ico"
+    ],
+    [
+      "haruman_app_icon.png",
+      "haruman_app_icon_1024.png",
+      "haruman_app_icon_no_margin.png",
+      "haruman_app_icon_no_margin_1024.png"
+    ],
+    [
+      "haruman_app_icon_128.png",
+      "haruman_app_icon_no_margin_128.png"
+    ],
+    [
+      "haruman_app_icon_16.png",
+      "haruman_app_icon_no_margin_16.png"
+    ],
+    [
+      "haruman_app_icon_180.png",
+      "haruman_app_icon_no_margin_180.png"
+    ],
+    [
+      "haruman_app_icon_192.png",
+      "haruman_app_icon_no_margin_192.png"
+    ],
+    [
+      "haruman_app_icon_256.png",
+      "haruman_app_icon_no_margin_256.png"
+    ],
+    [
+      "haruman_app_icon_32.png",
+      "haruman_app_icon_no_margin_32.png"
+    ],
+    [
+      "haruman_app_icon_48.png",
+      "haruman_app_icon_no_margin_48.png"
+    ],
+    [
+      "haruman_app_icon_512.png",
+      "haruman_app_icon_no_margin_512.png"
+    ],
+    [
+      "haruman_app_icon_64.png",
+      "haruman_app_icon_no_margin_64.png"
+    ],
+    [
+      "haruman_logo_stacked.png",
+      "haruman_symbol.png"
+    ],
+    [
+      "haruman_logo_stacked_red_single.png",
+      "haruman_symbol_red_single.png"
+    ],
+    [
+      "haruman_logo_stacked_white.png",
+      "haruman_symbol_white.png"
+    ]
+  ],
+  "source_pack_comparison": [
+    {
+      "folder": "haruman_receipt_asset_pack_nomargin",
+      "image_count": 45,
+      "matches": [
+        {
+          "img": "backup_haruman_app_icon_with_padding.ico",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/backup_haruman_app_icon_with_padding.ico"
+          ]
+        },
+        {
+          "img": "backup_haruman_app_icon_with_padding.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/backup_haruman_app_icon_with_padding.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon.ico",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon.ico"
+          ]
+        },
+        {
+          "img": "haruman_app_icon.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_1024.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_1024.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_128.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_128.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_16.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_16.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_180.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_180.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_192.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_192.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_256.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_256.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_32.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_32.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_48.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_48.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_512.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_512.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_64.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_64.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_no_margin.ico",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_no_margin.ico"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_no_margin.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_no_margin.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_no_margin_1024.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_no_margin_1024.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_no_margin_128.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_no_margin_128.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_no_margin_16.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_no_margin_16.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_no_margin_180.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_no_margin_180.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_no_margin_192.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_no_margin_192.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_no_margin_256.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_no_margin_256.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_no_margin_32.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_no_margin_32.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_no_margin_48.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_no_margin_48.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_no_margin_512.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_no_margin_512.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_no_margin_64.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_no_margin_64.png"
+          ]
+        },
+        {
+          "img": "haruman_app_icon_tile.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_app_icon_tile.png"
+          ]
+        },
+        {
+          "img": "haruman_logo_horizontal.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_logo_horizontal.png"
+          ]
+        },
+        {
+          "img": "haruman_logo_horizontal_red_single.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_logo_horizontal_red_single.png"
+          ]
+        },
+        {
+          "img": "haruman_logo_horizontal_white.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_logo_horizontal_white.png"
+          ]
+        },
+        {
+          "img": "haruman_logo_stacked.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_logo_stacked.png"
+          ]
+        },
+        {
+          "img": "haruman_logo_stacked_red_single.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_logo_stacked_red_single.png"
+          ]
+        },
+        {
+          "img": "haruman_logo_stacked_white.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_logo_stacked_white.png"
+          ]
+        },
+        {
+          "img": "haruman_mascot_basket_raw.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_mascot_basket_raw.png"
+          ]
+        },
+        {
+          "img": "haruman_symbol.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_symbol.png"
+          ]
+        },
+        {
+          "img": "haruman_symbol_1024.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_symbol_1024.png"
+          ]
+        },
+        {
+          "img": "haruman_symbol_128.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_symbol_128.png"
+          ]
+        },
+        {
+          "img": "haruman_symbol_256.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_symbol_256.png"
+          ]
+        },
+        {
+          "img": "haruman_symbol_512.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_symbol_512.png"
+          ]
+        },
+        {
+          "img": "haruman_symbol_badge_red.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_symbol_badge_red.png"
+          ]
+        },
+        {
+          "img": "haruman_symbol_red_single.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_symbol_red_single.png"
+          ]
+        },
+        {
+          "img": "haruman_symbol_white.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_symbol_white.png"
+          ]
+        },
+        {
+          "img": "haruman_wordmark.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_wordmark.png"
+          ]
+        },
+        {
+          "img": "haruman_wordmark_red_single.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_wordmark_red_single.png"
+          ]
+        },
+        {
+          "img": "haruman_wordmark_white.png",
+          "pack": [
+            "haruman_receipt_asset_pack_nomargin/haruman_wordmark_white.png"
+          ]
+        }
+      ],
+      "same_count": 45,
+      "different": [],
+      "missing": [],
+      "extra_files": []
+    },
+    {
+      "folder": "haruman_receipt_asset_pack_nomargin (2)",
+      "image_count": 0,
+      "matches": [],
+      "same_count": 0,
+      "different": [],
+      "missing": [
+        "backup_haruman_app_icon_with_padding.ico",
+        "backup_haruman_app_icon_with_padding.png",
+        "haruman_app_icon.ico",
+        "haruman_app_icon.png",
+        "haruman_app_icon_1024.png",
+        "haruman_app_icon_128.png",
+        "haruman_app_icon_16.png",
+        "haruman_app_icon_180.png",
+        "haruman_app_icon_192.png",
+        "haruman_app_icon_256.png",
+        "haruman_app_icon_32.png",
+        "haruman_app_icon_48.png",
+        "haruman_app_icon_512.png",
+        "haruman_app_icon_64.png",
+        "haruman_app_icon_no_margin.ico",
+        "haruman_app_icon_no_margin.png",
+        "haruman_app_icon_no_margin_1024.png",
+        "haruman_app_icon_no_margin_128.png",
+        "haruman_app_icon_no_margin_16.png",
+        "haruman_app_icon_no_margin_180.png",
+        "haruman_app_icon_no_margin_192.png",
+        "haruman_app_icon_no_margin_256.png",
+        "haruman_app_icon_no_margin_32.png",
+        "haruman_app_icon_no_margin_48.png",
+        "haruman_app_icon_no_margin_512.png",
+        "haruman_app_icon_no_margin_64.png",
+        "haruman_app_icon_tile.png",
+        "haruman_logo_horizontal.png",
+        "haruman_logo_horizontal_red_single.png",
+        "haruman_logo_horizontal_white.png",
+        "haruman_logo_stacked.png",
+        "haruman_logo_stacked_red_single.png",
+        "haruman_logo_stacked_white.png",
+        "haruman_mascot_basket_raw.png",
+        "haruman_symbol.png",
+        "haruman_symbol_1024.png",
+        "haruman_symbol_128.png",
+        "haruman_symbol_256.png",
+        "haruman_symbol_512.png",
+        "haruman_symbol_badge_red.png",
+        "haruman_symbol_red_single.png",
+        "haruman_symbol_white.png",
+        "haruman_wordmark.png",
+        "haruman_wordmark_red_single.png",
+        "haruman_wordmark_white.png"
+      ],
+      "extra_files": []
+    }
+  ]
+}
