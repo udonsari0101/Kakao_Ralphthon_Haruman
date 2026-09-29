@@ -13,13 +13,21 @@ class InputValidationTest {
     }
 
     @Test
-    fun newInputOnlyAcceptsHttpsCoupangAndRejectsLookalikesAndCredentials() {
+    fun productInputAcceptsPublicHttpsProvidersWithoutGuessingServerSupport() {
+        val urls = listOf("https://shop.example.com/products/1?itemId=abc", "https://shopping.naver.com/catalog/1", "https://www.coupang.com/vp/products/1")
+        assertEquals(urls, extractSupportedLinks(urls.joinToString("\n")))
+        // Host lookalikes are separate public sites, not a trusted provider identity.
+        assertTrue(isSupportedProductUrl("https://coupang.com.evil.example/p/1"))
+    }
+
+    @Test
+    fun newInputRejectsLocalAddressesUnsafeSchemesAndCredentials() {
         listOf(
-            "http://www.coupang.com/vp/products/1", "https://instagram.com/p/1",
-            "https://youtube.com/watch?v=1", "https://coupang.com.evil.example/p/1",
-            "https://evilcoupang.com/p/1", "https://user:secret@coupang.com/p/1",
-            "https://coupang.com@evil.example/", "https://coupang.com:8080/p/1",
-            "https://evil.example/?url=https://coupang.com/", "ftp://coupang.com/",
+            "http://www.coupang.com/vp/products/1", "https://localhost/p/1", "https://local/p/1",
+            "https://127.0.0.1/p/1", "https://192.168.0.1/p/1", "https://[::1]/p/1",
+            "https://host.local/p/1", "https://host.internal/p/1", "https://host.test/p/1",
+            "https://user:secret@coupang.com/p/1", "https://coupang.com@evil.example/",
+            "https://coupang.com:8080/p/1", "ftp://coupang.com/", "https://2130706433/p/1",
         ).forEach { assertTrue(it, extractSupportedLinks(it).isEmpty()) }
     }
 

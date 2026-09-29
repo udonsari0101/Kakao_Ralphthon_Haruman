@@ -85,7 +85,7 @@ fun BottomTabs(route: String, onChange: (String) -> Unit) {
         Column {
             HorizontalDivider(color = AppColors.Border, thickness = .5.dp)
             Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 12.dp)) {
-                listOf(Triple("vault", "box", "보관함"), Triple("history", "history", "마당"), Triple("my", "person", "MY")).forEach { (id, icon, label) ->
+                listOf(Triple("vault", "box", "보관함"), Triple("history", "sprout", "마당"), Triple("my", "person", "MY")).forEach { (id, icon, label) ->
                     val selected = route == id
                     val color = if (selected) AppColors.Blue else AppColors.Muted
                     Column(
@@ -161,7 +161,7 @@ fun VaultScreen(items: List<WishItem>, now: Long, onAdd: () -> Unit, onItem: (Wi
                 Column(Modifier.padding(20.dp)) {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Column(Modifier.weight(1f)) {
-                            Text("보관함", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = AppColors.Text)
+                            BrandLogo(Modifier.testTag("vault_brand_logo"))
                             Text(if (actualCount > 0) "${actualCount}개의 마음을 담아뒀어요" else "사고 싶은 마음을 담아보세요", Modifier.padding(top = 8.dp), fontSize = 14.sp, color = AppColors.Secondary)
                         }
                         IconButton(onClick = onAdd, modifier = Modifier.size(48.dp).clip(CircleShape).background(AppColors.Primary).testTag("add_item").semantics { contentDescription = "상품 추가" }) {
@@ -434,10 +434,16 @@ fun MyScreen(
     spendingGoalWon: Long? = null,
     onGoalEdit: () -> Unit = {},
     onReports: () -> Unit = {},
+    apiConfigured: Boolean = false,
+    onApiSettings: () -> Unit = {},
 ) {
     ContentFrame {
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
-            Text("MY", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = AppColors.Text)
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("MY", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = AppColors.Text)
+                BrandLogo(Modifier.testTag("my_brand_logo"))
+            }
             Row(Modifier.padding(top = 24.dp).fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(AppColors.Surface).padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
                 Mascot(MascotPose.MOA_IDLE, size = 56.dp, breathing = false)
                 Column(Modifier.weight(1f).padding(start = 14.dp)) {
@@ -478,6 +484,8 @@ fun MyScreen(
             }
             SettingRow("소비 목표", spendingGoalWon?.let { "${yardPeriod.label} ${money(it)}" } ?: "목표 없이 사용하고 있어요", "box", onGoalEdit)
             Text("하루만에서 사기로 결정한 금액이에요. 실제 카드 지출과는 달라요.", Modifier.padding(8.dp), style = MaterialTheme.typography.bodySmall, color = AppColors.Secondary)
+            SettingsHeading("상품 연결")
+            SettingRow("상품 연결 설정", if (apiConfigured) "연결 정보를 저장했어요" else "상품 정보를 불러올 연결을 설정해요", "link", onApiSettings)
             SettingsHeading("내 기록")
             SettingRow("마당 일기", "지난 기간의 선택을 돌아봐요", "history", onReports)
             Spacer(Modifier.height(8.dp))

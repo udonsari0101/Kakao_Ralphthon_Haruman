@@ -8,7 +8,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 enum class Platform(val label: String) {
-    COUPANG("상품 링크"), INSTAGRAM("인스타그램 · 이전 기록"), MANUAL("직접 입력"),
+    COUPANG("상품 링크"), PRODUCT_LINK("상품 링크"), INSTAGRAM("인스타그램 · 이전 기록"), MANUAL("직접 입력"),
 }
 enum class Decision { PENDING, BUY, SKIP }
 enum class InputSource { LINK_INPUT, LINK_SHARE, MANUAL, LEGACY }
@@ -104,6 +104,13 @@ sealed interface SaveItemResult {
     data class Saved(val item: WishItem) : SaveItemResult
     data class AlreadySaved(val item: WishItem) : SaveItemResult
     data object Failed : SaveItemResult
+}
+
+sealed interface UpdateItemResult {
+    data class Updated(val item: WishItem) : UpdateItemResult
+    /** Null means another owner deleted the item. Never recreate it from an old screen. */
+    data class Conflict(val current: WishItem?) : UpdateItemResult
+    data object Failed : UpdateItemResult
 }
 
 /** New installs start empty. Old platform records are preserved, including Instagram and samples. */
@@ -213,6 +220,7 @@ class LocalStore(context: Context, prefsName: String = "haruman_local_v1") {
     fun items(): List<WishItem> = repository.items()
     fun saveItems(items: List<WishItem>): Boolean = repository.saveItems(items)
     fun saveNewItemOnce(item: WishItem): SaveItemResult = repository.saveNewItemOnce(item)
+    fun updateItem(expected: WishItem, updated: WishItem): UpdateItemResult = repository.updateItem(expected, updated)
     companion object { private val YARD_SETTINGS_LOCK = Any() }
 }
 
@@ -237,6 +245,19 @@ internal class ItemRepository(private val persistence: ItemPersistence) {
             if (stored != null && ItemJsonCodec.decode(stored).hasInvalidRecords) false
             else persistence.write(ItemJsonCodec.encode(items))
         }.getOrDefault(false)
+    }
+
+    /** Compare and replace one item under the same lock as creation, preserving every other ID. */
+    fun updateItem(expected: WishItem, updated: WishItem): UpdateItemResult = synchronized(STORE_LOCK) {
+        if (updated.id != expected.id) return@synchronized UpdateItemResult.Failed
+        val stored = runCatching { persistence.read() }.getOrElse { return@synchronized UpdateItemResult.Failed }
+        val decoded = stored?.let(ItemJsonCodec::decode)
+        if (decoded?.hasInvalidRecords == true) return@synchronized UpdateItemResult.Failed
+        val latest = decoded?.items.orEmpty()
+        val current = latest.firstOrNull { it.id == expected.id }
+        if (current != expected) return@synchronized UpdateItemResult.Conflict(current)
+        if (saveItems(latest.map { if (it.id == expected.id) updated else it })) UpdateItemResult.Updated(updated)
+        else UpdateItemResult.Failed
     }
 
     /** Item and acquisition ID use one durable JSON write; a replay returns the saved item. */

@@ -37,7 +37,8 @@ Required QA JSON shape (replace every example with observed values):
   },
   "knownLimitations": ["<remaining limits, API state, installation compatibility>"]
 }
-Use state RealApiVerified only with realApiConnected=true and QA on this exact APK.
+Use ConfiguredResponseVerified for an authenticated API error observed on this exact APK.
+Use RealApiVerified only when product extraction itself was verified on this exact APK.
 Free-text inputs must already be sanitized for public release metadata.
 Failure during staging leaves its private staging directory for inspection.
 #>
@@ -205,8 +206,8 @@ $api = Require-Property $qa 'apiIntegration'
 $apiState = Require-Text $api 'state'
 $apiConnected = Require-Property $api 'realApiConnected'
 if ($apiConnected -isnot [bool]) { throw 'realApiConnected must be a JSON boolean.' }
-if ($apiState -notin @('NotConfigured', 'RealApiVerified')) { throw 'Release API state must be NotConfigured or RealApiVerified.' }
-if (($apiState -eq 'RealApiVerified') -ne $apiConnected) { throw 'API state and realApiConnected disagree.' }
+if ($apiState -notin @('NotConfigured', 'ConfiguredResponseVerified', 'RealApiVerified')) { throw 'Release API state is not supported.' }
+if (($apiState -ne 'NotConfigured') -ne $apiConnected) { throw 'API state and realApiConnected disagree.' }
 $apiEnvironment = Require-Text $api 'environment'
 $build = Require-Property $qa 'build'
 Require-True $build 'succeeded'

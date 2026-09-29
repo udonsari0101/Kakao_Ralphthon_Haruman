@@ -56,6 +56,7 @@ fun ReviewScreen(
     onHistory: () -> Unit,
     onShare: (String) -> Unit,
     budgetPreview: String? = null,
+    homeLabel: String? = "보관함으로",
 ) {
     val reduced = mascotMotionReduced()
     val haptic = LocalHapticFeedback.current
@@ -182,6 +183,7 @@ fun ReviewScreen(
                     onBack = onBack,
                     onHistory = onHistory,
                     onShare = onShare,
+                    homeLabel = homeLabel,
                 )
             } else Column(if (scrollWholePage) Modifier.fillMaxSize().verticalScroll(pageScroll) else Modifier.fillMaxSize()) {
                 Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -194,7 +196,7 @@ fun ReviewScreen(
                     val visible = displayedItem
                     if (visible == null) {
                         EmptyState("상품 상태를 다시 확인해 주세요", "이미 남긴 선택은 기록에 보관했어요", MascotPose.TORI_IDLE)
-                        PrimaryAction("보관함으로", onBack, Modifier.fillMaxWidth())
+                        homeLabel?.let { PrimaryAction(it, onBack, Modifier.fillMaxWidth()) }
                     } else {
                         val activePose = if (!locked) MascotPose.TORI_PRESENT else when (feedbackAction) {
                             ReviewAction.SKIP -> MascotPose.TORI_WAVE
@@ -330,6 +332,7 @@ private fun ReviewSummary(
     onBack: () -> Unit,
     onHistory: () -> Unit,
     onShare: (String) -> Unit,
+    homeLabel: String?,
 ) {
     val reduced = mascotMotionReduced()
     val confetti = remember(session.id) { Animatable(1f) }
@@ -354,7 +357,7 @@ private fun ReviewSummary(
     Box(Modifier.fillMaxSize().clipToBounds()) {
         Column(Modifier.fillMaxSize()) {
             Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onBack, modifier = Modifier.size(48.dp).semantics { contentDescription = "보관함으로 돌아가기" }) { AppIcon("back") }
+                IconButton(onClick = onBack, modifier = Modifier.size(48.dp).semantics { contentDescription = "이전 화면으로 돌아가기" }) { AppIcon("back") }
                 Text("정리 결과", Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, color = AppColors.Text)
                 Text("${session.ids.size} / ${session.ids.size}", Modifier.padding(horizontal = 12.dp).testTag("review_progress"), style = MaterialTheme.typography.labelLarge, color = AppColors.Secondary)
             }
@@ -381,8 +384,8 @@ private fun ReviewSummary(
                 if (session.bought.isNotEmpty()) TextButton(onClick = onHistory, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("review_history")) { Text("사기로 한 상품 보기") }
             }
             if (canUndo) ReviewUndo(false, onUndo)
-            Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(top = 12.dp, bottom = 16.dp)) {
-                PrimaryAction("보관함으로", onBack, Modifier.fillMaxWidth().testTag("review_home"))
+            if (homeLabel != null) Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(top = 12.dp, bottom = 16.dp)) {
+                PrimaryAction(homeLabel, onBack, Modifier.fillMaxWidth().testTag("review_home"))
             }
         }
         if (!reduced && confetti.value < 1f) CelebrationConfetti(confetti.value, Modifier.fillMaxSize())

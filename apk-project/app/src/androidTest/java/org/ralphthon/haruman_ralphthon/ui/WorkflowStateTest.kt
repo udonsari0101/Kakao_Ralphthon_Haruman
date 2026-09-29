@@ -66,6 +66,314 @@ class WorkflowStateTest {
             priceType = "coupon", priceNote = "Coupon condition", originalUrl = URL, productId = "9047670772"),
     )
 
+    @Test fun addAfterClosingEditCreatesNewItemAndKeepsUnsavedCorrectionSeparate() {
+        val now = System.currentTimeMillis()
+        assertTrue(store.saveItems(listOf(WishItem("original", "원래 상품", 1000L, Platform.MANUAL, "", "default", now, now))))
+        val state = SavedStateHandle()
+        val original = model(state)
+        main {
+            original.edit(original.items.single())
+            original.changeDraft { it.copy(name = "아직 저장하지 않은 수정") }
+            original.closeDraft()
+        }
+        val m = model(state)
+        main {
+            m.navigate("vault"); m.openAdd()
+            assertNull(m.draft?.editingId)
+            assertEquals("", m.draft?.name)
+            assertTrue(m.hasHeldDraft())
+            m.setMode("manual")
+            m.changeDraft { it.copy(name = "새로 추가한 상품", price = "2000") }
+            m.saveDraft()
+            assertEquals(2, m.items.size)
+            assertEquals("원래 상품", m.items.single { it.id == "original" }.name)
+            m.restoreHeldDraft()
+            assertEquals("original", m.draft?.editingId)
+            assertEquals("아직 저장하지 않은 수정", m.draft?.name)
+        }
+    }
+
+    @Test fun staleEditorPreservesAProductAddedByAnotherModel() {
+        val now = System.currentTimeMillis()
+        val first = WishItem("first", "첫 상품", 1000L, Platform.MANUAL, "", "default", now, now)
+        assertTrue(store.saveItems(listOf(first)))
+        val editor = model(); val creator = model()
+        main {
+            editor.edit(first); editor.changeDraft { it.copy(name = "직접 고친 첫 상품") }
+            creator.openAdd(); creator.setMode("manual")
+            creator.changeDraft { it.copy(name = "다른 화면에서 추가한 상품", price = "2000") }
+            creator.saveDraft()
+            val added = creator.items.single { it.id != first.id }
+            editor.saveDraft()
+            assertNull(editor.draft)
+            assertEquals(2, store.items().size)
+            assertEquals(added, store.items().single { it.id == added.id })
+            assertEquals("직접 고친 첫 상품", store.items().single { it.id == first.id }.name)
+            assertEquals(store.items(), editor.items)
+        }
+    }
+
+    @Test fun staleEditRequiresReviewAndRetryPreservesLatestDecisionAndUntouchedFields() {
+        val now = System.currentTimeMillis()
+        val first = WishItem("first", "첫 상품", 1000L, Platform.MANUAL, "", "default", now, now)
+        assertTrue(store.saveItems(listOf(first)))
+        val editor = model(); val writer = model()
+        main {
+            editor.edit(first); editor.changeDraft { it.copy(name = "내가 고친 이름", desire = Desire.LIKE) }
+            writer.edit(first)
+            writer.changeDraft { it.copy(price = "3000", userMemo = "다른 화면에서 적은 메모") }
+            writer.saveDraft(); writer.decideSelected(Decision.BUY)
+            val decided = store.items().single()
+            assertEquals(Decision.BUY, decided.decision)
+            editor.saveDraft()
+            assertEquals(decided, store.items().single())
+            assertTrue(editor.sheetOpen)
+            assertTrue(editor.requestError.orEmpty().contains("다른 화면"))
+            assertEquals("내가 고친 이름", editor.draft?.name)
+            assertEquals(Desire.LIKE, editor.draft?.desire)
+            assertEquals("3000", editor.draft?.price)
+            assertEquals("다른 화면에서 적은 메모", editor.draft?.userMemo)
+            editor.saveDraft() // An explicit retry applies only the reviewed draft onto fresh state.
+            val saved = store.items().single()
+            assertEquals("내가 고친 이름", saved.name)
+            assertEquals(Desire.LIKE, saved.desire)
+            assertEquals(3000L, saved.priceWon)
+            assertEquals("다른 화면에서 적은 메모", saved.userMemo)
+            assertEquals(Decision.BUY, saved.decision)
+            assertEquals(decided.decidedAt, saved.decidedAt)
+            assertEquals(3000L, saved.decisionPriceWon)
+        }
+    }
+
+    @Test fun staleEditNeverRecreatesAProductDeletedByAnotherModel() {
+        val now = System.currentTimeMillis()
+        val first = WishItem("first", "첫 상품", 1000L, Platform.MANUAL, "", "default", now, now)
+        assertTrue(store.saveItems(listOf(first)))
+        val editor = model(); val deleter = model()
+        main {
+            editor.edit(first); editor.changeDraft { it.copy(name = "남아 있는 입력") }
+            deleter.deleteAll()
+            editor.saveDraft()
+            assertTrue(store.items().isEmpty())
+            assertTrue(editor.items.isEmpty())
+            assertEquals("남아 있는 입력", editor.draft?.name)
+            assertTrue(editor.requestError.orEmpty().contains("삭제"))
+            editor.saveDraft()
+            assertTrue(store.items().isEmpty())
+        }
+    }
+
+    @Test fun heldEditKeepsItsOriginalRevisionAcrossRecreationAndExplicitConflictRetry() {
+        val now = System.currentTimeMillis()
+        val first = WishItem("first", "원래 이름", 1000L, Platform.MANUAL, "", "default", now, now)
+        assertTrue(store.saveItems(listOf(first)))
+        val editorState = SavedStateHandle(mapOf("workspaceToken" to "held-editor", "reviewToken" to "held-editor-review"))
+        val editor = model(editorState)
+        val writer = model(SavedStateHandle(mapOf("workspaceToken" to "held-writer", "reviewToken" to "held-writer-review")))
+        main {
+            editor.edit(first); editor.changeDraft { it.copy(name = "내가 작성한 이름") }
+            editor.closeDraft(); editor.openAdd(); editor.closeDraft()
+            writer.edit(first); writer.changeDraft { it.copy(price = "7000", userMemo = "새로 저장된 메모") }
+            writer.saveDraft()
+        }
+        val latest = store.items().single()
+        val restored = model(editorState)
+        main {
+            assertEquals(latest, restored.items.single())
+            restored.restoreHeldDraft()
+            assertEquals(first, restored.draft?.editBaseline)
+            restored.saveDraft()
+            assertEquals(latest, store.items().single())
+            assertTrue(restored.sheetOpen)
+            assertTrue(restored.requestError.orEmpty().contains("다른 화면"))
+            assertEquals("내가 작성한 이름", restored.draft?.name)
+            assertEquals("7000", restored.draft?.price)
+            assertEquals("새로 저장된 메모", restored.draft?.userMemo)
+            assertEquals(latest, restored.draft?.editBaseline)
+        }
+        // The reviewed baseline also survives another recreation before the explicit retry.
+        val reviewed = model(editorState)
+        main {
+            assertEquals(latest, reviewed.draft?.editBaseline)
+            reviewed.saveDraft()
+            assertNull(reviewed.draft)
+            assertEquals(latest.copy(name = "내가 작성한 이름"), store.items().single())
+        }
+    }
+
+    @Test fun savingAnotherProductCannotMakeAHeldSameFieldConflictDisappear() {
+        val now = System.currentTimeMillis()
+        val first = WishItem("first", "원래 이름", 1000L, Platform.MANUAL, "", "default", now, now)
+        assertTrue(store.saveItems(listOf(first)))
+        val editor = model(); val writer = model()
+        main {
+            editor.edit(first); editor.changeDraft { it.copy(name = "내가 고친 이름") }; editor.closeDraft()
+            editor.openAdd(); editor.setMode("manual"); editor.changeDraft { it.copy(name = "두 번째 상품") }
+            writer.edit(first)
+            writer.changeDraft { it.copy(name = "다른 화면에서 고친 이름", price = "9000", userMemo = "최신 메모") }
+            writer.saveDraft(); writer.decideSelected(Decision.BUY)
+            val latest = store.items().single()
+            editor.saveDraft() // New item refreshes editor.items, while the held draft is still old.
+            val second = editor.items.single { it.id != first.id }
+            assertEquals(latest, editor.items.single { it.id == first.id })
+            editor.restoreHeldDraft()
+            assertEquals(first, editor.draft?.editBaseline)
+            editor.saveDraft()
+            assertEquals(latest, store.items().single { it.id == first.id })
+            assertEquals(second, store.items().single { it.id == second.id })
+            assertTrue(editor.requestError.orEmpty().contains("다른 화면"))
+            assertEquals("내가 고친 이름", editor.draft?.name)
+            assertEquals("9000", editor.draft?.price)
+            assertEquals("최신 메모", editor.draft?.userMemo)
+            editor.saveDraft()
+            assertEquals(latest.copy(name = "내가 고친 이름"), store.items().single { it.id == first.id })
+            assertEquals(second, store.items().single { it.id == second.id })
+        }
+    }
+
+    @Test fun legacyEditWithoutBaselineRequiresReviewAndRetainsManualInput() {
+        val now = System.currentTimeMillis()
+        val latest = WishItem("first", "최신 이름", 7000L, Platform.MANUAL, "", "default", now, now,
+            decision = Decision.BUY, decidedAt = now, decisionPriceWon = 7000L, userMemo = "최신 메모")
+        assertTrue(store.saveItems(listOf(latest)))
+        val oldDraft = ProductDraft(editingId = latest.id, mode = "manual", name = "미저장 이름", price = "1000",
+            userMemo = "옛 메모", dirty = true, editedFields = setOf("name"))
+        val legacyJson = org.json.JSONObject(oldDraft.encoded()).apply { remove("editBaseline") }.toString()
+        assertEquals(oldDraft, ProductDraft.decode(legacyJson))
+        val editor = model(SavedStateHandle(mapOf("draft" to legacyJson, "sheetOpen" to true)))
+        main {
+            editor.saveDraft()
+            assertEquals(latest, store.items().single())
+            assertTrue(editor.sheetOpen)
+            assertTrue(editor.requestError.orEmpty().contains("이전에 작성한"))
+            assertEquals("미저장 이름", editor.draft?.name)
+            assertEquals("7000", editor.draft?.price)
+            assertEquals("최신 메모", editor.draft?.userMemo)
+            assertEquals(latest, editor.draft?.editBaseline)
+            editor.saveDraft()
+            assertEquals(latest.copy(name = "미저장 이름"), store.items().single())
+        }
+    }
+
+    @Test fun staleDecisionAndExtensionCannotReplaceAnotherModelsPurchase() {
+        val now = System.currentTimeMillis()
+        val first = WishItem("first", "첫 상품", 1000L, Platform.MANUAL, "", "default", now, now)
+        assertTrue(store.saveItems(listOf(first)))
+        val decision = model(); val extension = model(); val writer = model()
+        main {
+            decision.select(first, now); extension.select(first, now); writer.select(first, now)
+            writer.decideSelected(Decision.BUY)
+            val purchased = store.items().single()
+            decision.decideSelected(Decision.SKIP)
+            assertEquals(purchased, store.items().single())
+            assertEquals("detail", decision.route)
+            assertNull(decision.celebrationId)
+            extension.extendSelected()
+            assertEquals(purchased, store.items().single())
+            assertEquals("detail", extension.route)
+            assertEquals(purchased, extension.selected)
+        }
+    }
+
+    @Test fun reviewAndUndoPreserveProductsAddedAfterTheSessionStarted() {
+        val now = System.currentTimeMillis()
+        val first = WishItem("first", "첫 상품", 1000L, Platform.MANUAL, "", "default", now, now)
+        assertTrue(store.saveItems(listOf(first)))
+        val reviewer = model(); val creator = model()
+        main {
+            reviewer.startReview()
+            creator.openAdd(); creator.setMode("manual")
+            creator.changeDraft { it.copy(name = "나중에 추가한 상품") }; creator.saveDraft()
+            val added = creator.items.single { it.id != first.id }
+            assertTrue(reviewer.reviewAction(ReviewAction.SKIP))
+            assertEquals(added, store.items().single { it.id == added.id })
+            reviewer.undoReview()
+            assertEquals(2, store.items().size)
+            assertEquals(first, store.items().single { it.id == first.id })
+            assertEquals(added, store.items().single { it.id == added.id })
+            assertEquals(0, reviewer.review?.index)
+        }
+    }
+
+    @Test fun staleReviewSkipsChangedCardWithoutReplacingItsDecision() {
+        val now = System.currentTimeMillis()
+        val first = WishItem("first", "첫 상품", 1000L, Platform.MANUAL, "", "default", now, now)
+        assertTrue(store.saveItems(listOf(first)))
+        val reviewer = model(); val writer = model()
+        main {
+            reviewer.startReview(); writer.select(first, now); writer.decideSelected(Decision.BUY)
+            val purchased = store.items().single()
+            assertFalse(reviewer.reviewAction(ReviewAction.SKIP))
+            assertEquals(purchased, store.items().single())
+            assertTrue(reviewer.review!!.complete)
+            assertTrue(reviewer.review!!.results.isEmpty())
+        }
+    }
+
+    @Test fun undoChecksLatestStoredProductInsteadOfItsModelsOldSnapshot() {
+        val now = System.currentTimeMillis()
+        val first = WishItem("first", "첫 상품", 1000L, Platform.MANUAL, "", "default", now, now)
+        assertTrue(store.saveItems(listOf(first)))
+        val reviewer = model()
+        main { reviewer.startReview(); assertTrue(reviewer.reviewAction(ReviewAction.SKIP)) }
+        val editor = model()
+        main {
+            editor.edit(editor.items.single()); editor.changeDraft { it.copy(userMemo = "결정 뒤 새로 적은 메모") }
+            editor.saveDraft()
+            val corrected = store.items().single()
+            reviewer.undoReview()
+            assertEquals(corrected, store.items().single())
+            assertEquals(Decision.SKIP, corrected.decision)
+            assertEquals(1, reviewer.review!!.index)
+            assertEquals(0L, reviewer.review!!.undoUntil)
+            assertEquals(corrected, reviewer.items.single())
+        }
+    }
+
+    @Test fun serverRetryWindowBlocksImmediateRepeatAndKeepsManualDraft() {
+        val m = model()
+        var calls = 0
+        main {
+            m.linkService = object : ProductLinkService {
+                override suspend fun extract(url: String): ProductLinkResult {
+                    calls++
+                    return ProductLinkResult.Failure(ProductFailureCode.BUSY, "잠시 쉬고 있어요", true, 30L)
+                }
+            }
+            m.receiveShare(URL)
+        }
+        awaitCondition { !m.processing && calls == 1 }
+        main {
+            repeat(3) { m.requestProduct() }
+            assertEquals(1, calls)
+            assertEquals(URL, m.draft?.url)
+            assertTrue(m.items.isEmpty())
+            assertTrue(m.requestError.orEmpty().contains("초 뒤"))
+            m.changeDraft { it.copy(name = "내가 확인한 상품", price = "12500", mode = "manual") }
+            m.saveDraft()
+            assertEquals(12500L, m.items.single().priceWon)
+        }
+    }
+
+    @Test fun generalProductLinkKeepsTheReturnedSourceWithoutUsingLegacyPlatform() {
+        val m = model()
+        val url = "https://shop.example.com/products/42?color=red"
+        main {
+            m.linkService = object : ProductLinkService {
+                override suspend fun extract(url: String) = ProductLinkResult.Complete(
+                    product().copy(originalUrl = url, snapshot = ProductSnapshot(source = "example-shop", originalUrl = url)),
+                )
+            }
+            m.receiveShare(url)
+        }
+        awaitCondition { m.items.size == 1 }
+        main {
+            assertEquals(Platform.PRODUCT_LINK, m.items.single().platform)
+            assertEquals("example-shop", m.items.single().productSnapshot?.source)
+            assertEquals(url, m.items.single().url)
+        }
+    }
+
     @Test fun unconfiguredShareKeepsUrlAndNeverCreatesAnInventedProduct() {
         val m = model()
         main { m.receiveShare("A product $URL") }

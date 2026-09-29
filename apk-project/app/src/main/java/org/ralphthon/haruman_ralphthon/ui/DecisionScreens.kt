@@ -44,7 +44,8 @@ fun DetailScreen(
     onBack: () -> Unit,
     onOriginal: () -> Unit,
     onDecide: () -> Unit,
-    onEdit: (() -> Unit)? = null
+    onEdit: (() -> Unit)? = null,
+    homeLabel: String? = "보관함으로",
 ) {
     val pending = item.decision == Decision.PENDING
     val hasLink = item.url.isNotBlank()
@@ -106,6 +107,7 @@ fun DetailScreen(
                 }
                 if (item.description.isNotBlank()) DetailTextBlock("상품 설명", item.description)
                 if (item.userMemo.isNotBlank()) DetailTextBlock("내 메모", item.userMemo)
+                MockConsumptionPattern(Modifier.padding(top = 24.dp))
                 Spacer(Modifier.height(24.dp))
                 HorizontalDivider(color = AppColors.Border)
                 DetailInfoRow("저장한 날", dateLabel(item.createdAt))
@@ -130,14 +132,14 @@ fun DetailScreen(
                 }
                 Spacer(Modifier.height(28.dp))
             }
-            DecisionFooter {
+            if (pending && item.ready(now) || hasLink || homeLabel != null) DecisionFooter {
                 when {
                     pending && item.ready(now) -> {
                         PrimaryAction("결정하기", onDecide, Modifier.fillMaxWidth().testTag("detail_decide"))
                         if (hasLink) TextButton(onClick = onOriginal, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("원본에서 보기", color = AppColors.Secondary) }
                     }
                     hasLink -> PrimaryAction("원본에서 보기", onOriginal, Modifier.fillMaxWidth().testTag("detail_original"))
-                    else -> PrimaryAction("보관함으로", onBack, Modifier.fillMaxWidth())
+                    homeLabel != null -> PrimaryAction(homeLabel, onBack, Modifier.fillMaxWidth())
                 }
             }
         }
@@ -240,7 +242,8 @@ fun ResultScreen(
     onHome: () -> Unit,
     onOriginal: () -> Unit,
     celebrateEvent: Boolean,
-    onCelebrationConsumed: () -> Unit = {}
+    onCelebrationConsumed: () -> Unit = {},
+    homeLabel: String? = "보관함으로",
 ) {
     val skipped = item.decision == Decision.SKIP
     val monthlyTotal = skippedTotal(items.filter { sameMonth(it.decidedAt ?: it.createdAt, now) })
@@ -268,6 +271,7 @@ fun ResultScreen(
     ContentFrame {
         Box(Modifier.fillMaxSize().clipToBounds().background(AppColors.Surface)) {
             Column(Modifier.fillMaxSize()) {
+                if (homeLabel == null) DecisionBackButton(onHome)
                 Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Mascot(if (skipped) MascotPose.TORI_CHEER else MascotPose.MOA_HAPPY, size = 132.dp)
                     if (LocalShowBubbles.current) SpeechBubble(
@@ -297,11 +301,11 @@ fun ResultScreen(
                         Text(if (item.url.isNotBlank()) "원본에서 상품과 가격을 한 번 더 확인해 주세요" else "구매하기로 한 선택을 기록에 남겼어요", Modifier.padding(top = 20.dp), style = MaterialTheme.typography.bodyMedium, color = AppColors.Secondary, textAlign = TextAlign.Center)
                     }
                 }
-                DecisionFooter {
+                if (!skipped && item.url.isNotBlank() || homeLabel != null) DecisionFooter {
                     if (!skipped && item.url.isNotBlank()) {
                         PrimaryAction("원본에서 보기", onOriginal, Modifier.fillMaxWidth())
-                        TextButton(onClick = onHome, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("result_home")) { Text("보관함으로", color = AppColors.Secondary) }
-                    } else PrimaryAction("보관함으로", onHome, Modifier.fillMaxWidth().testTag("result_home"))
+                        if (homeLabel != null) TextButton(onClick = onHome, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("result_home")) { Text(homeLabel, color = AppColors.Secondary) }
+                    } else if (homeLabel != null) PrimaryAction(homeLabel, onHome, Modifier.fillMaxWidth().testTag("result_home"))
                 }
             }
             if (!reducedMotion && confetti.value < 1f) CelebrationConfetti(confetti.value, Modifier.fillMaxSize())
@@ -358,5 +362,5 @@ private fun DetailInfoRow(label: String, value: String) {
 @Composable
 private fun DecisionFooter(content: @Composable ColumnScope.() -> Unit) {
     HorizontalDivider(color = AppColors.Border)
-    Column(Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 16.dp), content = content)
+    Column(Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 16.dp).testTag("decision_footer"), content = content)
 }

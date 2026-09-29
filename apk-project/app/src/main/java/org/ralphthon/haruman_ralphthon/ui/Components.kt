@@ -141,6 +141,11 @@ fun AppIcon(name: String, modifier: Modifier = Modifier, tint: Color = AppColors
                     path { moveTo(3f, 4f); lineTo(3f, 9f); lineTo(8f, 9f) }
                     path { moveTo(12f, 7f); lineTo(12f, 12f); lineTo(15.5f, 14f) }
                 }
+                "sprout" -> {
+                    path { moveTo(12f, 21f); cubicTo(11f, 16f, 12f, 12f, 14f, 9f) }
+                    path { moveTo(13f, 13f); cubicTo(13f, 6f, 18f, 3f, 22f, 3f); cubicTo(22f, 9f, 18f, 13f, 13f, 13f); close() }
+                    path { moveTo(11f, 16f); cubicTo(5f, 16f, 2f, 12f, 2f, 8f); cubicTo(8f, 8f, 12f, 11f, 11f, 16f); close() }
+                }
                 "person" -> {
                     drawCircle(tint, 3.4f, Offset(12f, 7.5f), style = stroke)
                     path { moveTo(4.5f, 20f); cubicTo(5.3f, 12.9f, 18.7f, 12.9f, 19.5f, 20f) }

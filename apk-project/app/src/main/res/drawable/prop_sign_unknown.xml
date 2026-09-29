@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from the mascot handoff source. Edit the generator, not this file. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <path
+        android:pathData="M48,58 L48,88"
+        android:strokeColor="#A06F3F"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M31,34 H65 A5,5 0 0,1 70,39 V57 A5,5 0 0,1 65,62 H31 A5,5 0 0,1 26,57 V39 A5,5 0 0,1 31,34 Z"
+        android:fillColor="#E8C48F"
+        android:strokeColor="#5B3A22"
+        android:strokeWidth="2.6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M42,43 Q42,38 48,38 Q54,38 54,44 Q54,48 48,50 L48,53"
+        android:strokeColor="#5B3A22"
+        android:strokeWidth="2.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M49.8,57.5 A1.8,1.8 0 1,1 46.2,57.5 A1.8,1.8 0 1,1 49.8,57.5 Z"
+        android:fillColor="#5B3A22" />
+</vector>

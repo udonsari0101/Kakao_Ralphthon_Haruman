@@ -35,6 +35,8 @@ data class ProductDraft(
     val reviewMessage: String? = null,
     val dirty: Boolean = false,
     val editedFields: Set<String> = emptySet(),
+    // The item shown when editing began; persisted with the draft, never inferred at save time.
+    val editBaseline: WishItem? = null,
 ) {
     val priceWon: Long? get() = price.toLongOrNull()
     val priceError: Boolean get() = price.isNotEmpty() &&
@@ -50,6 +52,7 @@ data class ProductDraft(
         put("desire", desire?.name ?: JSONObject.NULL); put("snapshot", snapshot?.toJson() ?: JSONObject.NULL)
         put("dirty", dirty)
         put("editedFields", JSONArray(editedFields.toList()))
+        put("editBaseline", editBaseline?.let { ItemJsonCodec.encode(listOf(it)) } ?: JSONObject.NULL)
     }.toString()
 
     companion object {
@@ -70,6 +73,9 @@ data class ProductDraft(
                 }.orEmpty(),
                 desire = runCatching { Desire.valueOf(json.getString("desire")) }.getOrNull(),
                 snapshot = json.optJSONObject("snapshot")?.toSnapshot(),
+                editBaseline = json.optionalText("editBaseline")?.let(ItemJsonCodec::decode)
+                    ?.takeUnless { it.hasInvalidRecords }?.items?.singleOrNull()
+                    ?.takeIf { it.id == json.optionalText("editingId") },
             )
         }.getOrNull() }
     }
@@ -90,7 +96,9 @@ class HarumanViewModel internal constructor(
     private val state: SavedStateHandle,
     private val store: LocalStore,
 ) : AndroidViewModel(application) {
-    constructor(application: Application, state: SavedStateHandle) : this(application, state, LocalStore(application))
+    constructor(application: Application, state: SavedStateHandle) : this(application, state, LocalStore(application)) {
+        reloadProductApi()
+    }
     private val messages = Channel<String>(Channel.BUFFERED)
     val notices = messages.receiveAsFlow()
     private val workspaceStore = store.uiWorkspaceStore()
@@ -104,6 +112,13 @@ class HarumanViewModel internal constructor(
 
     var items by mutableStateOf(store.items()); private set
     var route by mutableStateOf(state.get<String>("route") ?: if (store.onboardingDone) "vault" else "onboarding"); private set
+    var returnDestination by mutableStateOf(
+        (restoredWorkspace?.optionalText("returnDestination") ?: state.get<String>("returnDestination"))
+            ?.takeIf { it == "history" } ?: "vault",
+    ); private set
+    var yardSeenAnimations by mutableStateOf(
+        existingYardAnimationKeys(restoredWorkspace.stringList("yardSeenAnimations").toSet()),
+    ); private set
     var selectedId by mutableStateOf(state.get<String>("selectedId")); private set
     var draft by mutableStateOf(ProductDraft.decode(if (restoredWorkspace != null) restoredWorkspace.optionalText("draft") else state["draft"])); private set
     var sheetOpen by mutableStateOf(state.get<Boolean>("sheetOpen") ?: restoredWorkspace?.optBoolean("sheetOpen") ?: false); private set
@@ -131,10 +146,20 @@ class HarumanViewModel internal constructor(
     private var reviewFileDirty = restoredReviewText == null
 
     var linkService: ProductLinkService = NotConfiguredProductLinkService
+    var apiConfigured by mutableStateOf(false); private set
+    private var retryNotBefore = 0L
     private var activeRequest: Job? = null
     private var requestGeneration = 0L
     private var extracted: ExtractedProduct? = null
     val selected: WishItem? get() = items.find { it.id == selectedId }
+
+    fun reloadProductApi() {
+        cancelRequest()
+        val config = ProductApiSettings(getApplication()).read() ?: bundledProductApiConfig()
+        linkService = config?.let(::HttpsProductLinkService) ?: NotConfiguredProductLinkService
+        apiConfigured = config != null
+        retryNotBefore = 0L
+    }
 
     init {
         if (state.get<Boolean>("requestActive") == true) {
@@ -161,9 +186,12 @@ class HarumanViewModel internal constructor(
         put("heldDrafts", JSONArray(heldDrafts.map { it.encoded() }))
         put("sheetOpen", sheetOpen); put("shareConflict", shareConflict)
         put("sharedChoices", JSONArray(sharedChoices)); put("pendingSharedLinks", JSONArray(pendingSharedLinks))
+        put("returnDestination", returnDestination)
+        put("yardSeenAnimations", JSONArray(yardSeenAnimations.sorted()))
     }.toString()
 
     private fun persist(): Boolean {
+        yardSeenAnimations = existingYardAnimationKeys(yardSeenAnimations)
         // A keystroke must not serialize or write every completed review card again.
         if (reviewFileDirty || review !== lastPersistedReview) {
             if (!workspaceStore.write(reviewToken, review?.encoded() ?: "null")) return workspaceFailure()
@@ -176,6 +204,7 @@ class HarumanViewModel internal constructor(
         }
         workspaceWriteFailed = false
         state["route"] = route; state["selectedId"] = selectedId
+        state["returnDestination"] = returnDestination
         state["workspaceToken"] = workspaceToken; state["reviewToken"] = reviewToken
         state["sheetOpen"] = sheetOpen
         state["celebrationId"] = celebrationId
@@ -192,10 +221,16 @@ class HarumanViewModel internal constructor(
     }
 
     fun notifyUser(message: String) { messages.trySend(message) }
-    fun navigate(destination: String) { route = destination; persist() }
-    fun home() { route = "vault"; selectedId = null; persist() }
+    fun navigate(destination: String) { returnDestination = "vault"; route = destination; persist() }
+    fun home() {
+        route = if (route in setOf("detail", "decide", "result", "review")) returnDestination else "vault"
+        if (route == "vault") returnDestination = "vault"
+        selectedId = null
+        persist()
+    }
     fun finishOnboarding() { store.onboardingDone = true; home() }
     fun select(item: WishItem, now: Long, fromHistory: Boolean = false) {
+        returnDestination = if (fromHistory) "history" else "vault"
         selectedId = item.id
         route = "detail"
         persist()
@@ -204,9 +239,27 @@ class HarumanViewModel internal constructor(
     fun openDecision() { route = "decide"; persist() }
 
     fun openYardDecision(item: WishItem) {
+        returnDestination = "history"
         selectedId = item.id
         route = if (item.ready(System.currentTimeMillis())) "decide" else "detail"
         persist()
+    }
+
+    /** Decorative state only. A marker never changes products, prices or decision snapshots. */
+    fun consumeYardAnimation(key: String) {
+        val next = existingYardAnimationKeys(yardSeenAnimations + key)
+        if (next == yardSeenAnimations) return
+        yardSeenAnimations = next
+        persist()
+    }
+
+    private fun existingYardAnimationKeys(keys: Set<String>): Set<String> {
+        val ids = items.asSequence().filterNot { it.isSample }.map { it.id }.toSet()
+        return keys.filterTo(linkedSetOf()) { key ->
+            val delimiter = key.lastIndexOf(':')
+            delimiter > 0 && key.substring(0, delimiter) in ids &&
+                key.substring(delimiter + 1) in setOf("SPROUT", "TREE", "PIT")
+        }
     }
 
     fun updateYardPeriod(value: YardPeriod) {
@@ -248,6 +301,12 @@ class HarumanViewModel internal constructor(
     }
 
     fun openAdd() {
+        returnDestination = "vault"
+        if (draft?.editingId != null) {
+            holdCurrentDraft()
+            cancelRequest()
+            draft = null; extracted = null; requestError = null; retryAllowed = false
+        }
         if (draft == null) draft = ProductDraft(hours = defaultHours)
         sheetOpen = true; persist()
     }
@@ -273,6 +332,7 @@ class HarumanViewModel internal constructor(
             if (transformed.description != current.description) add("description")
             if (transformed.userMemo != current.userMemo) add("userMemo")
             if (transformed.imageHidden != current.imageHidden) add("imageHidden")
+            if (transformed.desire != current.desire) add("desire")
         }
         val changed = transformed.copy(dirty = true, editedFields = editedFields)
         draft = if (changed.url != current.url) changed.copy(snapshot = null, imageUrl = null, reviewMessage = null) else changed
@@ -282,6 +342,7 @@ class HarumanViewModel internal constructor(
 
     fun setMode(mode: String) {
         cancelRequest(); requestError = null
+        if (draft == null) returnDestination = "vault"
         val current = draft ?: ProductDraft(hours = defaultHours)
         draft = current.copy(mode = mode)
         sheetOpen = true; persist()
@@ -300,7 +361,7 @@ class HarumanViewModel internal constructor(
             url = item.url, name = item.name, price = item.priceWon?.toString().orEmpty(),
             description = item.description, userMemo = item.userMemo, hours = defaultHours,
             imageUrl = item.imageUrl, imageHidden = item.imageHidden,
-            desire = item.desire, snapshot = item.productSnapshot,
+            desire = item.desire, snapshot = item.productSnapshot, editBaseline = item,
         )
         sheetOpen = true; persist()
     }
@@ -362,9 +423,9 @@ class HarumanViewModel internal constructor(
         selectedId = saved.id; route = "detail"; extracted = null
         requestError = null; retryAllowed = false; state["requestActive"] = false
         heldDrafts = heldDrafts.filterNot { it.acquisitionId == current.acquisitionId }
-        draft = if (keepEdits) current.copy(
+        draft = if (keepEdits) current.withLatestUneditedFields(saved).copy(
             editingId = saved.id, mode = "manual", url = saved.url, inputSource = saved.inputSource,
-            imageUrl = saved.imageUrl, snapshot = saved.productSnapshot,
+            imageUrl = saved.imageUrl, snapshot = saved.productSnapshot, editBaseline = saved,
             reviewMessage = "이미 저장된 상품이에요. 작성한 수정 내용은 그대로 두었어요. 확인하고 수정 저장해 주세요.",
         ) else null
         sheetOpen = keepEdits
@@ -372,6 +433,7 @@ class HarumanViewModel internal constructor(
 
     private fun acceptLinks(links: List<String>) {
         if (links.isEmpty()) return
+        returnDestination = "vault"
         cancelRequest(); requestError = null; route = "vault"
         if (links.size > 1) {
             sharedChoices = links; sheetOpen = false; persist()
@@ -393,6 +455,12 @@ class HarumanViewModel internal constructor(
     fun requestProduct() {
         val current = draft ?: return
         if (processing || current.editingId != null) return
+        val retryWait = retryNotBefore - android.os.SystemClock.elapsedRealtime()
+        if (retryWait > 0) {
+            requestError = "서버가 잠시 쉬고 있어요. ${(retryWait + 999) / 1000}초 뒤 다시 시도해 주세요"
+            retryAllowed = true
+            return
+        }
         if (current.url.length > InputLimits.URL) {
             requestError = "링크가 너무 길어요. 원래 링크를 확인하거나 링크 없이 직접 입력해 주세요"
             retryAllowed = false
@@ -415,7 +483,7 @@ class HarumanViewModel internal constructor(
         val captured = current.copy(url = url, inputSource = if (current.inputSource == InputSource.LINK_SHARE) InputSource.LINK_SHARE else InputSource.LINK_INPUT)
         draft = captured; requestError = null; retryAllowed = false
         if (linkService === NotConfiguredProductLinkService) {
-            requestError = "링크로 불러오는 기능은 준비 중이에요. 지금은 직접 입력해 저장할 수 있어요"
+            requestError = "MY에서 상품 연결 설정을 먼저 해 주세요. 지금은 직접 입력해 저장할 수 있어요"
             persist(); return
         }
         processing = true; state["requestActive"] = true; persist()
@@ -426,7 +494,7 @@ class HarumanViewModel internal constructor(
                 processing = false; state["requestActive"] = false
                 when (result) {
                     ProductLinkResult.NotConfigured -> {
-                        requestError = "링크로 불러오는 기능은 준비 중이에요. 직접 입력해 저장할 수 있어요"
+                        requestError = "상품 연결 설정을 확인해 주세요. 직접 입력해 저장할 수 있어요"
                         retryAllowed = false
                     }
                     is ProductLinkResult.Complete -> {
@@ -443,7 +511,10 @@ class HarumanViewModel internal constructor(
                                 if (captured.hasManualEdits()) " 직접 고친 내용은 그대로 두었어요. ${result.product.proposal()}" else "").take(500),
                         )
                     }
-                    is ProductLinkResult.Failure -> { requestError = result.message; retryAllowed = result.retryable }
+                    is ProductLinkResult.Failure -> {
+                        requestError = result.message; retryAllowed = result.retryable
+                        retryNotBefore = android.os.SystemClock.elapsedRealtime() + (result.retryAfterSeconds ?: 0L) * 1000L
+                    }
                 }
                 persist()
             } catch (cancelled: CancellationException) { throw cancelled }
@@ -472,14 +543,30 @@ class HarumanViewModel internal constructor(
         }
         cancelRequest()
         if (current.editingId != null) {
-            val existing = items.find { it.id == current.editingId } ?: run {
-                requestError = "이 상품은 삭제됐어요. 작성한 내용은 아직 열어 두었어요"; return
+            val expected = current.editBaseline ?: run {
+                // Old drafts have no reliable revision. Preserve input and require one review
+                // before using current storage as their baseline; never silently overwrite it.
+                items = store.items()
+                val latest = items.find { it.id == current.editingId }
+                draft = latest?.let { current.withLatestUneditedFields(it) } ?: current
+                requestError = if (latest == null) "이 상품은 삭제됐어요. 작성한 내용은 아직 열어 두었어요"
+                    else "이전에 작성한 수정 내용을 최신 상품과 다시 맞췄어요. 직접 고친 내용은 그대로 두었어요. 확인하고 다시 저장해 주세요"
+                persist(); return
             }
-            val updated = existing.copy(name = current.name.trim(), priceWon = current.priceWon,
+            val updated = expected.copy(name = current.name.trim(), priceWon = current.priceWon,
                 description = current.description.trim(), userMemo = current.userMemo.trim(), imageHidden = current.imageHidden, desire = current.desire)
-            val next = items.map { if (it.id == existing.id) updated else it }
-            if (!store.saveItems(next)) { requestError = "수정한 정보를 아직 저장하지 못했어요. 다시 시도해 주세요"; return }
-            items = next; selectedId = existing.id; route = "detail"
+            when (val result = store.updateItem(expected, updated)) {
+                is UpdateItemResult.Updated -> items = store.items()
+                is UpdateItemResult.Conflict -> {
+                    items = store.items()
+                    draft = result.current?.let { latest -> current.withLatestUneditedFields(latest) } ?: current
+                    requestError = if (result.current == null) "이 상품은 삭제됐어요. 작성한 내용은 아직 열어 두었어요"
+                        else "다른 화면에서 상품 정보가 바뀌었어요. 직접 고친 내용은 그대로 두었어요. 확인하고 다시 저장해 주세요"
+                    persist(); return
+                }
+                UpdateItemResult.Failed -> { requestError = "수정한 정보를 아직 저장하지 못했어요. 다시 시도해 주세요"; return }
+            }
+            selectedId = expected.id; route = "detail"
             notifyUser("수정한 정보를 저장했어요")
         } else {
             val duplicate = items.find { it.decision == Decision.PENDING && current.url.isNotBlank() && it.url == current.url }
@@ -493,7 +580,7 @@ class HarumanViewModel internal constructor(
                 val snapshot = current.snapshot
                 val item = WishItem(
                     id = UUID.randomUUID().toString(), name = current.name.trim(), priceWon = current.priceWon,
-                    platform = if (current.url.isBlank()) Platform.MANUAL else Platform.COUPANG,
+                    platform = if (current.url.isBlank()) Platform.MANUAL else Platform.PRODUCT_LINK,
                     url = current.url, artwork = "default", createdAt = now,
                     cooldownUntil = now + current.hours * 3_600_000L,
                     description = current.description.trim(), userMemo = current.userMemo.trim(),
@@ -524,10 +611,9 @@ class HarumanViewModel internal constructor(
         val current = selected ?: return
         val changed = decide(current, choice, System.currentTimeMillis())
         if (changed == current) { route = "detail"; persist(); return }
-        if (!store.saveItems(items.map { if (it.id == current.id) changed else it })) {
-            notifyUser("아직 결정을 저장하지 못했어요. 다시 시도해 주세요"); return
-        }
-        items = store.items()
+        if (!commitItemChange(current, changed, "아직 결정을 저장하지 못했어요. 다시 시도해 주세요") { latest ->
+                if (latest == null) home() else route = "detail"
+            }) return
         celebrationId = if (changed.decision == Decision.SKIP && !changed.isSample) changed.id else null
         route = "result"; persist()
     }
@@ -538,6 +624,7 @@ class HarumanViewModel internal constructor(
         val now = System.currentTimeMillis()
         val ready = items.filter { it.ready(now) }.sortedBy { it.createdAt }
         if (ready.isEmpty()) { notifyUser("아직은 조금 더 기다릴 시간이에요"); return }
+        returnDestination = if (route == "history") "history" else "vault"
         cancelRequest(); sheetOpen = false
         review = ReviewSession(ids = ready.map { it.id })
         route = "review"; persist()
@@ -558,10 +645,10 @@ class HarumanViewModel internal constructor(
             ReviewAction.BUY -> decide(item, Decision.BUY, now)
             ReviewAction.LATER -> extend(item, defaultHours, now)
         }
-        if (!store.saveItems(items.map { if (it.id == item.id) changed else it })) {
-            notifyUser("아직 저장하지 못했어요. 같은 상품에서 다시 시도해 주세요"); return false
-        }
-        items = store.items()
+        if (!commitItemChange(item, changed, "아직 저장하지 못했어요. 같은 상품에서 다시 시도해 주세요") {
+                // A stale card cannot decide the latest product. Leave it for a fresh review.
+                review = session.copy(index = session.index + 1)
+            }) return false
         review = session.copy(index = session.index + 1,
             results = session.results + ReviewRecord(item, changed, action), undoUntil = now + 4_000)
         persist(); return true
@@ -571,14 +658,12 @@ class HarumanViewModel internal constructor(
         val session = review ?: return
         val record = session.results.lastOrNull() ?: return
         if (System.currentTimeMillis() > session.undoUntil) return
-        if (items.find { it.id == record.after.id } != record.after) {
-            notifyUser("상품 정보가 바뀌어 되돌릴 수 없어요"); return
-        }
-        if (store.saveItems(items.map { if (it.id == record.before.id) record.before else it })) {
-            items = store.items()
+        if (commitItemChange(record.after, record.before, "아직 되돌리지 못했어요. 다시 시도해 주세요") {
+                review = session.copy(undoUntil = 0)
+            }) {
             review = session.copy(index = (session.index - 1).coerceAtLeast(0), results = session.results.dropLast(1), undoUntil = 0)
             persist(); notifyUser("다시 꺼냈어요. 천천히 골라 주세요")
-        } else notifyUser("아직 되돌리지 못했어요. 다시 시도해 주세요")
+        }
     }
 
     fun consumeReviewCelebration() { review = review?.copy(celebrationConsumed = true); persist() }
@@ -586,9 +671,25 @@ class HarumanViewModel internal constructor(
     fun extendSelected() {
         val current = selected ?: return
         val changed = extend(current, defaultHours, System.currentTimeMillis())
-        if (store.saveItems(items.map { if (it.id == current.id) changed else it })) {
-            items = store.items(); home(); notifyUser("${defaultHours}시간 더 생각해 보기로 했어요")
-        } else notifyUser("다시 볼 시간을 저장하지 못했어요")
+        if (changed == current) { route = "detail"; persist(); return }
+        if (commitItemChange(current, changed, "다시 볼 시간을 저장하지 못했어요") { latest ->
+                if (latest == null) home() else route = "detail"
+            }) { home(); notifyUser("${defaultHours}시간 더 생각해 보기로 했어요") }
+    }
+
+    private fun commitItemChange(
+        expected: WishItem, updated: WishItem, failureMessage: String,
+        onConflict: (WishItem?) -> Unit,
+    ): Boolean = when (val result = store.updateItem(expected, updated)) {
+        is UpdateItemResult.Updated -> { items = store.items(); true }
+        is UpdateItemResult.Conflict -> {
+            items = store.items()
+            onConflict(result.current)
+            notifyUser(if (result.current == null) "다른 화면에서 상품을 삭제했어요. 최신 기록을 불러왔어요"
+                else "다른 화면에서 상품 정보가 바뀌었어요. 최신 내용을 다시 확인해 주세요")
+            persist(); false
+        }
+        UpdateItemResult.Failed -> { notifyUser(failureMessage); false }
     }
 
     fun deleteAll() {
@@ -599,6 +700,7 @@ class HarumanViewModel internal constructor(
             put("draft", JSONObject.NULL); put("heldDrafts", JSONArray())
             put("sheetOpen", false); put("shareConflict", false)
             put("sharedChoices", JSONArray()); put("pendingSharedLinks", JSONArray())
+            put("returnDestination", "vault"); put("yardSeenAnimations", JSONArray())
         }.toString()
         // Clear persisted drafts before reporting success; a restart cannot resurrect them.
         if (!workspaceStore.write(reviewToken, "null")) { workspaceFailure(); return }
@@ -617,10 +719,27 @@ class HarumanViewModel internal constructor(
         review = null; lastPersistedReview = null; reviewFileDirty = false
         sharedChoices = emptyList(); pendingSharedLinks = emptyList(); shareConflict = false
         celebrationId = null; receivedId = null; selectedId = null
+        returnDestination = "vault"; yardSeenAnimations = emptySet()
         extracted = null; requestError = null; retryAllowed = false
         lastWorkspaceText = emptyWorkspace
         route = "vault"; persist(); notifyUser("모든 기록을 삭제했어요")
     }
+}
+
+/** On a rejected edit keep user changes, but refresh untouched fields before an explicit retry. */
+private fun ProductDraft.withLatestUneditedFields(latest: WishItem): ProductDraft {
+    val keepLegacy = dirty && editedFields.isEmpty()
+    fun keep(field: String) = keepLegacy || field in editedFields
+    return copy(
+        name = if (keep("name")) name else latest.name,
+        price = if (keep("price")) price else latest.priceWon?.toString().orEmpty(),
+        description = if (keep("description")) description else latest.description,
+        userMemo = if (keep("userMemo")) userMemo else latest.userMemo,
+        imageHidden = if (keep("imageHidden")) imageHidden else latest.imageHidden,
+        desire = if (keep("desire")) desire else latest.desire,
+        url = latest.url, inputSource = latest.inputSource,
+        imageUrl = latest.imageUrl, snapshot = latest.productSnapshot, editBaseline = latest,
+    )
 }
 
 private fun ProductDraft.fromExtracted(product: ExtractedProduct): ProductDraft {

@@ -6,7 +6,8 @@ import java.util.Locale
 object InputLimits {
     const val NAME = 200
     const val PRICE_WON = 999_999_999_999L
-    const val URL = 8_192
+    const val URL = 4_096
+    const val REQUEST_BYTES = 8 * 1024
     const val DESCRIPTION = 5_000
     const val MEMO = 2_000
 }
@@ -36,8 +37,7 @@ fun validateManualInput(name: String, priceWon: Long?, description: String = "",
 fun isSupportedProductUrl(url: String): Boolean {
     if (url.isBlank() || url.length > InputLimits.URL || url != url.trim()) return false
     val uri = validHttpsUri(url) ?: return false
-    val host = uri.host.lowercase(Locale.ROOT)
-    return host == "coupang.com" || host.endsWith(".coupang.com")
+    return isPublicHttpsHost(uri.host)
 }
 
 /** Preserves the selected URL's query exactly and returns each distinct eligible link once. */
@@ -65,12 +65,21 @@ fun parseSupportedUrl(text: String): Pair<Platform, String>? {
 fun isValidImageUrl(url: String): Boolean {
     if (url.length > InputLimits.URL || url != url.trim()) return false
     val uri = validHttpsUri(url) ?: return false
-    val host = uri.host.lowercase(Locale.ROOT).removeSuffix(".")
+    return isPublicHttpsHost(uri.host)
+}
+
+/** Syntax-only boundary: backend must also validate resolved DNS/IPs before fetching. */
+internal fun isPublicHttpsHost(value: String): Boolean {
+    val host = value.lowercase(Locale.ROOT).removeSuffix(".")
     if (!host.contains('.') || host.endsWith(".localhost") || host.endsWith(".local") ||
-        host.endsWith(".internal") || host.endsWith(".invalid") || host.endsWith(".test")) return false
-    // Do not resolve DNS here. Literal IPs are unnecessary for the supplied image contract.
+        host.endsWith(".internal") || host.endsWith(".invalid") || host.endsWith(".test") ||
+        host.endsWith(".lan") || host.endsWith(".home")) return false
+    // IPv4 alternate decimal/hex forms and IPv6 literals are unnecessary for product URLs.
     if (host.startsWith('[') || host.contains(':') || host.all { it.isDigit() || it == '.' }) return false
-    return true
+    val labels = host.split('.')
+    if (labels.any { it.isEmpty() || it.length > 63 || it.startsWith('-') || it.endsWith('-') ||
+            it.any { char -> !char.isLetterOrDigit() && char != '-' } }) return false
+    return labels.last().any { it in 'a'..'z' } && host.length <= 253
 }
 
 internal fun validHttpsUri(url: String): URI? {

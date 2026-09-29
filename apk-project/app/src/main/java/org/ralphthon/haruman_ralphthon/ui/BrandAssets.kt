@@ -45,11 +45,11 @@ import java.net.InetAddress
 import java.net.URI
 import java.util.Locale
 
-/** The supplied wordmark is preserved; text is never generated into brand artwork. */
+/** Uses the supplied basket + wordmark lockup, with its white variant on dark surfaces. */
 @Composable
 fun BrandLogo(modifier: Modifier = Modifier) {
-    val resource = if (LocalAppPalette.current.dark) R.drawable.haruman_wordmark_white
-        else R.drawable.haruman_wordmark_color
+    val resource = if (LocalAppPalette.current.dark) R.drawable.haruman_logo_horizontal_white
+        else R.drawable.haruman_logo_horizontal
     Image(
         painter = painterResource(resource), contentDescription = "하루만",
         modifier = modifier.size(width = 116.dp, height = 38.dp), contentScale = ContentScale.Fit

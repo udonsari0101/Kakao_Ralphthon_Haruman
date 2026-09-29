@@ -92,7 +92,7 @@ class ProductApiCodecTest {
     @Test
     fun wrongRequestIdentityOrSiteNeverProducesAnUnrelatedItem() {
         assertInvalid(fixture().put("original_url", "https://coupang.com/vp/products/999"))
-        assertInvalid(fixture().put("source", "naver"))
+        assertInvalid(fixture().put("source", JSONObject.NULL))
         val changedOption = fixture()
         changedOption.getJSONObject("product").put("item_id", "wrong-option")
         assertTrue(ProductApiCodec.decode(200, changedOption.toString(), url) is ProductLinkResult.NeedsReview)
@@ -135,6 +135,8 @@ class ProductApiCodecTest {
     @Test
     fun eachServerErrorUsesTheDocumentedHttpStatusAndCodeNotMessage() {
         val cases = listOf(
+            Triple("unauthorized", 401, ProductFailureCode.AUTHENTICATION),
+            Triple("invalid_request", 413, ProductFailureCode.INVALID_REQUEST),
             Triple("invalid_url", 422, ProductFailureCode.INVALID_URL),
             Triple("unsupported_site", 422, ProductFailureCode.UNSUPPORTED_SITE),
             Triple("product_detail_required", 422, ProductFailureCode.PRODUCT_DETAIL_REQUIRED),
@@ -173,6 +175,42 @@ class ProductApiCodecTest {
         assertNull(invalid.endpoint())
         assertNull(ProductApiConfig("https://example.com/old/path", null, 100, 100).endpoint())
         assertEquals("https://example.com/v1/products/extract", ProductApiConfig("https://example.com", null, 100, 100).endpoint().toString())
+    }
+
+    @Test
+    fun otherProviderSourceAndIdsRemainUnchangedWithoutApplyingCoupangQueryMeaning() {
+        val request = "https://shop.example.com/products/A?itemId=tracking-value"
+        val response = fixture().put("source", "other-shop").put("original_url", request)
+            .put("product_url", "https://shop.example.com/products/A?itemId=other-tracking")
+        response.getJSONObject("product").put("id", "A").put("item_id", "real-option")
+        val result = ProductApiCodec.decode(200, response.toString(), request) as ProductLinkResult.Complete
+        assertEquals("other-shop", result.product.snapshot?.source)
+        assertEquals("real-option", result.product.itemId)
+        assertEquals(request, result.product.originalUrl)
+    }
+
+    @Test
+    fun proxyErrorsDoNotMasqueradeAsProductResultsOrClientTimeouts() {
+        val cases = mapOf(401 to ProductFailureCode.AUTHENTICATION, 413 to ProductFailureCode.INVALID_REQUEST,
+            429 to ProductFailureCode.BUSY, 502 to ProductFailureCode.SERVER_UNAVAILABLE,
+            503 to ProductFailureCode.SERVER_UNAVAILABLE, 504 to ProductFailureCode.TIMEOUT)
+        cases.forEach { (status, expected) ->
+            val failure = ProductApiCodec.decode(status, "<html>proxy error</html>", url, 15L) as ProductLinkResult.Failure
+            assertEquals(expected, failure.code)
+            if (status == 429) assertEquals(15L, failure.retryAfterSeconds) else assertNull(failure.retryAfterSeconds)
+        }
+        val busy = fixture().put("status", "error").put("code", "busy").put("product", JSONObject.NULL)
+        assertEquals(12L, (ProductApiCodec.decode(429, busy.toString(), url, 12L) as ProductLinkResult.Failure).retryAfterSeconds)
+    }
+
+    @Test
+    fun retryAfterAcceptsSecondsAndHttpDatesButRejectsInvalidValues() {
+        assertEquals(12L, parseRetryAfterSeconds("12", 0))
+        assertEquals(86_400L, parseRetryAfterSeconds("999999999", 0))
+        assertEquals(2L, parseRetryAfterSeconds("Thu, 01 Jan 1970 00:00:02 GMT", 1))
+        assertEquals(0L, parseRetryAfterSeconds("Thu, 01 Jan 1970 00:00:02 GMT", 3_000))
+        assertNull(parseRetryAfterSeconds("-1", 0))
+        assertNull(parseRetryAfterSeconds("later", 0))
     }
 
     private fun assertInvalid(response: JSONObject) {

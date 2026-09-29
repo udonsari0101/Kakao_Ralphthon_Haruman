@@ -111,7 +111,9 @@ private fun HarumanContent(model: HarumanViewModel) {
                 }
                 "history" -> YardScreen(model.items, now, model.yardPeriod, model.spendingGoalWon,
                     onItem = { model.select(it, now, fromHistory = true) }, onDecide = model::openYardDecision,
-                    onGoalEdit = { dialog = "goal" }, onPeriodChange = model::updateYardPeriod)
+                    onGoalEdit = { dialog = "goal" }, onPeriodChange = model::updateYardPeriod,
+                    onReview = model::startReview, seenAnimations = model.yardSeenAnimations,
+                    onAnimationConsumed = model::consumeYardAnimation)
                 "my" -> MyScreen(
                     hours = model.defaultHours, onDefault = { dialog = "cooldown" },
                     onExport = {
@@ -128,6 +130,7 @@ private fun HarumanContent(model: HarumanViewModel) {
                         }.onFailure { model.notifyUser("기록을 보낼 앱을 찾지 못했어요") }
                     },
                     onDelete = { dialog = "delete" }, themePreference = model.themePreference,
+                    apiConfigured = model.apiConfigured, onApiSettings = { dialog = "api" },
                     onThemeChange = model::setTheme, appVersion = BuildConfig.VERSION_NAME,
                     showMascotBubbles = model.mascotBubbles, onMascotBubblesChange = model::updateMascotBubbles,
                     reduceMascotMotion = model.mascotReduceMotion, onReduceMascotMotionChange = model::updateMascotReduceMotion,
@@ -139,10 +142,12 @@ private fun HarumanContent(model: HarumanViewModel) {
                         reportAuto = false; dialog = "report"
                     },
                 )
-                "detail" -> selected?.let { item -> DetailScreen(item, now, model::home, { openOriginal(item) }, model::openDecision, onEdit = { model.edit(item) }) }
+                "detail" -> selected?.let { item -> DetailScreen(item, now, model::home, { openOriginal(item) }, model::openDecision, onEdit = { model.edit(item) },
+                    homeLabel = if (model.returnDestination == "history") null else "보관함으로") }
                 "decide" -> selected?.let { item -> DecideScreen(item, model::home, model::extendSelected, model::decideSelected,
                     budgetPreview = buyPreview(item, budget.budgetBoughtWon, model.spendingGoalWon)) }
-                "result" -> selected?.let { item -> ResultScreen(item, model.items, now, model::home, { openOriginal(item) }, celebrateEvent = model.celebrationId == item.id, onCelebrationConsumed = model::consumeCelebration) }
+                "result" -> selected?.let { item -> ResultScreen(item, model.items, now, model::home, { openOriginal(item) }, celebrateEvent = model.celebrationId == item.id, onCelebrationConsumed = model::consumeCelebration,
+                    homeLabel = if (model.returnDestination == "history") null else "보관함으로") }
                 "added" -> selected?.let { item -> AddedScreen(
                     item, model::home, { model.edit(item) }, { model.openDetail(item.id) },
                     receivedEventId = model.receivedId?.takeIf { it == item.id },
@@ -152,6 +157,7 @@ private fun HarumanContent(model: HarumanViewModel) {
                     session, model.currentReviewItem(), model.defaultHours, now,
                     onBack = model::home, onAction = model::reviewAction, onUndo = model::undoReview,
                     onCelebrationConsumed = model::consumeReviewCelebration,
+                    homeLabel = if (model.returnDestination == "history") null else "보관함으로",
                     budgetPreview = model.currentReviewItem()?.let { buyPreview(it, budget.budgetBoughtWon, model.spendingGoalWon) },
                     onHistory = { model.navigate("history") },
                     onShare = { text -> runCatching {
@@ -203,6 +209,9 @@ private fun HarumanContent(model: HarumanViewModel) {
                 })
         }
     }
+    if (dialog == "api") ProductApiSettingsDialog(remember(context) { ProductApiSettings(context) },
+        onChanged = { model.reloadProductApi(); model.notifyUser("상품 연결 설정을 저장했어요"); dialog = "" },
+        onDismiss = { dialog = "" }, defaultConfigured = bundledProductApiConfig() != null)
     if (dialog == "goal") GoalEditorDialog(model.spendingGoalWon, model.yardPeriod, model::setSpendingGoal) { dialog = "" }
     if (dialog == "storage") StorageRoomSheet(budget.budgetItems, periodBudgetLabel(model.yardPeriod),
         onItem = { dialog = ""; model.select(it, now, fromHistory = true) }, onDismiss = { dialog = "" })

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from the mascot handoff source. Edit the generator, not this file. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <path
+        android:pathData="M8,78 C12,58 30,56 34,74 Z"
+        android:fillColor="#C29366"
+        android:strokeColor="#5B3A22"
+        android:strokeWidth="2.6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M62,74 C66,56 84,58 88,78 Z"
+        android:fillColor="#C29366"
+        android:strokeColor="#5B3A22"
+        android:strokeWidth="2.6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M78,76 A30,11 0 1,1 18,76 A30,11 0 1,1 78,76 Z"
+        android:fillColor="#6E4A2E"
+        android:strokeColor="#5B3A22"
+        android:strokeWidth="2.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M70,79 A22,6.5 0 1,1 26,79 A22,6.5 0 1,1 70,79 Z"
+        android:fillColor="#4E3320" />
+    <path
+        android:pathData="M23,88 A3,3 0 1,1 17,88 A3,3 0 1,1 23,88 Z"
+        android:fillColor="#A57A52" />
+    <path
+        android:pathData="M82.5,88 A2.5,2.5 0 1,1 77.5,88 A2.5,2.5 0 1,1 82.5,88 Z"
+        android:fillColor="#A57A52" />
+</vector>

@@ -87,7 +87,8 @@ enum class MascotPose(@DrawableRes val res: Int, val characterName: String, val 
     TORI_PRESENT(R.drawable.mascot_tori_present, "토리", "다람쥐 토리"),
     TORI_BURY(R.drawable.mascot_tori_bury, "토리", "다람쥐 토리"),
     TORI_WAVE(R.drawable.mascot_tori_wave, "토리", "다람쥐 토리"),
-    TORI_CHEER(R.drawable.mascot_tori_cheer, "토리", "다람쥐 토리")
+    TORI_CHEER(R.drawable.mascot_tori_cheer, "토리", "다람쥐 토리"),
+    TORI_DISAPPOINTED(R.drawable.mascot_tori_disappointed, "토리", "구덩이를 보며 아쉬워하는 다람쥐 토리")
 }
 
 enum class BubbleTail { LEFT, BOTTOM, NONE }
