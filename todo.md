@@ -16,7 +16,7 @@
 | API | 계약 적용·HTTPS adapter·상태 처리 구현. 실제 base URL/인증 미제공, production은 NotConfigured |
 | 캐릭터 | md_plus/mascot-duo MD5개·벡터18개 적용. 원본 보존 |
 | release | RC2/code3, SHA-256 `3e136b7a876f0868bb0fb69dcdf1b2bcf3e28a1ed059fc2b2c9ddfd0672a0a90`. 14:38 [GitHub prerelease](https://github.com/udonsari0101/Kakao_Ralphthon/releases/tag/v1.1.0-rc.2) 발행·5assets 다운로드 및 해시 일치 확인 |
-| md_plus | 15초 해시 감시, 약3분/단계 경계 검토. 13:43 storage-visualization 수령, 총6개 MD |
+| md_plus | 이번 실행에서 총6개 MD 검토·적용. 최종 재검색 추가 변경 없음, 작업용 watcher 종료 |
 
 `[x]`는 해당 범위의 관찰 근거가 있을 때만 표시한다. 구현과 실서버/실폰 전체 검증을 구분한다. 아래 테스트 fake는 테스트 소스에만 존재하며 실제 상품 수신을 증명하지 않는다.
 
@@ -154,3 +154,12 @@ font_scale=1, accelerometer_rotation=1, user_rotation=0, animator/transition/win
 첫 빌드에서 끝내지 않는다. 남은 시간 동안 기능/시각/모션/반응형 결함을 수정하고, 최종 정확 release APK와 배포 해시를 검증한다. 외부 API 정보가 끝까지 없으면 그 조건을 명시한 로컬 기능 배포로 완료 범위를 제한하며 실제 연동 성공으로 표현하지 않는다. 미완료/사건을 숨기지 않는다.
 
 **14:43 상태:** 정확한 RC2의 로컬 보존·프리릴리스 발행·다운로드 검증과 최종 실폰/emulator 설정 복원은 완료했다. 문서 main 체크포인트 ee425c6의 push와 원격 SHA를 확인했다. 전체 기능 완성을 선언하지 않는다. 전용 포즈·실제 API·시스템 공유·실제 기간 전환·실제 회전과 미검수 조합은 제한으로 명시한다.
+
+## 이번 개발 실행 인계
+
+- 종료 기록: 2026-09-29 14:49:52 +09:00. 시작12:04:47 KST, 배정180분 이내에 구현·반복 실폰 검수·최종 APK 배포·문서 인계를 수행했다.
+- main 체크포인트: 구현 d6fa562, 배포 기록 ee425c6, 배포 metadata의 Git 바이트 보존 수정7b3d30d. 최종 source tag는 v1.1.0-rc.2다.
+- 최종 수신함 재검색에서 사용자 Markdown6개, 추가 변경 없음. 작업용15초 watcher를 종료했고 상시 자동 감시는 남기지 않았다. 다음 개발 실행에서 감시를 다시 시작한다.
+- 작업 전용 Haruman_Release_API_36 AVD 이름을 확인한 뒤 종료했다. 연결된 실제 폰과 다른 AVD는 종료·삭제하지 않았다.
+- 사용자 원본 haruman_receipt_asset_pack_nomargin/은 로컬에 그대로 보존했다. 중복 원본을 추가 commit에 포함하지 않았다.
+- 이번 결과는 실제 API 미연결을 명시한 로컬 기능 프리릴리스다. API 접속·상품 설명 계약, 시스템 공유 직접 검수, 전용 포즈/고급 상태 전환, 실제 기간 전환 검수는 다음 작업으로 남긴다. 초기 기기 데이터 손실의 복구는 확인되지 않았다.
