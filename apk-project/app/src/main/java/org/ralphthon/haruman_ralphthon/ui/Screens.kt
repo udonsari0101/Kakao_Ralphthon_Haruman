@@ -467,12 +467,6 @@ fun MyScreen(
             MascotSettingRow("캐릭터 말풍선 보기", "모아와 토리의 짧은 이야기를 보여드려요", showMascotBubbles, onMascotBubblesChange, "mascot_bubbles")
             Spacer(Modifier.height(8.dp))
             MascotSettingRow("캐릭터 움직임 줄이기", "호흡과 축하를 정적인 모습으로 보여드려요", reduceMascotMotion, onReduceMascotMotionChange, "mascot_reduce_motion")
-            SettingsHeading("내 기록")
-            SettingRow("마당 일기", "지난 기간의 선택을 돌아봐요", "history", onReports)
-            Spacer(Modifier.height(8.dp))
-            SettingRow("내 기록 내보내기", "", "download", onExport)
-            Spacer(Modifier.height(8.dp))
-            SettingRow("모든 기록 삭제", "", "trash", onDelete, destructive = true)
             SettingsHeading("마당과 소비 목표")
             Text("마당 주기", style = MaterialTheme.typography.titleSmall, color = AppColors.Text)
             YardPeriod.entries.forEach { period ->
@@ -484,6 +478,12 @@ fun MyScreen(
             }
             SettingRow("소비 목표", spendingGoalWon?.let { "${yardPeriod.label} ${money(it)}" } ?: "목표 없이 사용하고 있어요", "box", onGoalEdit)
             Text("하루만에서 사기로 결정한 금액이에요. 실제 카드 지출과는 달라요.", Modifier.padding(8.dp), style = MaterialTheme.typography.bodySmall, color = AppColors.Secondary)
+            SettingsHeading("내 기록")
+            SettingRow("마당 일기", "지난 기간의 선택을 돌아봐요", "history", onReports)
+            Spacer(Modifier.height(8.dp))
+            SettingRow("내 기록 내보내기", "", "download", onExport)
+            Spacer(Modifier.height(8.dp))
+            SettingRow("모든 기록 삭제", "", "trash", onDelete, destructive = true)
             Text("하루만 $appVersion", Modifier.fillMaxWidth().padding(top = 36.dp), fontSize = 12.sp, color = AppColors.Muted, textAlign = TextAlign.Center)
             Text("기록은 이 기기에 보관돼요", Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 24.dp), fontSize = 12.sp, color = AppColors.Muted, textAlign = TextAlign.Center)
         }

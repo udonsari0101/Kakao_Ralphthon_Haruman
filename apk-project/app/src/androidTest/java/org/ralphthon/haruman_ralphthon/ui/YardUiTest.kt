@@ -186,6 +186,15 @@ class YardUiTest {
         compose.onNodeWithText("1개 · 0원").assertDoesNotExist()
     }
 
+    @Test fun budgetPercentageDoesNotTruncate176PercentTo175() {
+        show(listOf(item("percentage", date(2026, 9, 2)).copy(
+            decision = Decision.BUY, decidedAt = now, priceWon = 88_000, decisionPriceWon = 88_000,
+        )), goal = 50_000)
+        findYard("yard_goal_gauge")
+        compose.onNodeWithText("목표 50,000원 · 176%").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("목표 50,000원 · 175%").assertDoesNotExist()
+    }
+
     @Test fun fiveCheekStagesRenderDistinctArtAndExposeExactCountWithGoalWarning() {
         var count by mutableStateOf(0)
         var clicks = 0

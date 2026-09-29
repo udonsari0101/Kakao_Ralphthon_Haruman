@@ -280,7 +280,7 @@ private fun YardBudgetCard(summary: YardSummary, periodLabel: String, goalWon: L
         Text(yardAmount(amount, summary.budgetUnknownCount, summary.budgetItems.size), Modifier.padding(top = 12.dp), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = AppColors.Text)
         if (goal != null) {
             LinearProgressIndicator(progress = { ratio.coerceIn(0f, 1f) }, modifier = Modifier.fillMaxWidth().padding(top = 12.dp).height(8.dp).clip(RoundedCornerShape(4.dp)).testTag("yard_goal_gauge"), color = gaugeColor, trackColor = AppColors.Soft)
-            Text("목표 ${money(goal)} · ${(ratio.toDouble() * 100).toLong()}%", Modifier.padding(top = 8.dp), style = MaterialTheme.typography.bodySmall, color = AppColors.Secondary)
+            Text("목표 ${money(goal)} · ${String.format(Locale.KOREA, "%.0f", amount.toDouble() / goal * 100)}%", Modifier.padding(top = 8.dp), style = MaterialTheme.typography.bodySmall, color = AppColors.Secondary)
             Text(if (amount > goal) "목표를 ${money(amount - goal)} 넘었어요" else "목표까지 ${money(goal - amount)} 남았어요", Modifier.padding(top = 6.dp), style = MaterialTheme.typography.bodyMedium, color = gaugeColor)
         } else Text("소비 목표를 정하면 얼마나 남았는지 보여드려요", Modifier.padding(top = 8.dp), style = MaterialTheme.typography.bodySmall, color = AppColors.Secondary)
         if (summary.budgetUnknownCount > 0) Text("금액 미정 ${summary.budgetUnknownCount}개는 금액과 게이지에서 뺐어요", Modifier.padding(top = 8.dp), style = MaterialTheme.typography.bodySmall, color = AppColors.Secondary)
