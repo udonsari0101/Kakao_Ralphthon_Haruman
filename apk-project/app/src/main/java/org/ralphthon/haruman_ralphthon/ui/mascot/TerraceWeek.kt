@@ -91,7 +91,7 @@ fun TerraceWeek(
         val format = remember { SimpleDateFormat("M.d", Locale.KOREA) }
         val range = "${format.format(Date(weekStart))} – ${format.format(Date(weekEnd))}"
         val weekDescription = "$weekLabel, $range, 나무 ${summary.realTreeCount}그루 ${terraceKnownAmount(summary.savedWon, summary.unknownSavedCount, summary.realTreeCount)} 아낌, " +
-            "구덩이 ${summary.realPitCount}개 ${terraceKnownAmount(summary.boughtWon, summary.unknownBoughtCount, summary.realPitCount)} 구매 결정, " +
+            "구덩이 ${summary.realPitCount}개 ${terraceKnownAmount(summary.boughtWon, summary.unknownBoughtCount, summary.realBuyCount)} 구매 결정, " +
             "결정할 새싹 ${summary.realSproutCount}개. 주의 상품 모두 보기"
 
         // This whole floor is a >=48dp alternative to crowded individual plants.
@@ -111,7 +111,7 @@ fun TerraceWeek(
                 horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 if (summary.realTreeCount > 0) TerraceChip("나무 ${summary.realTreeCount} · ${terraceKnownAmount(summary.savedWon, summary.unknownSavedCount, summary.realTreeCount)}", TerraceChipKind.TREE)
-                if (summary.realPitCount > 0) TerraceChip("구덩이 ${summary.realPitCount} · ${terraceKnownAmount(summary.boughtWon, summary.unknownBoughtCount, summary.realPitCount)}", TerraceChipKind.PIT)
+                if (summary.realPitCount > 0) TerraceChip("구덩이 ${summary.realPitCount} · ${terraceKnownAmount(summary.boughtWon, summary.unknownBoughtCount, summary.realBuyCount)}", TerraceChipKind.PIT)
                 if (summary.realSproutCount > 0) TerraceChip("새싹 ${summary.realSproutCount}", TerraceChipKind.SPROUT)
                 if (summary.realMoundCount > 0) TerraceChip("흙더미 ${summary.realMoundCount}", TerraceChipKind.MOUND)
                 if (summary.realItems.isEmpty()) Text("아직 심은 상품이 없어요", fontSize = 10.sp, lineHeight = 14.sp,

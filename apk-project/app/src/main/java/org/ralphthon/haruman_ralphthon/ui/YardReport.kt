@@ -135,7 +135,7 @@ internal fun YardReportSheet(
                         Text(reportPitLine(summary), style = MaterialTheme.typography.bodyMedium, color = AppColors.Text)
                         Text("아직 고민 중 ${summary.realSproutCount + summary.realMoundCount}개", style = MaterialTheme.typography.bodyMedium, color = AppColors.Secondary)
                         if (summary.unknownSavedCount > 0 || summary.unknownBoughtCount > 0) Text(
-                            "금액 미정: 나무 ${summary.unknownSavedCount}개 · 구덩이 ${summary.unknownBoughtCount}개\n금액을 아는 상품만 더했어요",
+                            "금액 미정: 안 사기로 한 상품 ${summary.unknownSavedCount}개 · 구매 결정 상품 ${summary.unknownBoughtCount}개\n금액을 아는 상품만 더했어요",
                             style = MaterialTheme.typography.bodySmall, color = AppColors.Secondary)
                     }
                     Text("추가한 날을 기준으로 모았어요. 이후의 결정도 지금 모습에 반영돼요", style = MaterialTheme.typography.bodySmall, color = AppColors.Muted)
@@ -197,10 +197,11 @@ private fun ReportCard(content: @Composable ColumnScope.() -> Unit) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ReportGarden(summary: YardSummary, now: Long) {
+    val visibleItems = summary.realItems.filterNot { it.decision == Decision.BUY && !it.hasVisiblePit() }
     FlowRow(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(MascotStageColor).padding(8.dp)
         .clearAndSetSemantics { contentDescription = "마당 모습, 나무 ${summary.realTreeCount}그루, 구덩이 ${summary.realPitCount}개, 고민 중 ${summary.realSproutCount + summary.realMoundCount}개" },
         horizontalArrangement = Arrangement.spacedBy(2.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        summary.realItems.take(21).forEach { item ->
+        visibleItems.take(21).forEach { item ->
             val art = Modifier.size(38.dp)
             when (yardItemState(item, now)) {
                 YardItemState.PIT -> DugPit(art)
@@ -213,7 +214,7 @@ private fun ReportGarden(summary: YardSummary, now: Long) {
                 }
             }
         }
-        if (summary.realItems.size > 21) Text("+${summary.realItems.size - 21}", Modifier.padding(8.dp), style = MaterialTheme.typography.labelLarge, color = AppColors.Text)
+        if (visibleItems.size > 21) Text("+${visibleItems.size - 21}", Modifier.padding(8.dp), style = MaterialTheme.typography.labelLarge, color = AppColors.Text)
     }
 }
 
@@ -233,7 +234,7 @@ private fun reportTreeLine(summary: YardSummary): String =
         "금액 미정" else "${money(summary.savedWon)} 아꼈어요"
 
 private fun reportPitLine(summary: YardSummary): String =
-    "구덩이 ${summary.realPitCount}개 · ${reportAmount(summary.boughtWon, summary.unknownBoughtCount, summary.realPitCount)} 구매 결정"
+    "구덩이 ${summary.realPitCount}개 · ${reportAmount(summary.boughtWon, summary.unknownBoughtCount, summary.realBuyCount)} 구매 결정"
 
 private fun reportShareText(label: String, summary: YardSummary, goalWon: Long?, goalText: String): String = buildString {
     appendLine("하루만 · $label 마당 일기")
@@ -242,7 +243,7 @@ private fun reportShareText(label: String, summary: YardSummary, goalWon: Long?,
     appendLine(reportTreeLine(summary))
     appendLine(reportPitLine(summary))
     appendLine("아직 고민 중 ${summary.realSproutCount + summary.realMoundCount}개")
-    if (summary.unknownSavedCount > 0 || summary.unknownBoughtCount > 0) appendLine("금액 미정: 나무 ${summary.unknownSavedCount}개 · 구덩이 ${summary.unknownBoughtCount}개")
+    if (summary.unknownSavedCount > 0 || summary.unknownBoughtCount > 0) appendLine("금액 미정: 안 사기로 한 상품 ${summary.unknownSavedCount}개 · 구매 결정 상품 ${summary.unknownBoughtCount}개")
     appendLine("이후의 결정도 현재 모습에 반영했어요")
     appendLine()
     appendLine("[이 기간의 구매 결정 · 결정한 날 기준]")

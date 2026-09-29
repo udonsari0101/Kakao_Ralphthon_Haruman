@@ -113,7 +113,7 @@ private fun HarumanContent(model: HarumanViewModel) {
                     onItem = { model.select(it, now, fromHistory = true) }, onDecide = model::openYardDecision,
                     onGoalEdit = { dialog = "goal" }, onPeriodChange = model::updateYardPeriod,
                     onReview = model::startReview, seenAnimations = model.yardSeenAnimations,
-                    onAnimationConsumed = model::consumeYardAnimation)
+                    onAnimationConsumed = model::consumeYardAnimation, onRemovePit = model::removeYardPit)
                 "my" -> MyScreen(
                     hours = model.defaultHours, onDefault = { dialog = "cooldown" },
                     onExport = {

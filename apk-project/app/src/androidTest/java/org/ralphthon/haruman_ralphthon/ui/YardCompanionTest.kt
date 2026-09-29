@@ -29,7 +29,7 @@ import org.ralphthon.haruman_ralphthon.ui.theme.Haruman_RalphthonTheme
 import java.io.File
 import java.util.Calendar
 
-/** UI-only records and callbacks. The playful price notice cannot access a payment or store. */
+/** UI-only records and removal callbacks; production persistence is covered in PitRemovalFlowTest. */
 @RunWith(AndroidJUnit4::class)
 class YardCompanionTest {
     @get:Rule val compose = createComposeRule()
@@ -41,6 +41,9 @@ class YardCompanionTest {
         var bubbles by mutableStateOf(true)
         var fontScale by mutableFloatStateOf(font)
         var widthDp by mutableIntStateOf(width)
+        var period by mutableStateOf(YardPeriod.MONTH)
+        var removalFails = false
+        val removals = mutableListOf<String>()
         val details = mutableListOf<WishItem>()
         val decisions = mutableListOf<String>()
         var reviews = 0
@@ -56,9 +59,16 @@ class YardCompanionTest {
                 LocalReduceMotion provides true, LocalShowBubbles provides events.bubbles) {
                 Haruman_RalphthonTheme(darkTheme = events.dark) {
                     Surface(Modifier.requiredSize(events.widthDp.dp, 560.dp).clipToBounds().testTag(HOST)) {
-                        YardScreen(events.records, now, YardPeriod.MONTH, null,
+                        YardScreen(events.records, now, events.period, null,
                             onItem = { events.details += it }, onDecide = { events.decisions += it.id },
-                            onGoalEdit = { events.goalTaps++ }, onPeriodChange = {}, onReview = { events.reviews++ })
+                            onGoalEdit = { events.goalTaps++ }, onPeriodChange = { events.period = it }, onReview = { events.reviews++ },
+                            onRemovePit = { target ->
+                                events.removals += target.id
+                                if (events.removalFails) false else {
+                                    events.records = events.records.map { if (it.id == target.id) it.copy(pitRemovedAt = now) else it }
+                                    true
+                                }
+                            })
                     }
                 }
             }
@@ -98,7 +108,7 @@ class YardCompanionTest {
         compose.runOnIdle { assertEquals(listOf(sample), events.records); assertTrue(events.details.isEmpty()) }
     }
 
-    @Test fun pitPurchaseDemoCompletesOnceRestoresAndNeverChangesTheProductOrItsMoney() {
+    @Test fun pitRemovalCommitsOnceRestoresCompletionAndPreservesThePurchaseRecord() {
         val record = bought("pit", date(2026, 9, 29, 1)).copy(priceWon = 999_000L, decisionPriceWon = 19_000L)
         val restoration = StateRestorationTester(compose)
         val events = show(listOf(record), restoration = restoration)
@@ -136,17 +146,30 @@ class YardCompanionTest {
         compose.onNodeWithTag("yard_pit_notice").assertDoesNotExist()
         compose.onNodeWithTag("yard_pit_complete").assertIsDisplayed()
         compose.onNodeWithText("구매 완료").assertIsDisplayed()
-        compose.onNode(hasText("목업 데모로 완료 화면을 보여드렸어요.", substring = true)).assertIsDisplayed()
-        capture("pit_demo_complete_dark_320_font2", "yard_pit_complete")
+        compose.onNode(hasText("구덩이를 깔끔하게 정리했어요.", substring = true)).assertIsDisplayed()
+        capture("pit_removed_complete_dark_320_font2", "yard_pit_complete")
         restoration.emulateSavedInstanceStateRestore()
         compose.onNodeWithTag("yard_pit_complete").assertIsDisplayed()
         compose.onNodeWithTag("yard_pit_buy").assertDoesNotExist()
         tap(dialogAction("yard_pit_complete_close"))
         compose.onNodeWithTag("yard_pit_complete").assertDoesNotExist()
-        findYard("terrace_plant_pit").assertIsDisplayed()
+        findYard("yard_companion").assertIsDisplayed()
+        yardNode("yard_tori_happy").assertIsDisplayed()
+        yardNode("terrace_plant_pit").assertDoesNotExist()
+        tap(findYard("yard_period_week"))
+        findYard("yard_companion").assertIsDisplayed()
+        yardNode("yard_tori_happy").assertIsDisplayed()
+        yardNode("terrace_plant_pit").assertDoesNotExist()
+        findYard("yard_summary").assertIsDisplayed()
+        yardText("구덩이 0 · 구매").assertExists()
+        tap(findYard("yard_period_month"))
+        findYard("yard_companion").assertIsDisplayed()
+        yardNode("yard_tori_happy").assertIsDisplayed()
         compose.runOnIdle {
             assertTrue(events.details.isEmpty())
-            assertEquals(listOf(record), events.records)
+            assertEquals(listOf("pit"), events.removals)
+            assertEquals(record, events.records.single().copy(pitRemovedAt = null))
+            assertEquals(now, events.records.single().pitRemovedAt)
             assertEquals(999_000L, events.records.single().priceWon)
             assertEquals(19_000L, events.records.single().decisionPriceWon)
             assertEquals(Decision.BUY, events.records.single().decision)
@@ -181,8 +204,26 @@ class YardCompanionTest {
             assertTrue(events.details.isEmpty())
             assertEquals(date(2026, 8, 31), events.records.first { it.id == "old-pit" }.createdAt)
             assertEquals(19_000L, events.records.first { it.id == "old-pit" }.decisionPriceWon)
+            assertNotNull(events.records.first { it.id == "old-pit" }.pitRemovedAt)
             assertTrue(events.decisions.isEmpty())
         }
+    }
+
+    @Test fun failedRemovalKeepsThePitAndAllowsRetryWithoutShowingCompletion() {
+        val record = bought("retry-pit", date(2026, 9, 29, 1))
+        val events = show(listOf(record), font = 1f, width = 360)
+        events.removalFails = true
+        findYard("terrace_plant_retry-pit").performTouchInput { click(center) }
+        tap(dialogAction("yard_pit_buy"))
+        compose.onNodeWithTag("yard_pit_error").assertIsDisplayed()
+        compose.onNodeWithTag("yard_pit_complete").assertDoesNotExist()
+        compose.runOnIdle { assertEquals(listOf(record), events.records); events.removalFails = false }
+        tap(dialogAction("yard_pit_buy"))
+        compose.onNodeWithTag("yard_pit_complete").assertIsDisplayed()
+        tap(dialogAction("yard_pit_complete_close"))
+        findYard("yard_companion").assertIsDisplayed()
+        yardNode("yard_tori_happy").assertIsDisplayed()
+        compose.runOnIdle { assertTrue(events.details.isEmpty()); assertTrue(events.decisions.isEmpty()) }
     }
 
     @Test fun toriCyclesContextualSpeechBesideItsTailAtDoubleFontAndRespectsBubblesOff() {
@@ -229,7 +270,7 @@ class YardCompanionTest {
     private fun checkNoticeAndActions(artifact: String) {
         compose.onNodeWithTag("yard_pit_notice").assertIsDisplayed()
         val title = compose.onNodeWithText("구덩이 제거는 500원이에요")
-        val explanation = compose.onNode(hasText("목업 데모예요. 실제 결제나 구덩이 제거, 소비 기록 변경은 없어요.", substring = true))
+        val explanation = compose.onNode(hasText("구매 기록과 금액은 그대로 남겨요.", substring = true))
         assertTextFits(title, "${artifact}_title"); assertTextFits(explanation, "${artifact}_body")
         dialogAction("yard_pit_close").assertIsDisplayed().assertHeightIsAtLeast(48.dp)
         dialogAction("yard_pit_buy").assertIsDisplayed().assertHeightIsAtLeast(48.dp).assertTextEquals("구매하기")

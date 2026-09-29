@@ -253,6 +253,20 @@ class HarumanViewModel internal constructor(
         persist()
     }
 
+    /** Remove only a garden decoration after a durable CAS write. Never charges or rewrites a decision. */
+    fun removeYardPit(item: WishItem): Boolean {
+        // A stale screen may coexist with a newer edit; base the isolated field change on fresh data.
+        items = store.items()
+        val current = items.firstOrNull { it.id == item.id }
+        if (current == null || current.isSample || current.decision != Decision.BUY) {
+            notifyUser("이 구덩이의 상태가 바뀌었어요. 마당을 다시 확인해 주세요")
+            return false
+        }
+        if (current.pitRemovedAt != null) return true
+        return commitItemChange(current, current.copy(pitRemovedAt = System.currentTimeMillis()),
+            "구덩이를 아직 정리하지 못했어요. 다시 시도해 주세요") { }
+    }
+
     private fun existingYardAnimationKeys(keys: Set<String>): Set<String> {
         val ids = items.asSequence().filterNot { it.isSample }.map { it.id }.toSet()
         return keys.filterTo(linkedSetOf()) { key ->

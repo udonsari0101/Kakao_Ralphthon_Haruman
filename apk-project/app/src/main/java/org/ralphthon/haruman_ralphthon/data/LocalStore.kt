@@ -60,6 +60,8 @@ data class WishItem(
     val acquisitionId: String? = null,
     val productSnapshot: ProductSnapshot? = null,
     val desire: Desire? = null,
+    /** Decoration removal never changes the recorded purchase decision or its price snapshot. */
+    val pitRemovedAt: Long? = null,
 ) {
     fun ready(now: Long): Boolean = decision == Decision.PENDING && now >= cooldownUntil
     fun remainingMillis(now: Long): Long = if (now >= cooldownUntil) 0L
@@ -70,6 +72,8 @@ data class WishItem(
             .toFloat().coerceIn(0f, 1f)
     }
 }
+
+fun WishItem.hasVisiblePit(): Boolean = decision == Decision.BUY && pitRemovedAt == null
 
 fun acornStage(item: WishItem, now: Long): AcornStage? = when {
     item.decision != Decision.PENDING -> null
@@ -311,6 +315,7 @@ private fun WishItem.toJson(): JSONObject = JSONObject().apply {
     nullable("itemId", itemId); nullable("vendorItemId", vendorItemId)
     nullable("acquisitionId", acquisitionId); nullable("productSnapshot", productSnapshot?.toJson())
     nullable("desire", desire?.name)
+    nullable("pitRemovedAt", pitRemovedAt)
 }
 private fun JSONObject.toWishItem(): WishItem {
     val decision = Decision.valueOf(optString("decision", Decision.PENDING.name))
@@ -330,6 +335,7 @@ private fun JSONObject.toWishItem(): WishItem {
         productId = nullableString("productId"), itemId = nullableString("itemId"), vendorItemId = nullableString("vendorItemId"),
         acquisitionId = nullableString("acquisitionId"), productSnapshot = optJSONObject("productSnapshot")?.toSnapshot(),
         desire = runCatching { nullableString("desire")?.let(Desire::valueOf) }.getOrNull(),
+        pitRemovedAt = nullableLong("pitRemovedAt"),
     )
 }
 internal fun ProductSnapshot.toJson(): JSONObject = JSONObject().apply {

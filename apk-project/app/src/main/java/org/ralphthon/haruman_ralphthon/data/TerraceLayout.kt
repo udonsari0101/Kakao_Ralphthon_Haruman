@@ -139,7 +139,8 @@ fun layoutWeek(
             set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
         }.timeInMillis
     }
-    val grouped = summary.realItems.groupBy { terraceDayStart(it.createdAt, timeZone) }
+    val grouped = summary.realItems.filterNot { it.decision == Decision.BUY && !it.hasVisiblePit() }
+        .groupBy { terraceDayStart(it.createdAt, timeZone) }
     val weights = (0..6).map { index ->
         val count = grouped[dayStarts[index]].orEmpty().size
         if (count == 0) .55f else minOf(count, 3).toFloat()

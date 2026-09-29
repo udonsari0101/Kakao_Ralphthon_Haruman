@@ -61,10 +61,11 @@ fun YardScreen(
     onGoalEdit: () -> Unit, onPeriodChange: (YardPeriod) -> Unit,
     onReview: () -> Unit = {}, seenAnimations: Set<String> = emptySet(),
     onAnimationConsumed: (String) -> Unit = {},
+    onRemovePit: (WishItem) -> Boolean = { false },
 ) {
     var localSeen by remember { mutableStateOf(setOf<String>()) }
     val consumed = seenAnimations + localSeen
-    val motionKeys = items.filterNot { it.isSample }.mapNotNull { item ->
+    val motionKeys = items.filterNot { it.isSample || it.decision == Decision.BUY && !it.hasVisiblePit() }.mapNotNull { item ->
         val state = yardItemState(item, now)
         if (state == YardItemState.SPROUT || (state != YardItemState.MOUND && "${item.id}:SPROUT" in consumed)) "${item.id}:${state.name}" else null
     }.toSet() - consumed
@@ -72,7 +73,7 @@ fun YardScreen(
         if (key !in localSeen) localSeen = localSeen + key
         onAnimationConsumed(key)
     }
-    key(period) { TerracePages(items, now, period, goalWon, onItem, onDecide, onGoalEdit, onPeriodChange, onReview, motionKeys, consume) }
+    key(period) { TerracePages(items, now, period, goalWon, onItem, onDecide, onGoalEdit, onPeriodChange, onReview, motionKeys, consume, onRemovePit) }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -82,6 +83,7 @@ private fun TerracePages(
     onItem: (WishItem) -> Unit, onDecide: (WishItem) -> Unit,
     onGoal: () -> Unit, onPeriod: (YardPeriod) -> Unit, onReview: () -> Unit,
     animationKeys: Set<String>, consume: (String) -> Unit,
+    onRemovePit: (WishItem) -> Boolean,
 ) {
     val current = periodOf(now, period)
     val actual = records.filterNot { it.isSample }
@@ -92,9 +94,11 @@ private fun TerracePages(
     var roomAt by rememberSaveable { mutableStateOf<Long?>(null) }
     var pitItemId by rememberSaveable { mutableStateOf<String?>(null) }
     var pitPurchaseComplete by rememberSaveable { mutableStateOf(false) }
+    var pitRemovalFailed by rememberSaveable { mutableStateOf(false) }
     val inspectPlant: (WishItem) -> Unit = { item ->
-        if (item.decision == Decision.BUY) {
+        if (item.hasVisiblePit()) {
             pitPurchaseComplete = false
+            pitRemovalFailed = false
             pitItemId = item.id
         } else onItem(item)
     }
@@ -109,7 +113,7 @@ private fun TerracePages(
                 val summary = remember(records, at, period, now) { yardSummary(records, at, period, now) }
                 val weeks = remember(at, period) { terraceWeeks(at, period) }
                 val allReady = actual.count { it.ready(now) }
-                val visiblePit = actual.firstOrNull { item -> item.decision == Decision.BUY && weeks.any { start -> item.createdAt in periodBounds(start, YardPeriod.WEEK) } }
+                val visiblePit = actual.firstOrNull { item -> item.hasVisiblePit() && weeks.any { start -> item.createdAt in periodBounds(start, YardPeriod.WEEK) } }
                 LazyColumn(Modifier.fillMaxSize().testTag(if (index == pager.currentPage) "yard_screen" else "yard_offscreen"),
                     contentPadding = PaddingValues(bottom = 24.dp)) {
                     item("heading") {
@@ -187,21 +191,29 @@ private fun TerracePages(
         onItem = { roomAt = null; onItem(it) }, onDismiss = { roomAt = null }) }
     pitItemId?.let { id ->
         val item = records.firstOrNull { it.id == id }
-        val dismissPit = { pitItemId = null; pitPurchaseComplete = false }
+        val dismissPit = { pitItemId = null; pitPurchaseComplete = false; pitRemovalFailed = false }
         AlertDialog(
             onDismissRequest = dismissPit,
             icon = { Image(painterResource(R.drawable.prop_hole), null, Modifier.size(52.dp)) },
             title = { Text(if (pitPurchaseComplete) "구매 완료" else "구덩이 제거는 500원이에요") },
-            text = { Text(if (pitPurchaseComplete) "목업 데모로 완료 화면을 보여드렸어요.\n실제로 결제하지 않았어요. 구덩이와 소비 기록도 그대로예요."
-                else "토리가 구덩이를 보고 깜짝 놀랐어요.\n\n목업 데모예요. 실제 결제나 구덩이 제거, 소비 기록 변경은 없어요.",
-                style = MaterialTheme.typography.bodySmall, color = AppColors.Secondary) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(if (pitPurchaseComplete) "구덩이를 깔끔하게 정리했어요.\n구매 기록과 금액은 그대로 남겨뒀어요."
+                        else "이 구덩이를 정리할까요?\n구매 기록과 금액은 그대로 남겨요.",
+                        style = MaterialTheme.typography.bodySmall, color = AppColors.Secondary)
+                    if (pitRemovalFailed) Text("아직 정리하지 못했어요. 다시 시도해 주세요",
+                        Modifier.testTag("yard_pit_error"), style = MaterialTheme.typography.bodySmall, color = AppColors.Red)
+                }
+            },
             confirmButton = {
                 if (pitPurchaseComplete) TextButton(onClick = dismissPit,
                     modifier = Modifier.heightIn(min = 48.dp).testTag("yard_pit_complete_close")) { Text("확인") }
                 else TextButton(onClick = {
-                    // This presentation-only transition has no store, payment or product callback.
-                    if (pitItemId == id && !pitPurchaseComplete && item?.decision == Decision.BUY) pitPurchaseComplete = true
-                }, enabled = item?.decision == Decision.BUY,
+                    if (pitItemId == id && !pitPurchaseComplete && item?.hasVisiblePit() == true) {
+                        pitPurchaseComplete = onRemovePit(item)
+                        pitRemovalFailed = !pitPurchaseComplete
+                    }
+                }, enabled = item?.hasVisiblePit() == true,
                     modifier = Modifier.heightIn(min = 48.dp).testTag("yard_pit_buy")) { Text("구매하기") }
             },
             dismissButton = { if (!pitPurchaseComplete) TextButton(onClick = dismissPit,
@@ -227,7 +239,7 @@ private fun TerraceSummary(summary: YardSummary, goal: Long?, period: YardPeriod
             val twoColumns = fontScale >= 1.2f
             val stats = listOf(
                 Triple(R.drawable.prop_tree_big, "나무 $trees · 아낌", terraceAmount(saved, summary.unknownSavedCount, trees)),
-                Triple(R.drawable.prop_hole, "구덩이 $pits · 구매", terraceAmount(bought, summary.unknownBoughtCount, pits)),
+                Triple(R.drawable.prop_hole, "구덩이 $pits · 구매", terraceAmount(bought, summary.unknownBoughtCount, summary.realBuyCount)),
                 Triple(R.drawable.prop_sprout_ready, "고민 중", "${summary.realSproutCount + summary.realMoundCount}개"),
             )
             if (stack) Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {

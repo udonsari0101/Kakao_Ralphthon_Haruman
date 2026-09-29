@@ -78,11 +78,13 @@ data class YardSummary(
     val realItems = items.filterNot { it.isSample }
     val sampleCount: Int = items.size - realItems.size
     val treeCount: Int = items.count { it.decision == Decision.SKIP }
-    val pitCount: Int = items.count { it.decision == Decision.BUY }
+    val pitCount: Int = items.count { it.hasVisiblePit() }
     val sproutCount: Int = items.count { it.ready(now) }
     val moundCount: Int = items.count { it.decision == Decision.PENDING && !it.ready(now) }
     val realTreeCount: Int = realItems.count { it.decision == Decision.SKIP }
-    val realPitCount: Int = realItems.count { it.decision == Decision.BUY }
+    val realPitCount: Int = realItems.count { it.hasVisiblePit() }
+    /** Purchasing records outlive their optional garden decoration. */
+    val realBuyCount: Int = realItems.count { it.decision == Decision.BUY }
     val realSproutCount: Int = realItems.count { it.ready(now) }
     val realMoundCount: Int = realItems.count { it.decision == Decision.PENDING && !it.ready(now) }
     val savedWon: Long = sumDecisionAmounts(realItems.filter { it.decision == Decision.SKIP })
