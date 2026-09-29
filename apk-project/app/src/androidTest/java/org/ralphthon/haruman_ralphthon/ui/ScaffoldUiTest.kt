@@ -11,6 +11,7 @@ import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -175,6 +176,17 @@ class ScaffoldUiTest {
             assertEquals(1, events.requests)
             assertNull(events.saved)
         }
+    }
+
+    @Test
+    fun longLinkIsPreservedAndCannotSubmitATruncatedOptionUrl() {
+        val events = showAdd(initial = ProductDraft(mode = "link"))
+        val originalUrl = "https://www.coupang.com/vp/products/9047670772?trace=" + "a".repeat(8192) + "&itemId=123"
+        compose.onNodeWithTag("input_url").performScrollTo().performTextInput(originalUrl)
+        compose.onNodeWithTag("input_url").assertTextContains(originalUrl)
+        compose.onNodeWithText("링크가 너무 길어요. 짧은 공유 링크를 넣거나 직접 입력해 주세요").assertExists()
+        compose.onNodeWithTag("request_link").performScrollTo().assertIsNotEnabled()
+        compose.runOnIdle { assertEquals(0, events.requests) }
     }
 
     @Test

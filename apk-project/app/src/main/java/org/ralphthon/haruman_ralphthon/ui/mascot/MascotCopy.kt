@@ -11,7 +11,7 @@ object MascotCopy {
     const val SHARED_LINK = "링크 받았어요! 함께 살펴볼게요."
     const val DESIRE_QUESTION = "얼마나 갖고 싶나요?"
     const val DUPLICATE_LINK = "이미 보관함에 담아둔 상품이에요."
-    const val UNSUPPORTED_SHARE = "쿠팡 상품 링크를 보내 주세요."
+    const val UNSUPPORTED_SHARE = "상품 링크를 보내 주세요."
     const val SAVED = "받았어요! 보관함에 넣어뒀어요."
     const val BUY = "사기로 결정했어요. 원래 보던 곳에서 확인해 주세요."
     const val SKIP_UNKNOWN_PRICE = "마음을 한 번 더 확인했어요."

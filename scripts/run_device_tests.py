@@ -16,6 +16,19 @@ from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 
 
+def parse_directory_listing(raw):
+    """Accept only unambiguous `ls -1a` output, including separate dot entries."""
+    try:
+        entries = raw.decode("utf-8", errors="strict").splitlines()
+    except UnicodeDecodeError:
+        raise RuntimeError("Directory listing was not valid UTF-8; backup stopped") from None
+    if (not {".", ".."}.issubset(entries) or len(entries) != len(set(entries)) or
+            any(not name or any(c.isspace() or ord(c) < 32 or ord(c) == 127 or c in "/\\"
+                                for c in name) for name in entries)):
+        raise RuntimeError("Directory listing was ambiguous; backup stopped")
+    return set(entries) - {".", ".."}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("serial", "adb", "apk", "test-apk"):
@@ -67,30 +80,47 @@ def main():
     def snapshot(phase):
         # A successful run-as listing distinguishes a genuinely absent directory
         # from a non-debuggable/inaccessible installed app. The latter must stop.
-        listing = run(phase + "-access", "exec-out", "run-as", args.package, "ls", "-a").splitlines()
+        def listing_at(label, *path):
+            return parse_directory_listing(run(phase + label, "exec-out", "run-as", args.package, "ls", "-1a", *path))
+
+        listing = listing_at("-access")
         targets = []
-        if b"shared_prefs" in listing:
+        summary = {"listingFormat": "strict ls -1a", "sharedPrefsExists": "shared_prefs" in listing,
+                   "workspaceExists": False, "productionFileCount": 0, "preferenceFileCount": 0,
+                   "workspaceFileCount": 0, "excludedTestPreferenceFileCount": 0, "archiveBytes": 0,
+                   "verifiedAbsentAt": []}
+        metadata[phase + "DataEvidence"] = summary
+        if "shared_prefs" in listing:
             targets.append(PurePosixPath("shared_prefs"))
         else:
+            summary["verifiedAbsentAt"].append("shared_prefs")
             (evidence / (phase + "-no-prefs.txt")).write_text("run-as succeeded; shared_prefs absent\n")
         # Walk only known ancestors. A failed listing is not treated as missing data.
         # UUID test stores hash to different directories and are never archived here.
-        workspace_exists = b"files" in listing
+        workspace_exists = "files" in listing
+        absent_at = "files"
         if workspace_exists:
-            files = run(phase + "-files", "exec-out", "run-as", args.package, "ls", "-a", "files").splitlines()
-            workspace_exists = b"ui-workspace" in files
+            files = listing_at("-files", "files")
+            workspace_exists = "ui-workspace" in files
+            absent_at = "files/ui-workspace"
         if workspace_exists:
-            namespaces = run(phase + "-namespaces", "exec-out", "run-as", args.package, "ls", "-a", "files/ui-workspace").splitlines()
-            workspace_exists = workspace.name.encode() in namespaces
+            namespaces = listing_at("-namespaces", "files/ui-workspace")
+            workspace_exists = workspace.name in namespaces
+            absent_at = workspace.as_posix()
+        summary["workspaceExists"] = workspace_exists
         if workspace_exists:
             targets.append(workspace)
         else:
+            summary["verifiedAbsentAt"].append(absent_at)
             (evidence / (phase + "-no-workspace.txt")).write_text("run-as listings succeeded; production workspace absent\n")
         if not targets:
             return {}
         raw = run(phase + "-archive", "exec-out", "run-as", args.package, "tar", "-cf", "-", *(p.as_posix() for p in targets))
         (evidence / (phase + "-production-data.tar")).write_bytes(raw)
+        summary["archiveBytes"] = len(raw)
+        summary["archiveTargets"] = [p.as_posix() for p in targets]
         hashes = {}
+        archived_targets = set()
         with tarfile.open(fileobj=io.BytesIO(raw), mode="r:") as archive:
             for member in archive.getmembers():
                 path = PurePosixPath(member.name)
@@ -98,14 +128,24 @@ def main():
                 ancestor_directory = member.isdir() and any(path in target.parents for target in targets)
                 if not path.parts or path.is_absolute() or ".." in path.parts or not (within_targets or ancestor_directory):
                     raise RuntimeError("Unexpected production archive path")
+                if path in targets:
+                    if not member.isdir():
+                        raise RuntimeError("Selected backup directory was not a directory")
+                    archived_targets.add(path)
                 if member.isdir():
                     continue
                 if not member.isfile():
                     raise RuntimeError("Production archive contains a non-regular file")
                 # Current instrumentation fixtures use a fresh UUID preference name.
                 if path.parts[0] == "shared_prefs" and re.fullmatch(r"workflow-test-[0-9a-f-]{36}\.xml(?:\.bak)?", path.name):
+                    summary["excludedTestPreferenceFileCount"] += 1
                     continue
                 hashes[path.as_posix()] = hashlib.sha256(archive.extractfile(member).read()).hexdigest()
+        if archived_targets != set(targets):
+            raise RuntimeError("Backup archive did not contain every selected directory")
+        summary["productionFileCount"] = len(hashes)
+        summary["preferenceFileCount"] = sum(p.startswith("shared_prefs/") for p in hashes)
+        summary["workspaceFileCount"] = len(hashes) - summary["preferenceFileCount"]
         return hashes
 
     failures, count = [], 0
@@ -117,7 +157,7 @@ def main():
     except Exception as exc:
         metadata["failure"] = str(exc)
         (evidence / "result.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-        print("FAIL: pre-install data backup/access check failed; no install was attempted.")
+        print("FAIL: pre-install backup unverified; production file count unknown; 0 tests started; no install attempted.")
         return 1
     try:
         for label, artifact in (("install-app", apk), ("install-tests", test_apk)):
@@ -131,9 +171,10 @@ def main():
         command.append(args.package + ".test/androidx.test.runner.AndroidJUnitRunner")
         output = run("instrumentation", *command, timeout=1200)
         match = re.search(rb"(?m)^OK \((\d+) tests?\)\s*$", output)
+        reported = match or re.search(rb"Tests run:\s*(\d+)", output)
+        count = int(reported[1]) if reported else 0
         if not match or int(match[1]) < 1 or re.search(rb"FAILURES!!!|INSTRUMENTATION_FAILED|INSTRUMENTATION_ABORTED|shortMsg=", output):
             raise RuntimeError("Instrumentation did not report a clean OK result")
-        count = int(match[1])
     except Exception as exc:
         failures.append(str(exc))
     finally:
@@ -152,8 +193,11 @@ def main():
             failures.append(str(exc))
     metadata.update(tests=count, success=not failures, failures=failures)
     (evidence / "result.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-    print((f"FAIL: {len(failures)} check(s) failed; see private evidence.") if failures else
-          f"PASS: {count} tests; app remains installed; production preferences and workspace unchanged.")
+    after_count = len(metadata["afterProductionFiles"]) if "afterProductionFiles" in metadata else "unverified"
+    print((f"FAIL: {len(failures)} check(s); {count} tests reported; production files before={len(before)}, after={after_count}; see private evidence.") if failures else
+          f"PASS: {count} tests; app remains installed; {len(before)} production file hashes unchanged.")
+    if not failures and not before:
+        print("No production files existed; inspect explicit directory-absence/archive inventory evidence.")
     print("Private evidence: " + evidence.relative_to(repo).as_posix())
     return 1 if failures else 0
 

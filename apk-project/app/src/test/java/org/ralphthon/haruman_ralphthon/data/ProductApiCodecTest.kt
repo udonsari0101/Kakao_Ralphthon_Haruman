@@ -111,6 +111,28 @@ class ProductApiCodecTest {
     }
 
     @Test
+    fun returnedUrlAndIdsMustAgreeEvenWithoutIdsInTheRequest() {
+        val requests = listOf("https://link.coupang.com/a/hdpv0PnT9E", "https://www.coupang.com/vp/products/6011227725")
+        requests.forEach { request ->
+            listOf("id", "item_id", "vendor_item_id").forEach { field ->
+                val response = fixture().put("original_url", request)
+                response.getJSONObject("product").put(field, "999")
+                val result = ProductApiCodec.decode(200, response.toString(), request)
+                assertTrue("$field disagrees with returned URL", result is ProductLinkResult.NeedsReview)
+                val snapshot = (result as ProductLinkResult.NeedsReview).product.snapshot!!
+                assertEquals(request, snapshot.originalUrl)
+                assertEquals(url, snapshot.productUrl)
+                assertEquals("999", when (field) {
+                    "id" -> snapshot.productId
+                    "item_id" -> snapshot.itemId
+                    else -> snapshot.vendorItemId
+                })
+                assertTrue(result.reasons.any { it.contains("옵션") })
+            }
+        }
+    }
+
+    @Test
     fun eachServerErrorUsesTheDocumentedHttpStatusAndCodeNotMessage() {
         val cases = listOf(
             Triple("invalid_url", 422, ProductFailureCode.INVALID_URL),

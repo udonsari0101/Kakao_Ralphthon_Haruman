@@ -63,16 +63,15 @@ fun DetailScreen(
                     }
                 }
                 if (pending) {
-                    val stage = acornStage(item, now) ?: AcornStage.READY
-                    val pose = when (stage) { AcornStage.BURIED -> MascotPose.TORI_BURY; AcornStage.SPROUT -> MascotPose.TORI_IDLE; AcornStage.READY -> MascotPose.TORI_PRESENT }
-                    val message = when (stage) { AcornStage.BURIED -> "잘 묻어뒀어요. 조금 뒤에 다시 봐요"; AcornStage.SPROUT -> "싹이 났어요! 조금만 더 기다려볼까요?"; AcornStage.READY -> "다 자랐어요. 이제 마음을 꺼내볼까요?" }
+                    val pose = if (item.ready(now)) MascotPose.TORI_PRESENT else MascotPose.TORI_BURY
+                    val message = if (item.ready(now)) "새싹이 돋았어요. 이제 마음을 꺼내볼까요?" else "잘 묻어뒀어요. 조금 뒤에 다시 봐요"
                     MascotMessage(pose, message, Modifier.padding(top = 18.dp), size = 72.dp)
                 }
                 Column(Modifier.padding(top = 28.dp).fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(AppColors.Soft).padding(20.dp)) {
                     if (pending) {
                         Text(if (item.ready(now)) "다시 생각할 시간이 됐어요" else "다시 생각하기까지", style = MaterialTheme.typography.bodyMedium, color = AppColors.Secondary)
                         Text(if (item.ready(now)) "지금 결정할 수 있어요" else remaining(item, now), Modifier.padding(top = 8.dp), fontSize = 27.sp, lineHeight = 36.sp, fontWeight = FontWeight.Bold, color = AppColors.Text)
-                        AcornProgress(acornStage(item, now) ?: AcornStage.READY)
+                        AcornProgress(if (item.ready(now)) AcornStage.SPROUT else AcornStage.BURIED)
                         LinearProgressIndicator(
                             progress = { item.progress(now) },
                             modifier = Modifier.fillMaxWidth().padding(top = 18.dp).height(6.dp).clip(RoundedCornerShape(3.dp)),
@@ -148,7 +147,7 @@ fun DetailScreen(
 @Composable
 private fun AcornProgress(current: AcornStage) {
     Row(Modifier.fillMaxWidth().padding(top = 18.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        listOf(AcornStage.BURIED to "묻음", AcornStage.SPROUT to "새싹", AcornStage.READY to "꺼내기").forEach { (stage, label) ->
+        listOf(AcornStage.BURIED to "고민하고 있어요", AcornStage.SPROUT to "결정할 때예요").forEach { (stage, label) ->
             val reached = stage.ordinal <= current.ordinal
             Column(Modifier.weight(1f).clip(RoundedCornerShape(12.dp))
                 .background(if (stage == current) AppColors.BlueTint else Color.Transparent).padding(vertical = 8.dp)
@@ -172,11 +171,16 @@ private fun DetailTextBlock(title: String, value: String) {
 }
 
 @Composable
+fun DecideScreen(item: WishItem, onBack: () -> Unit, onExtend: () -> Unit, onDecision: (Decision) -> Unit) =
+    DecideScreen(item, onBack, onExtend, onDecision, budgetPreview = null)
+
+@Composable
 fun DecideScreen(
     item: WishItem,
     onBack: () -> Unit,
     onExtend: () -> Unit,
-    onDecision: (Decision) -> Unit
+    onDecision: (Decision) -> Unit,
+    budgetPreview: String?,
 ) {
     val largeFont = LocalDensity.current.fontScale > 1.3f
     ContentFrame {
@@ -197,6 +201,7 @@ fun DecideScreen(
                 Text("잠시 생각해 봤어요.\n지금도 사고 싶나요?", Modifier.padding(top = 12.dp), fontSize = 28.sp, lineHeight = 38.sp, fontWeight = FontWeight.Bold, color = AppColors.Text, textAlign = TextAlign.Center)
                 Text(item.name, Modifier.padding(top = 24.dp), style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center, color = AppColors.Text)
                 Text(money(item.priceWon), Modifier.padding(top = 8.dp), style = MaterialTheme.typography.bodyLarge, color = AppColors.Secondary, textAlign = TextAlign.Center)
+                budgetPreview?.let { Text(it, Modifier.padding(top = 16.dp).testTag("decision_budget_preview"), style = MaterialTheme.typography.bodyMedium, color = AppColors.Secondary, textAlign = TextAlign.Center) }
                 if (item.userMemo.isNotBlank()) Column(Modifier.padding(top = 20.dp).fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(AppColors.Soft).padding(16.dp)) {
                     Text("담아둘 때 남긴 마음이에요", style = MaterialTheme.typography.labelMedium, color = AppColors.Secondary)
                     Text(item.userMemo, Modifier.padding(top = 8.dp), style = MaterialTheme.typography.bodyMedium, color = AppColors.Text)

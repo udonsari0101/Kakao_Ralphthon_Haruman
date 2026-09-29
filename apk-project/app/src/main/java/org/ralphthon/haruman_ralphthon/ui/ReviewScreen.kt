@@ -55,6 +55,7 @@ fun ReviewScreen(
     onCelebrationConsumed: () -> Unit,
     onHistory: () -> Unit,
     onShare: (String) -> Unit,
+    budgetPreview: String? = null,
 ) {
     val reduced = mascotMotionReduced()
     val haptic = LocalHapticFeedback.current
@@ -168,7 +169,9 @@ fun ReviewScreen(
     val showSummary = session.complete && !locked
     ContentFrame {
         BoxWithConstraints(Modifier.fillMaxSize().clipToBounds().background(AppColors.Surface)) {
-            val scrollWholePage = largeFont && maxHeight < 520.dp
+            // Large type or a short window needs one reading order: product details
+            // remain fully scrollable before the actions instead of sitting behind them.
+            val scrollWholePage = largeFont || maxHeight < 480.dp
             if (showSummary) {
                 ReviewSummary(
                     session = session,
@@ -271,6 +274,7 @@ fun ReviewScreen(
                 if (canUndo) ReviewUndo(locked, onUndo)
                 HorizontalDivider(color = AppColors.Border)
                 Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(top = 12.dp, bottom = 8.dp)) {
+                    budgetPreview?.let { Text(it, Modifier.padding(bottom = 10.dp).testTag("review_budget_preview"), style = MaterialTheme.typography.bodySmall, color = AppColors.Secondary) }
                     val enabled = !locked && displayedItem != null
                     if (largeFont) {
                         PrimaryAction("안 살래요", { submit(ReviewAction.SKIP) }, Modifier.fillMaxWidth().testTag("review_skip"), enabled = enabled, weak = true)

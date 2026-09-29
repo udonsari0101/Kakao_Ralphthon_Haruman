@@ -1,4 +1,4 @@
-﻿package org.ralphthon.haruman_ralphthon.ui
+package org.ralphthon.haruman_ralphthon.ui
 
 import android.content.Intent
 import android.net.Uri
@@ -12,10 +12,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -38,14 +41,20 @@ fun HarumanApp(model: HarumanViewModel = viewModel()) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun HarumanContent(model: HarumanViewModel) {
     val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
-    var dialog by remember { mutableStateOf("") }
+    var dialog by rememberSaveable { mutableStateOf("") }
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     val selected = model.selected
+    val budget = remember(model.items, model.yardPeriod, periodOf(now, model.yardPeriod)) {
+        yardSummary(model.items, now, model.yardPeriod, now)
+    }
+    var reportAt by rememberSaveable { mutableLongStateOf(periodOf(now, model.yardPeriod) - 1L) }
+    var reportAuto by rememberSaveable { mutableStateOf(false) }
+    var milestoneCopy by rememberSaveable { mutableStateOf("") }
     val screenStates = rememberSaveableStateHolder()
     fun openOriginal(item: WishItem) {
         if (item.url.isBlank()) {
@@ -57,6 +66,32 @@ private fun HarumanContent(model: HarumanViewModel) {
     }
     LaunchedEffect(model) { model.notices.collect { snackbar.showSnackbar(it) } }
     LaunchedEffect(Unit) { while (true) { now = System.currentTimeMillis(); delay(1_000) } }
+    LaunchedEffect(model.sheetOpen, model.sharedChoices, model.shareConflict) {
+        if (model.sheetOpen || model.sharedChoices.isNotEmpty() || model.shareConflict) dialog = ""
+    }
+    LaunchedEffect(model.route, model.sheetOpen, model.sharedChoices, model.shareConflict, dialog, model.items, model.spendingGoalWon, model.yardPeriod, budget.bounds.startInclusive) {
+        if (model.route != "vault" || model.sheetOpen || model.sharedChoices.isNotEmpty() || model.shareConflict || dialog.isNotEmpty()) return@LaunchedEffect
+        val previous = periodOf(now, model.yardPeriod) - 1L
+        val previousSummary = yardSummary(model.items, previous, model.yardPeriod, now)
+        if ((previousSummary.realItems.isNotEmpty() || previousSummary.budgetItems.isNotEmpty()) &&
+            model.claimYardReport(previousSummary.bounds.startInclusive)) {
+            reportAt = previous
+            reportAuto = true
+            dialog = "report"
+        } else model.spendingGoalWon?.let { goal ->
+            val tier = budgetTier(budget.budgetBoughtWon, goal)
+            if (model.claimYardMilestone(budget.bounds.startInclusive, tier)) {
+                milestoneCopy = when {
+                    budget.budgetBoughtWon > goal -> "목표보다 ${money(budget.budgetBoughtWon - goal)} 많아졌어요. 괜찮아요. 남은 새싹을 천천히 살펴봐요."
+                    budget.budgetBoughtWon == goal -> "이번 기간의 목표 금액을 모두 채웠어요. 다음 상품은 한 번 더 생각해 볼까요?"
+                    tier == 2 -> "저장방이 거의 찼어요. 다음 상품은 조금 더 기다려 보면 어때요? 대기 시간은 직접 골라도 괜찮아요."
+                    else -> "모아의 저장방이 꽤 찼어요. 지금까지의 선택을 함께 살펴봐요."
+                }
+                if (budget.budgetUnknownCount > 0) milestoneCopy += " 금액 미정 ${budget.budgetUnknownCount}개는 계산에서 제외했어요."
+                dialog = "budget"
+            }
+        }
+    }
     BackHandler(enabled = model.route !in listOf("vault", "onboarding") && !model.sheetOpen) { model.home() }
     Scaffold(
         containerColor = AppColors.Background,
@@ -71,9 +106,12 @@ private fun HarumanContent(model: HarumanViewModel) {
                 "vault" -> Column(Modifier.fillMaxSize()) {
                     if (model.pendingSharedLinks.isNotEmpty()) ResumeBanner("공유한 링크가 기다리고 있어요", "이어서 추가") { model.acceptPendingShare() }
                     if (model.hasHeldDraft()) ResumeBanner("작성 중이던 상품이 있어요", "이어서 작성", model::restoreHeldDraft)
-                    Box(Modifier.weight(1f)) { VaultScreen(model.items, now, model::openAdd, { model.select(it, now) }, onReview = model::startReview) }
+                    Box(Modifier.weight(1f)) { VaultScreen(model.items, now, model::openAdd, { model.select(it, now) }, onReview = model::startReview,
+                        yardPeriod = model.yardPeriod, goalWon = model.spendingGoalWon, onStorage = { dialog = "storage" }) }
                 }
-                "history" -> HistoryScreen(model.items, now) { model.select(it, now, fromHistory = true) }
+                "history" -> YardScreen(model.items, now, model.yardPeriod, model.spendingGoalWon,
+                    onItem = { model.select(it, now, fromHistory = true) }, onDecide = model::openYardDecision,
+                    onGoalEdit = { dialog = "goal" }, onPeriodChange = model::updateYardPeriod)
                 "my" -> MyScreen(
                     hours = model.defaultHours, onDefault = { dialog = "cooldown" },
                     onExport = {
@@ -93,9 +131,17 @@ private fun HarumanContent(model: HarumanViewModel) {
                     onThemeChange = model::setTheme, appVersion = BuildConfig.VERSION_NAME,
                     showMascotBubbles = model.mascotBubbles, onMascotBubblesChange = model::updateMascotBubbles,
                     reduceMascotMotion = model.mascotReduceMotion, onReduceMascotMotionChange = model::updateMascotReduceMotion,
+                    yardPeriod = model.yardPeriod, onYardPeriodChange = model::updateYardPeriod,
+                    spendingGoalWon = model.spendingGoalWon, onGoalEdit = { dialog = "goal" },
+                    onReports = {
+                        reportAt = periodOf(now, model.yardPeriod) - 1L
+                        model.claimYardReport(periodOf(reportAt, model.yardPeriod))
+                        reportAuto = false; dialog = "report"
+                    },
                 )
                 "detail" -> selected?.let { item -> DetailScreen(item, now, model::home, { openOriginal(item) }, model::openDecision, onEdit = { model.edit(item) }) }
-                "decide" -> selected?.let { item -> DecideScreen(item, model::home, model::extendSelected, model::decideSelected) }
+                "decide" -> selected?.let { item -> DecideScreen(item, model::home, model::extendSelected, model::decideSelected,
+                    budgetPreview = buyPreview(item, budget.budgetBoughtWon, model.spendingGoalWon)) }
                 "result" -> selected?.let { item -> ResultScreen(item, model.items, now, model::home, { openOriginal(item) }, celebrateEvent = model.celebrationId == item.id, onCelebrationConsumed = model::consumeCelebration) }
                 "added" -> selected?.let { item -> AddedScreen(
                     item, model::home, { model.edit(item) }, { model.openDetail(item.id) },
@@ -106,6 +152,7 @@ private fun HarumanContent(model: HarumanViewModel) {
                     session, model.currentReviewItem(), model.defaultHours, now,
                     onBack = model::home, onAction = model::reviewAction, onUndo = model::undoReview,
                     onCelebrationConsumed = model::consumeReviewCelebration,
+                    budgetPreview = model.currentReviewItem()?.let { buyPreview(it, budget.budgetBoughtWon, model.spendingGoalWon) },
                     onHistory = { model.navigate("history") },
                     onShare = { text -> runCatching {
                         context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
@@ -129,12 +176,44 @@ private fun HarumanContent(model: HarumanViewModel) {
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
             containerColor = AppColors.Surface,
             shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+            // Material3 1.3 installs a PRIORITY_OVERLAY back callback above the IME.
+            // Disable it at creation; its layout does not update this flag dynamically.
+            properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false),
         ) {
+            // These locals belong to the dialog window, not the activity behind it.
+            val imeVisible = WindowInsets.isImeVisible
+            val sheetFocus = LocalFocusManager.current
+            val sheetKeyboard = LocalSoftwareKeyboardController.current
+            BackHandler {
+                if (imeVisible) {
+                    sheetFocus.clearFocus()
+                    sheetKeyboard?.hide()
+                } else {
+                    model.closeDraft()
+                }
+            }
             AddSheet(draft, model.processing, model.requestError, model.retryAllowed,
                 onChange = { value -> model.changeDraft { value } }, onModeChange = model::setMode,
-                onRequest = model::requestProduct, onSave = { model.saveDraft() }, onCancelRequest = model::cancelRequest)
+                onRequest = model::requestProduct, onSave = { model.saveDraft() }, onCancelRequest = model::cancelRequest,
+                budgetPreview = model.spendingGoalWon?.takeIf { draft.editingId == null || model.items.any { it.id == draft.editingId && it.decision == Decision.PENDING } }?.let { goal ->
+                    draft.priceWon?.takeIf { !draft.priceError }?.let { price ->
+                        val all = saturatedAdd(saturatedAdd(budget.budgetBoughtWon, pendingTotal(model.items, draft.editingId)), price)
+                        "고민 중인 것까지 모두 사면 목표의 ${String.format(Locale.KOREA, "%.0f", all.toDouble() / goal * 100)}%예요. 금액 미정은 제외했어요."
+                    }
+                })
         }
     }
+    if (dialog == "goal") GoalEditorDialog(model.spendingGoalWon, model.yardPeriod, model::setSpendingGoal) { dialog = "" }
+    if (dialog == "storage") StorageRoomSheet(budget.budgetItems, periodBudgetLabel(model.yardPeriod),
+        onItem = { dialog = ""; model.select(it, now, fromHistory = true) }, onDismiss = { dialog = "" })
+    if (dialog == "report") YardReportSheet(model.items, model.yardPeriod, reportAt, model.spendingGoalWon, now,
+        onItem = { dialog = ""; model.select(it, now, fromHistory = true) }, onDismiss = { dialog = "" }, celebrate = reportAuto)
+    if (dialog == "budget") AlertDialog(onDismissRequest = { dialog = "" }, title = { Text("모아의 저장방") },
+        text = { Column(Modifier.verticalScroll(rememberScrollState())) {
+            CheekMoa(model.items.count { !it.isSample && it.decision == Decision.PENDING }, overGoal = true)
+            Text(milestoneCopy)
+        } }, confirmButton = { TextButton(onClick = { dialog = "" }) { Text("확인했어요") } },
+        dismissButton = { TextButton(onClick = { dialog = "goal" }) { Text("목표 다시 정하기") } })
     if (model.sharedChoices.isNotEmpty()) AlertDialog(
         onDismissRequest = model::dismissChoices,
         title = { Text("어떤 상품을 담을까요?") },

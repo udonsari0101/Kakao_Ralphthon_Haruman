@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.ralphthon.haruman_ralphthon.data.Desire
 import org.ralphthon.haruman_ralphthon.data.InputSource
+import org.ralphthon.haruman_ralphthon.data.InputLimits
 import org.ralphthon.haruman_ralphthon.ui.mascot.*
 import java.util.Locale
 
@@ -36,6 +37,7 @@ fun AddSheet(
     onRequest: () -> Unit,
     onSave: () -> Unit,
     onCancelRequest: () -> Unit,
+    budgetPreview: String? = null,
 ) {
     val clipboard = LocalClipboardManager.current
     val focus = LocalFocusManager.current
@@ -60,16 +62,20 @@ fun AddSheet(
         if (!manual) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 CharacterArt(if (processing) "loading" else if (errorMessage != null) "needsReview" else "idle", Modifier.size(64.dp))
-                Text(if (processing) "상품 정보를 불러오고 있어요" else "쿠팡에서 공유한 링크도\n바로 담을 수 있어요", color = AppColors.Secondary, fontSize = 14.sp, modifier = Modifier.weight(1f))
+                Text(if (processing) "상품 정보를 불러오고 있어요" else "공유한 상품 링크도\n바로 담을 수 있어요", color = AppColors.Secondary, fontSize = 14.sp, modifier = Modifier.weight(1f))
             }
             OutlinedTextField(
-                value = draft.url, onValueChange = { onChange(draft.copy(url = it.take(8192))) },
-                modifier = Modifier.fillMaxWidth().testTag("input_url"), label = { Text("쿠팡 상품 링크") },
-                placeholder = { Text("https://www.coupang.com/…") }, enabled = !processing,
+                value = draft.url, onValueChange = { onChange(draft.copy(url = it)) },
+                modifier = Modifier.fillMaxWidth().testTag("input_url"), label = { Text("상품 링크") },
+                placeholder = { Text("상품 페이지 주소를 붙여넣어 주세요") }, enabled = !processing,
+                isError = draft.url.length > InputLimits.URL,
+                supportingText = if (draft.url.length > InputLimits.URL) {
+                    { Text("링크가 너무 길어요. 짧은 공유 링크를 넣거나 직접 입력해 주세요") }
+                } else null,
                 minLines = 2, maxLines = 3, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
                 shape = RoundedCornerShape(14.dp),
             )
-            TextButton(onClick = { clipboard.getText()?.text?.let { onChange(draft.copy(url = it.take(8192))) } }, enabled = !processing, modifier = Modifier.testTag("paste_link").heightIn(min = 48.dp)) {
+            TextButton(onClick = { clipboard.getText()?.text?.let { onChange(draft.copy(url = it)) } }, enabled = !processing, modifier = Modifier.testTag("paste_link").heightIn(min = 48.dp)) {
                 AppIcon("link", Modifier.size(18.dp), AppColors.Blue)
                 Spacer(Modifier.width(8.dp)); Text("붙여넣기")
             }
@@ -81,7 +87,7 @@ fun AddSheet(
                 Text("조금 걸릴 수 있어요. 직접 입력으로 바꿔도 괜찮아요", color = AppColors.Secondary, fontSize = 13.sp)
                 OutlinedButton(onClick = onCancelRequest, modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp)) { Text("불러오기 취소") }
             } else {
-                PrimaryAction(if (retryAllowed) "다시 시도" else "링크로 추가", { focus.clearFocus(); keyboard?.hide(); onRequest() }, Modifier.fillMaxWidth().testTag("request_link"), enabled = draft.url.isNotBlank())
+                PrimaryAction(if (retryAllowed) "다시 시도" else "링크로 추가", { focus.clearFocus(); keyboard?.hide(); onRequest() }, Modifier.fillMaxWidth().testTag("request_link"), enabled = draft.url.isNotBlank() && draft.url.length <= InputLimits.URL)
             }
             TextButton(onClick = { onModeChange("manual") }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("manual_fallback")) { Text("직접 입력해서 저장") }
         } else {
@@ -97,6 +103,7 @@ fun AddSheet(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), shape = RoundedCornerShape(14.dp), isError = draft.priceError,
                 supportingText = { Text(if (draft.priceError) "0 이상의 원 단위 숫자를 입력해 주세요" else "비워 두면 가격 미정으로 저장해요") },
             )
+            budgetPreview?.let { Text(it, color = AppColors.Secondary, style = MaterialTheme.typography.bodySmall, modifier = Modifier.testTag("add_budget_preview")) }
             OutlinedTextField(
                 draft.description, { onChange(draft.copy(description = it.take(5000))) }, Modifier.fillMaxWidth().testTag("input_description"),
                 label = { Text("상품 설명 · 선택") }, placeholder = { Text("상품의 특징을 적어 주세요") },

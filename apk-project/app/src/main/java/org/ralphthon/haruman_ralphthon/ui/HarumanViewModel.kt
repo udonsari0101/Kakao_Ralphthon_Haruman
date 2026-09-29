@@ -111,6 +111,8 @@ class HarumanViewModel internal constructor(
     var themePreference by mutableStateOf(store.themePreference); private set
     var mascotBubbles by mutableStateOf(store.mascotBubbles); private set
     var mascotReduceMotion by mutableStateOf(store.mascotReduceMotion); private set
+    var yardPeriod by mutableStateOf(store.yardPeriod); private set
+    var spendingGoalWon by mutableStateOf(store.spendingGoalWon); private set
     var processing by mutableStateOf(false); private set
     var requestError by mutableStateOf<String?>(null); private set
     var retryAllowed by mutableStateOf(false); private set
@@ -144,6 +146,12 @@ class HarumanViewModel internal constructor(
         if (route !in setOf("onboarding", "vault", "history", "my", "detail", "decide", "result", "added", "review")) route = "vault"
         if (route == "review" && review == null) route = "vault"
         if (route in setOf("detail", "decide", "result", "added") && selected == null) route = "vault"
+        // A process can stop after the item commit but before clearing its draft.
+        // Reconcile that acquisition before offering a second creation flow.
+        draft?.takeIf { it.editingId == null }?.let { restored ->
+            items.firstOrNull { !it.acquisitionId.isNullOrBlank() && it.acquisitionId == restored.acquisitionId }
+                ?.let { saved -> reconcileSavedDraft(restored, saved) }
+        }
         // Migrate old Bundle payloads on first load and remove them only after the file is safe.
         persist()
     }
@@ -194,6 +202,36 @@ class HarumanViewModel internal constructor(
     }
     fun openDetail(itemId: String) { selectedId = itemId; route = "detail"; persist() }
     fun openDecision() { route = "decide"; persist() }
+
+    fun openYardDecision(item: WishItem) {
+        selectedId = item.id
+        route = if (item.ready(System.currentTimeMillis())) "decide" else "detail"
+        persist()
+    }
+
+    fun updateYardPeriod(value: YardPeriod) {
+        if (store.saveYardSettings(value, spendingGoalWon)) yardPeriod = value
+        else notifyUser("마당 주기를 저장하지 못했어요. 다시 시도해 주세요")
+    }
+
+    fun setSpendingGoal(value: Long?): Boolean {
+        if (!store.saveYardSettings(yardPeriod, value)) {
+            notifyUser("소비 목표를 저장하지 못했어요. 금액을 확인하고 다시 시도해 주세요")
+            return false
+        }
+        spendingGoalWon = value
+        return true
+    }
+
+    fun claimYardMilestone(start: Long, tier: Int): Boolean {
+        if (tier == 0 || store.hasSeenYardMilestone(yardPeriod, start, tier.toString())) return false
+        if (!store.markYardMilestoneSeen(yardPeriod, start, tier.toString())) return false
+        (1 until tier).forEach { store.markYardMilestoneSeen(yardPeriod, start, it.toString()) }
+        return true
+    }
+
+    fun claimYardReport(start: Long): Boolean =
+        !store.hasSeenYardReport(yardPeriod, start) && store.markYardReportSeen(yardPeriod, start)
 
     fun setTheme(value: ThemePreference) {
         themePreference = value; store.themePreference = value
@@ -270,7 +308,7 @@ class HarumanViewModel internal constructor(
     fun receiveShare(text: String) {
         val links = extractSupportedLinks(text).distinct()
         if (links.isEmpty()) {
-            notifyUser("쿠팡 상품 링크를 공유해 주세요")
+            notifyUser("상품 링크를 공유해 주세요")
             openAdd()
             return
         }
@@ -278,7 +316,8 @@ class HarumanViewModel internal constructor(
         if (processing && links.size == 1 && draft?.url == links.first()) return
         val current = draft
         if (current != null && (current.worthKeeping() || processing)) {
-            pendingSharedLinks = links; shareConflict = true; persist()
+            pendingSharedLinks = (pendingSharedLinks + links).distinct()
+            shareConflict = true; persist()
         } else acceptLinks(links)
     }
 
@@ -287,9 +326,9 @@ class HarumanViewModel internal constructor(
         if (pendingSharedLinks.isEmpty()) return
         holdCurrentDraft()
         shareConflict = false
-        val links = pendingSharedLinks
-        pendingSharedLinks = emptyList()
-        acceptLinks(links)
+        val next = pendingSharedLinks.first()
+        pendingSharedLinks = pendingSharedLinks.drop(1)
+        acceptLinks(listOf(next))
     }
 
     fun keepCurrentDraft() {
@@ -311,6 +350,24 @@ class HarumanViewModel internal constructor(
         draft?.takeIf { it.worthKeeping() }?.let { current ->
             heldDrafts = heldDrafts.filterNot { it.acquisitionId == current.acquisitionId } + current
         }
+    }
+
+    /** A replay may carry newer user input; keep it as an edit of the existing item. */
+    private fun reconcileSavedDraft(current: ProductDraft, saved: WishItem) {
+        val keepEdits = current.hasManualEdits() && (
+            current.name.trim() != saved.name || current.priceError || current.priceWon != saved.priceWon ||
+                current.description.trim() != saved.description || current.userMemo.trim() != saved.userMemo ||
+                current.imageHidden != saved.imageHidden || current.desire != saved.desire
+            )
+        selectedId = saved.id; route = "detail"; extracted = null
+        requestError = null; retryAllowed = false; state["requestActive"] = false
+        heldDrafts = heldDrafts.filterNot { it.acquisitionId == current.acquisitionId }
+        draft = if (keepEdits) current.copy(
+            editingId = saved.id, mode = "manual", url = saved.url, inputSource = saved.inputSource,
+            imageUrl = saved.imageUrl, snapshot = saved.productSnapshot,
+            reviewMessage = "이미 저장된 상품이에요. 작성한 수정 내용은 그대로 두었어요. 확인하고 수정 저장해 주세요.",
+        ) else null
+        sheetOpen = keepEdits
     }
 
     private fun acceptLinks(links: List<String>) {
@@ -336,9 +393,14 @@ class HarumanViewModel internal constructor(
     fun requestProduct() {
         val current = draft ?: return
         if (processing || current.editingId != null) return
+        if (current.url.length > InputLimits.URL) {
+            requestError = "링크가 너무 길어요. 원래 링크를 확인하거나 링크 없이 직접 입력해 주세요"
+            retryAllowed = false
+            return
+        }
         val links = extractSupportedLinks(current.url).distinct()
-        if (links.size != 1 || current.url.length > 8192) {
-            requestError = if (links.size > 1) "상품 링크를 한 개씩 넣어 주세요" else "쿠팡 상품의 HTTPS 링크를 확인해 주세요"
+        if (links.size != 1) {
+            requestError = if (links.size > 1) "상품 링크를 한 개씩 넣어 주세요" else "상품의 HTTPS 링크를 확인해 주세요"
             retryAllowed = false; return
         }
         val url = links.single()
@@ -442,7 +504,12 @@ class HarumanViewModel internal constructor(
                 )
                 when (val saved = store.saveNewItemOnce(item)) {
                     is SaveItemResult.Saved -> { items = store.items(); selectedId = saved.item.id; route = "added"; receivedId = saved.item.id }
-                    is SaveItemResult.AlreadySaved -> { items = store.items(); selectedId = saved.item.id; route = "detail"; notifyUser("이미 보관함에 있어요") }
+                    is SaveItemResult.AlreadySaved -> {
+                        items = store.items()
+                        reconcileSavedDraft(current, saved.item)
+                        notifyUser(if (sheetOpen) "이미 저장된 상품이에요. 수정 내용은 열어 두었어요" else "이미 보관함에 있어요")
+                        persist(); return
+                    }
                     SaveItemResult.Failed -> { requestError = "아직 보관함에 저장하지 못했어요. 입력한 정보는 그대로 있어요"; persist(); return }
                 }
             }

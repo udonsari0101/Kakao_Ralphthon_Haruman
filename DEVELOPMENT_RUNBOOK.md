@@ -1,15 +1,25 @@
 # 하루만 — 3시간 자율 개발 운영 명세
 
-작성일: 2026-09-29 · GOAL_SPEC v3.1
+작성일: 2026-09-29 · GOAL_SPEC v3.2
 상태: **구현 재개. 2026-09-29 12:04:47 KST 시작, 15:04:47 KST 마감, md_plus 감시 중.**
 
-사용자는 이후 개발 중 개입하지 않을 예정이다. 구현 재개 지시를 받으면 작업자가 목표를 설정하고 구현·검수·수정·배포까지 이어간다. 처음에는 문서만 반영했으며, 이후 사용자가 지금부터 개발하도록 재개를 지시했다. API/캐릭터 MD가 도착하면 문서를 병합하되, 도착 자체를 개발 시작으로 해석하지 않는다.
+사용자가 지금부터 개발하도록 재개를 지시해 작업자가 구현·검수·수정·배포를 진행하고 있다. 앞선 문서 전용 제한은 과거 기록이다. 새 MD가 도착하면 내용을 검토해 현재 범위에 병합하고, 실제 endpoint·인증이 없는 기능은 미연결 상태로 유지한다.
 
-## 1. 재개할 때 설정할 목표
+### 현재 확인된 실행 상태
+
+- 첫 통합 소스 `dde656c`의 GitHub `main` 반영을 확인했다. 이후 수정은 다음 소스 체크포인트로 구분한다.
+- `md_plus/mascot-duo`의 Markdown 5개(README, implementation-requirements, character-bible, copy-deck, motion-and-tokens)와 제공 벡터를 적용했다. 모아·토리·도토리·정리 시간·절약 숲을 현재 화면에 연결했다. 세부 QA 결과는 [todo](./todo.md)를 따른다.
+- 최신 **JVM 38개·격리 저장 공간을 사용하는 Android 13 실기기 테스트 36개가 통과**했다. 초기 runner의 디렉터리 목록 해석 오류 때문에 이 실행의 운영 파일 해시 비교는 무효로 정정했다. 실제 tar를 별도 백업했고 수정한 runner로 재검증한다.
+- 상품 API는 계약 초안과 adapter/응답 검증 구조까지만 준비됐다. 실제 endpoint·인증이 없어 production은 `NotConfigured`다. 추가 API 문서·접속 정보·허용된 실제 테스트 환경을 기다리며, Fake 성공을 실제 API 성공으로 표시하지 않는다.
+- 서명된 `1.1.0-rc.1`/code 2는 내부 검수용이다. API 36 emulator 설치와 서명·패키지·버전·`debuggable=false` 검사를 수행했으며, GitHub Release 발행과 최종 수정 APK의 정확한 파일 QA는 아직 완료하지 않았다.
+
+자동 테스트 통과는 미실행 화면·모션·반응형 조합이나 최종 APK 전체 검수의 대체 증거가 아니다. 현재 결과와 다음 작업은 `todo.md`에 실시간으로 추가한다.
+
+## 1. 실행 중인 목표
 
 현재 재개 지시를 받았으며 실제 시작/마감은 위 상태에 기록했다. 이후 새 MD는 [md_plus](./md_plus/README.md)의 해시 감지·작업자 검토 절차로 반영한다. 이 문서의 미래형 절차는 현재 실행 지침으로 사용한다.
 
-> 최신 API·캐릭터 사양과 제공 애셋을 적용해 쿠팡 링크 직접 입력/Android 공유 → 지정 API → 상품 자동 추가 → 보완·저장 후 편집을 완성한다. 직접 텍스트 입력, 빨강 기반 라이트/다크/시스템 설정, 반응형 UI와 클릭·축하 모션을 함께 구현한다. 연결된 폰에서 반복 검수하고, todo와 GitHub main을 체크포인트마다 갱신하며, 검증된 서명 release APK를 GitHub Releases와 로컬 버전 폴더에 남긴다.
+> 최신 API·캐릭터 사양과 제공 애셋을 적용해 상품 링크 직접 입력/Android 공유 → 지정 API → 상품 자동 추가 → 보완·저장 후 편집을 완성한다. 직접 텍스트 입력, 빨강 기반 라이트/다크/시스템 설정, 반응형 UI와 클릭·축하 모션을 함께 구현한다. 연결된 폰에서 반복 검수하고, todo와 GitHub main을 체크포인트마다 갱신하며, 검증된 서명 release APK를 GitHub Releases와 로컬 버전 폴더에 남긴다.
 
 - 재개 시 실제 시작 시각과 **시작 + 180분**의 마감 시각을 KST로 기록한다. 목표 관리 도구를 사용할 때도 이 구체 목표와 같은 범위를 사용한다.
 - 처음 실행되거나 첫 APK가 빌드됐다는 이유로 완료하지 않는다. 기능·데이터 보존·테마·반응형·모션·자산·배포 조건을 끝까지 확인한다.
@@ -26,7 +36,7 @@
 | todo | 작업 시작/완료/실패/새 결함 시 즉시 갱신 |
 | GitHub main | 의미 있는 단계별 commit·push와 원격 확인 |
 | release APK | 서명·최종 APK 검증 후 버전별 로컬 보관과 GitHub Release 업로드 |
-| 미정 API/캐릭터 | 계약을 추정하지 않고 미연결 구조·독립 기능부터 진행, 도착한 MD는 대응 항목에 반영 |
+| 미정 API·추가 디자인 | API 계약을 추정하지 않고 미연결 구조·독립 기능부터 진행. 캐릭터 MD 5개는 수령·적용했고 이후 변경은 대응 항목에 반영 |
 
 이미 허용된 통상 작업을 건마다 다시 확인하지 않는다. 실제로 없는 API 자격증명이나 기기 연결을 필요로 하면 blocker를 기록하고 가능한 작업을 이어간다. 사용자 데이터 삭제, 기존 배포 키 교체, 원격 기록 강제 덮어쓰기는 통상 작업에 포함하지 않는다. 되돌릴 수 있는 구현 선택은 작업자가 근거를 남기고 결정한다.
 
@@ -60,9 +70,30 @@ todo 안의 해당 commit은 자기 자신의 SHA를 미리 알 수 없으므로
 
 ## 5. 연결 Android 폰으로 반복 검수
 
-1. `adb devices -l`로 연결 상태와 작업할 serial을 확인해 한 기기를 명시적으로 선택한다. 중지 시점 모델은 SM-G970N/Android 13이지만 현재 연결값은 재개 시 다시 확인한다.
+**실제 폰에서는 `connectedDebugAndroidTest`를 실행하지 않는다.** 개발 중 해당 경로의 앱 제거 부작용으로 기존 기기 데이터가 손실됐다. 사건 전 내부 데이터 백업은 없었고 복구 완료 증거도 없다. 이후 백업·격리 테스트의 성공은 이전 데이터를 복구했다는 뜻이 아니다. 삭제 없는 검수 경로를 계속 사용한다.
+
+저장소 루트에서 APK를 빌드한 뒤 [데이터 보존 runner](./scripts/run_device_tests.py)를 실행한다. `$deviceAdb`와 `$deviceSerial`은 해당 세션에서 로컬로 입력한 값이며 공개 문서에 실제 serial을 적지 않는다.
+
+```powershell
+Set-Location -LiteralPath 'D:\Develop\ralphthon'
+$env:JAVA_HOME = 'C:\Program Files\Android\Android Studio\jbr'
+$env:DEBUG = ''
+Push-Location -LiteralPath '.\apk-project'
+try {
+    .\gradlew.bat :app:assembleDebug :app:testDebugUnitTest :app:assembleDebugAndroidTest --console=plain
+    if ($LASTEXITCODE -ne 0) { throw '빌드 또는 JVM 테스트 실패' }
+} finally { Pop-Location }
+$deviceAdb = Read-Host 'adb.exe 전체 경로'
+$deviceSerial = Read-Host '검증할 기기의 adb serial'
+python .\scripts\run_device_tests.py --serial $deviceSerial --adb $deviceAdb --apk .\apk-project\app\build\outputs\apk\debug\app-debug.apk --test-apk .\apk-project\app\build\outputs\apk\androidTest\debug\app-debug-androidTest.apk
+if ($LASTEXITCODE -ne 0) { throw '기기 테스트 또는 데이터 보존 확인 실패' }
+```
+
+runner는 설치 전 `run-as`로 `shared_prefs`와 운영 namespace인 `files/ui-workspace/<SHA256(UTF-8 haruman_local_v1)>/`를 백업하고, `install -r`와 `am instrument -w`를 사용한다. 기존 앱의 백업 접근이 실패하면 설치 전에 중단한다. 디렉터리가 없다는 판정에도 정상적으로 성공한 상위 `ls`가 필요하다. `files/` 전체나 테스트 UUID workspace는 백업 대상이 아니다. 종료 후 앱 존재·테스트 `OK(n tests)`·운영 파일 해시 불변을 확인하며, 원시 로그·serial·tar는 ignored `apk-project/verification/private-backups/`에만 둔다. runner 실패를 앱 제거·`pm clear`로 해결하지 않는다.
+
+1. 로컬 `adb devices -l`로 연결 상태와 작업할 serial을 확인해 한 기기를 명시적으로 선택한다. 검증 기기는 SM-G970N/Android 13이며 연결 상태는 설치 전에 다시 확인한다. 출력은 비공개로 유지한다.
 2. 현재 화면·글꼴·배율·회전·모션 설정을 기록한다. 데이터와 기존 앱 설치는 보존하고 서명 충돌은 [release 절차](./RELEASE_WORKFLOW.md)에 따라 해결한다.
-3. 변경 기능을 빌드·설치하고 실제 공유 또는 직접 입력부터 결과·재실행까지 확인한다. 테스트 Fake와 실제 API 관찰을 분리한다.
+3. 위 runner의 백업·update 설치 절차를 사용하고 실제 공유 또는 직접 입력부터 결과·재실행까지 확인한다. 테스트 Fake와 실제 API 관찰을 분리한다. release는 서명 충돌 없는 별도 환경에서 최종 파일 자체로 검수한다.
 4. 정렬·여백·잘림·겹침·스크롤·IME·시스템 바·버튼 터치 영역을 확인한다. 긴 상품명/설명, 미정 가격, 빈 목록, 오류 문구도 다룬다.
 5. 클릭·탭·시트·목록·축하 모션을 실제 조작하며 녹화한다. 튀는 이동, 행 높이 점프, 중복 재생, 깜박임, 터치 차단을 확인한다. 정지 화면만으로 모션을 통과시키지 않는다.
 6. 이상이 있으면 재현 → 수정 → 같은 기기/조건 재검증을 반복한다. 원인을 찾는 데 필요한 경우만 로그·프레임 자료를 더 수집한다.

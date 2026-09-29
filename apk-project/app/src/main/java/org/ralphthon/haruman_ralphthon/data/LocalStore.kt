@@ -1,13 +1,14 @@
 ﻿package org.ralphthon.haruman_ralphthon.data
 
 import android.content.Context
+import android.content.SharedPreferences
 import java.io.File
 import java.security.MessageDigest
 import org.json.JSONArray
 import org.json.JSONObject
 
 enum class Platform(val label: String) {
-    COUPANG("쿠팡"), INSTAGRAM("인스타그램 · 이전 기록"), MANUAL("직접 입력"),
+    COUPANG("상품 링크"), INSTAGRAM("인스타그램 · 이전 기록"), MANUAL("직접 입력"),
 }
 enum class Decision { PENDING, BUY, SKIP }
 enum class InputSource { LINK_INPUT, LINK_SHARE, MANUAL, LEGACY }
@@ -153,9 +154,66 @@ class LocalStore(context: Context, prefsName: String = "haruman_local_v1") {
         get() = preferences.getBoolean("mascot_reduce_motion", false)
         set(value) { preferences.edit().putBoolean("mascot_reduce_motion", value).apply() }
 
+    val yardPeriod: YardPeriod
+        get() = runCatching { YardPeriod.valueOf(preferences.getString("yard_period", YardPeriod.MONTH.name)!!) }
+            .getOrDefault(YardPeriod.MONTH)
+    val spendingGoalWon: Long?
+        get() = runCatching { preferences.getLong("spending_goal_won", -1L).takeIf { it in 1..InputLimits.PRICE_WON } }.getOrNull()
+
+    /** Period and optional goal are one commit. Invalid goals never overwrite the prior setting. */
+    fun saveYardSettings(period: YardPeriod, goalWon: Long?): Boolean {
+        if (goalWon != null && goalWon !in 1..InputLimits.PRICE_WON) return false
+        return commitYard { editor ->
+            editor.putString("yard_period", period.name)
+            if (goalWon == null) editor.remove("spending_goal_won") else editor.putLong("spending_goal_won", goalWon)
+        }
+    }
+
+    fun hasSeenYardMilestone(period: YardPeriod, start: Long, milestone: String): Boolean =
+        yardMarkers("yard_seen_milestones").contains("${yardPeriodKey(period, start)}:$milestone")
+    fun markYardMilestoneSeen(period: YardPeriod, start: Long, milestone: String): Boolean {
+        if (!milestone.matches(Regex("[A-Za-z0-9_-]{1,40}"))) return false
+        return markYard("yard_seen_milestones", "${yardPeriodKey(period, start)}:$milestone")
+    }
+    fun hasSeenYardReport(period: YardPeriod, start: Long): Boolean =
+        yardMarkers("yard_seen_reports").contains(yardPeriodKey(period, start))
+    fun markYardReportSeen(period: YardPeriod, start: Long): Boolean =
+        markYard("yard_seen_reports", yardPeriodKey(period, start))
+
+    private fun yardMarkers(key: String): Set<String> =
+        runCatching { preferences.getStringSet(key, emptySet())?.toSet().orEmpty() }.getOrDefault(emptySet())
+    private fun markYard(key: String, marker: String): Boolean = commitYard { editor ->
+        editor.putStringSet(key, yardMarkers(key) + marker)
+    }
+    private fun commitYard(update: (SharedPreferences.Editor) -> Unit): Boolean = synchronized(YARD_SETTINGS_LOCK) {
+        val keys = setOf("yard_period", "spending_goal_won", "yard_seen_milestones", "yard_seen_reports")
+        val before = preferences.all.filterKeys { it in keys }
+        val saved = runCatching { preferences.edit().also(update).commit() }.getOrDefault(false)
+        if (!saved) {
+            // Restore SharedPreferences' in-memory map too when disk commit failed.
+            runCatching {
+                preferences.edit().apply {
+                    keys.forEach { key ->
+                        when (val value = before[key]) {
+                            null -> remove(key)
+                            is String -> putString(key, value)
+                            is Long -> putLong(key, value)
+                            is Int -> putInt(key, value)
+                            is Boolean -> putBoolean(key, value)
+                            is Float -> putFloat(key, value)
+                            is Set<*> -> putStringSet(key, value.filterIsInstance<String>().toSet())
+                        }
+                    }
+                }.commit()
+            }
+        }
+        saved
+    }
+
     fun items(): List<WishItem> = repository.items()
     fun saveItems(items: List<WishItem>): Boolean = repository.saveItems(items)
     fun saveNewItemOnce(item: WishItem): SaveItemResult = repository.saveNewItemOnce(item)
+    companion object { private val YARD_SETTINGS_LOCK = Any() }
 }
 
 internal interface ItemPersistence {

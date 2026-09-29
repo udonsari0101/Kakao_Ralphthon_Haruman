@@ -207,10 +207,16 @@ private fun optionIdentityMatches(requestUrl: String, productUrl: String?, snaps
     val requested = options(requestUrl)
     val resolved = options(productUrl)
     val requestProductId = productId(requestUrl)
-    if (requestProductId != null && listOfNotNull(snapshot.productId, productId(productUrl)).any { it != requestProductId }) return false
+    val resolvedProductId = productId(productUrl)
+    // Short links do not expose IDs in the request. The returned URL and fields
+    // must still agree with each other before any result can be auto-saved.
+    if (snapshot.productId != null && resolvedProductId != null && snapshot.productId != resolvedProductId) return false
+    if (requestProductId != null && listOfNotNull(snapshot.productId, resolvedProductId).any { it != requestProductId }) return false
     return listOf("itemId" to snapshot.itemId, "vendorItemId" to snapshot.vendorItemId).all { (key, supplied) ->
         val expected = requested[key]
-        expected == null || listOfNotNull(supplied, resolved[key]).let { observed -> observed.isNotEmpty() && observed.all { it == expected } }
+        val resolvedId = resolved[key]
+        (supplied == null || resolvedId == null || supplied == resolvedId) &&
+            (expected == null || listOfNotNull(supplied, resolvedId).let { observed -> observed.isNotEmpty() && observed.all { it == expected } })
     }
 }
 
@@ -224,8 +230,8 @@ private fun JSONObject.strictLong(key: String): Long? = when (val value = opt(ke
 
 private fun failure(code: ProductFailureCode): ProductLinkResult.Failure {
     val message = when (code) {
-        ProductFailureCode.INVALID_URL -> "쿠팡 상품의 HTTPS 링크를 확인해 주세요."
-        ProductFailureCode.UNSUPPORTED_SITE -> "지금은 쿠팡 상품 링크를 추가할 수 있어요."
+        ProductFailureCode.INVALID_URL -> "상품의 HTTPS 링크를 확인해 주세요."
+        ProductFailureCode.UNSUPPORTED_SITE -> "이 상품 링크는 아직 지원하지 않아요. 직접 입력해 저장할 수 있어요."
         ProductFailureCode.PRODUCT_DETAIL_REQUIRED -> "상품 상세 페이지 링크를 보내 주세요."
         ProductFailureCode.BLOCKED -> "상품 정보를 확인하기 어려워요. 직접 입력해 저장할 수 있어요."
         ProductFailureCode.LOGIN_REQUIRED -> "로그인이 필요한 상품이에요. 직접 입력해 저장해 주세요."

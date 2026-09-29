@@ -391,5 +391,99 @@ class WorkflowStateTest {
         }
     }
 
+    @Test fun committedAcquisitionRestoresAsExistingItemInsteadOfAnUnsavedCreation() {
+        val state = SavedStateHandle(); val m = model(state)
+        lateinit var original: ProductDraft
+        main {
+            m.openAdd(); m.setMode("manual")
+            m.changeDraft { it.copy(name = "Already committed", price = "12000", userMemo = "Keep note") }
+            original = m.draft!!
+        }
+        // Simulate process death between the item commit and clearing the workspace draft.
+        val saved = WishItem("committed", original.name, 12000L, Platform.MANUAL, "", "default", 1L, 2L,
+            userMemo = original.userMemo, acquisitionId = original.acquisitionId)
+        assertTrue(store.saveNewItemOnce(saved) is SaveItemResult.Saved)
+        val restored = model(state)
+        main {
+            assertNull(restored.draft); assertFalse(restored.sheetOpen)
+            assertEquals("detail", restored.route); assertEquals(saved.id, restored.selected?.id)
+            assertEquals(1, restored.items.size)
+            restored.edit(restored.selected!!)
+            restored.changeDraft { it.copy(name = "Explicit edit") }
+            restored.saveDraft()
+            assertEquals("Explicit edit", restored.items.single().name)
+        }
+    }
+
+    @Test fun replayedAcquisitionPreservesNewManualCorrectionsUntilExplicitEditSave() {
+        val m = model()
+        lateinit var original: ProductDraft
+        main {
+            m.openAdd(); m.setMode("manual")
+            m.changeDraft { it.copy(name = "Committed name", price = "1000") }
+            original = m.draft!!
+        }
+        val saved = WishItem("saved-once", original.name, 1000L, Platform.MANUAL, "", "default", 1L, 2L,
+            acquisitionId = original.acquisitionId)
+        assertTrue(store.saveNewItemOnce(saved) is SaveItemResult.Saved)
+        main {
+            m.changeDraft { it.copy(name = "New correction", price = "", userMemo = "Do not discard") }
+            m.saveDraft()
+            assertEquals(1, m.items.size)
+            assertEquals("Committed name", m.items.single().name)
+            assertTrue(m.sheetOpen); assertEquals(saved.id, m.draft?.editingId)
+            assertEquals("New correction", m.draft?.name)
+            assertEquals("", m.draft?.price)
+            assertEquals("Do not discard", m.draft?.userMemo)
+        }
+        val restored = model()
+        main {
+            assertEquals(saved.id, restored.draft?.editingId)
+            assertEquals("New correction", restored.draft?.name)
+            restored.saveDraft()
+            assertEquals(1, restored.items.size)
+            assertEquals("New correction", restored.items.single().name)
+            assertNull(restored.items.single().priceWon)
+            assertEquals("Do not discard", restored.items.single().userMemo)
+        }
+    }
+
+    @Test fun unacceptedSharesRemainDistinctAndAreConsumedInArrivalOrderAfterRestore() {
+        val m = model()
+        val second = "https://www.coupang.com/vp/products/9542831658"
+        main {
+            m.openAdd(); m.setMode("manual"); m.changeDraft { it.copy(name = "Original draft") }
+            m.receiveShare(URL); m.receiveShare(second); m.receiveShare(URL)
+            assertEquals(listOf(URL, second), m.pendingSharedLinks)
+        }
+        val restored = model()
+        main {
+            assertEquals(listOf(URL, second), restored.pendingSharedLinks)
+            restored.acceptPendingShare()
+            assertEquals(URL, restored.draft?.url)
+            assertEquals(listOf(second), restored.pendingSharedLinks)
+            restored.setMode("manual"); restored.changeDraft { it.copy(name = "First shared item") }
+            restored.saveDraft()
+            restored.acceptPendingShare()
+            assertEquals(second, restored.draft?.url)
+            assertTrue(restored.pendingSharedLinks.isEmpty())
+            restored.restoreHeldDraft()
+            assertEquals("Original draft", restored.draft?.name)
+        }
+    }
+
+    @Test fun overlongOriginalLinkIsPreservedAndNeverSentToTheService() {
+        val m = model(); val service = DeferredService()
+        val longUrl = "$URL?padding=" + "x".repeat(InputLimits.URL)
+        main {
+            m.linkService = service; m.openAdd(); m.changeDraft { it.copy(url = longUrl) }
+            m.requestProduct()
+            assertEquals(longUrl, m.draft?.url)
+            assertEquals(0, service.calls); assertFalse(m.processing)
+            assertNotNull(m.requestError); assertFalse(m.retryAllowed)
+            assertTrue(m.items.isEmpty())
+        }
+    }
+
     companion object { private const val URL = "https://www.coupang.com/vp/products/9047670772" }
 }

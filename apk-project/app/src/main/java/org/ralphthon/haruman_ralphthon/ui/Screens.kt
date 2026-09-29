@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
@@ -42,6 +43,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.launch
 
 fun money(value: Long?) = value?.let { String.format(Locale.KOREA, "%,d원", it) } ?: "가격 미정"
 fun dateLabel(value: Long): String = SimpleDateFormat("M월 d일", Locale.KOREA).format(Date(value))
@@ -83,7 +85,7 @@ fun BottomTabs(route: String, onChange: (String) -> Unit) {
         Column {
             HorizontalDivider(color = AppColors.Border, thickness = .5.dp)
             Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 12.dp)) {
-                listOf(Triple("vault", "box", "보관함"), Triple("history", "history", "기록"), Triple("my", "person", "MY")).forEach { (id, icon, label) ->
+                listOf(Triple("vault", "box", "보관함"), Triple("history", "history", "마당"), Triple("my", "person", "MY")).forEach { (id, icon, label) ->
                     val selected = route == id
                     val color = if (selected) AppColors.Blue else AppColors.Muted
                     Column(
@@ -115,7 +117,7 @@ fun Onboarding(onStart: () -> Unit) {
                     OnboardingScene(Modifier.fillMaxWidth(.85f).widthIn(max = 300.dp).height(if (compact) 140.dp else 200.dp))
                 }
                 Text("사고 싶은 마음,\n잠시 넣어둘까요?", fontSize = 30.sp, lineHeight = 40.sp, fontWeight = FontWeight.Bold, letterSpacing = (-.7).sp, color = AppColors.Text)
-                Text("쿠팡 링크를 담거나 직접 적어두세요.\n조금 뒤, 내 마음을 다시 살펴봐요.", Modifier.padding(top = 16.dp), color = AppColors.Secondary, fontSize = 15.sp, lineHeight = 25.sp)
+                Text("상품 링크를 담거나 직접 적어두세요.\n조금 뒤, 내 마음을 다시 살펴봐요.", Modifier.padding(top = 16.dp), color = AppColors.Secondary, fontSize = 15.sp, lineHeight = 25.sp)
                 Column(Modifier.padding(vertical = 24.dp).fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(MascotStageColor).padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                     MascotRole(MascotPose.MOA_IDLE, "모아가 마음을 모아둬요", "갖고 싶은 상품을 볼에 쏙 담아둘게요")
                     MascotRole(MascotPose.TORI_PRESENT, "토리와 다시 꺼내봐요", "때가 되면 함께 마음을 확인해요")
@@ -142,15 +144,19 @@ fun VaultScreen(items: List<WishItem>, now: Long, onAdd: () -> Unit, onItem: (Wi
     VaultScreen(items, now, onAdd, onItem, onReview = null)
 
 @Composable
-fun VaultScreen(items: List<WishItem>, now: Long, onAdd: () -> Unit, onItem: (WishItem) -> Unit, onReview: (() -> Unit)?) {
+fun VaultScreen(items: List<WishItem>, now: Long, onAdd: () -> Unit, onItem: (WishItem) -> Unit, onReview: (() -> Unit)?,
+    yardPeriod: YardPeriod = YardPeriod.MONTH, goalWon: Long? = null, onStorage: () -> Unit = {}) {
     var filter by rememberSaveable { mutableIntStateOf(0) }
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+    val reduced = rememberReducedMotion() || LocalReduceMotion.current
     val active = items.filter { it.decision == Decision.PENDING }
     val ready = active.filter { it.ready(now) }
     val cooling = active.filterNot { it.ready(now) }
     val actualCount = active.count { !it.isSample }
     val monthly = skippedTotal(items.filter { it.decidedAt?.let { time -> sameMonth(time, now) } == true })
     ContentFrame {
-        LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
+        LazyColumn(Modifier.fillMaxSize(), state = listState, contentPadding = PaddingValues(bottom = 24.dp)) {
             item("vault_header") {
                 Column(Modifier.padding(20.dp)) {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -162,7 +168,11 @@ fun VaultScreen(items: List<WishItem>, now: Long, onAdd: () -> Unit, onItem: (Wi
                             AppIcon("plus", Modifier.size(24.dp), Color.White)
                         }
                     }
-                    VaultMascotStage(active.size, active.count { it.isSample }, ready.size, monthly, onReview)
+                    val spent = yardSummary(items, now, yardPeriod, now).budgetBoughtWon
+                    VaultMascotStage(actualCount, active.count { it.isSample }, ready.size, monthly, onReview,
+                        overGoal = goalWon != null && saturatedAdd(spent, pendingTotal(items)) > goalWon,
+                        onCheek = { scope.launch { if (reduced) listState.scrollToItem(1) else listState.animateScrollToItem(1) } })
+                    BudgetMiniCard(items, now, yardPeriod, goalWon, onStorage)
                     Row(Modifier.padding(top = 22.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(AppColors.Soft).padding(4.dp)) {
                         listOf("전체", "고민 중", "결정 가능").forEachIndexed { i, text ->
                             Box(Modifier.weight(1f).heightIn(min = 48.dp).clip(RoundedCornerShape(10.dp))
@@ -188,7 +198,7 @@ fun VaultScreen(items: List<WishItem>, now: Long, onAdd: () -> Unit, onItem: (Wi
             }
             if ((filter == 1 && cooling.isEmpty()) || (filter == 2 && ready.isEmpty()) || active.isEmpty()) {
                 item("vault_empty") {
-                    EmptyState(if (filter == 2) "아직은 고민할 시간이에요" else "어떤 마음을 담아볼까요?", if (filter == 2) "시간이 지나면 여기서 다시 결정할 수 있어요." else "쿠팡 링크를 가져오거나\n상품 이름을 직접 적어보세요.", if (filter == 2) MascotPose.TORI_BURY else MascotPose.MOA_SLEEP, compact = true)
+                    EmptyState(if (filter == 2) "아직은 고민할 시간이에요" else "어떤 마음을 담아볼까요?", if (filter == 2) "시간이 지나면 여기서 다시 결정할 수 있어요." else "상품 링크를 가져오거나\n상품 이름을 직접 적어보세요.", if (filter == 2) MascotPose.TORI_BURY else MascotPose.MOA_SLEEP, compact = true)
                     if (active.isEmpty()) PrimaryAction("첫 상품 담기", onAdd, Modifier.fillMaxWidth().padding(horizontal = 20.dp))
                 }
             }
@@ -200,24 +210,27 @@ fun VaultScreen(items: List<WishItem>, now: Long, onAdd: () -> Unit, onItem: (Wi
 }
 
 @Composable
-private fun VaultMascotStage(total: Int, samples: Int, ready: Int, monthly: Long, onReview: (() -> Unit)?) {
-    val pose = when { total == 0 -> MascotPose.MOA_SLEEP; total >= 5 -> MascotPose.MOA_STUFFED; else -> MascotPose.MOA_IDLE }
+private fun VaultMascotStage(total: Int, samples: Int, ready: Int, monthly: Long, onReview: (() -> Unit)?, overGoal: Boolean, onCheek: () -> Unit) {
     var tappedCopy by rememberSaveable { mutableStateOf<String?>(null) }
     var lastTap by remember { mutableLongStateOf(0L) }
     var tapCount by rememberSaveable { mutableIntStateOf(0) }
     val copy = tappedCopy ?: when {
+        overGoal -> "모두 사면 목표를 넘어요. 함께 살펴볼까요?"
         total == 0 -> "쿨쿨… 갖고 싶은 게 생기면 깨워 주세요"
-        total >= 5 -> "볼이 빵빵해요. 토리와 살펴볼까요?"
+        total >= 10 -> "볼이 가득 찼어요. 함께 정리해 봐요!"
+        total >= 6 -> "볼이 빵빵해요. 토리와 살펴볼까요?"
+        total >= 3 -> "볼이 든든해요. ${total}개 모아뒀어요"
         else -> "지금 ${total}개 모아뒀어요!"
     }
     LaunchedEffect(total) { tappedCopy = null }
     Column(Modifier.padding(top = 22.dp).fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(MascotStageColor).padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Mascot(pose, modifier = Modifier.testTag("vault_mascot_${pose.name.lowercase(Locale.ROOT)}"), size = 88.dp, onClick = {
+            CheekMoa(total, modifier = Modifier.testTag("vault_cheeks"), size = 88.dp, overGoal = overGoal, onClick = {
                 val time = SystemClock.elapsedRealtime()
                 if (time - lastTap >= 300) {
                     lastTap = time
                     tappedCopy = listOf("헤헤, 간지러워요!", "오늘은 어떤 마음을 찾았나요?", "마음을 잘 담아둘게요")[tapCount++ % 3]
+                    onCheek()
                 }
             })
             Column(Modifier.weight(1f)) {
@@ -231,7 +244,7 @@ private fun VaultMascotStage(total: Int, samples: Int, ready: Int, monthly: Long
         if (ready > 0 && onReview != null) {
             Row(Modifier.padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Mascot(MascotPose.TORI_PRESENT, size = 56.dp)
-                Text("도토리 ${ready}개를 캐 왔어요.\n함께 다시 볼까요?", Modifier.weight(1f), fontSize = 13.sp, color = AppColors.Secondary)
+                Text("마당에 새싹 ${ready}개가 돋았어요.\n함께 다시 볼까요?", Modifier.weight(1f), fontSize = 13.sp, color = AppColors.Secondary)
             }
             PrimaryAction("정리 시간 시작 · ${ready}개", onReview, Modifier.fillMaxWidth().padding(top = 8.dp).testTag("start_review"))
         }
@@ -275,7 +288,7 @@ fun ProductRow(item: WishItem, now: Long, onClick: () -> Unit) {
                 if (item.isSample) Pill("예시", AppColors.Soft, AppColors.Muted)
             }
         }
-        val stage = acornStage(item, now)
+        val stage = if (item.decision == Decision.PENDING) { if (item.ready(now)) AcornStage.SPROUT else AcornStage.BURIED } else null
         if (stage != null) AcornIcon(stage, Modifier.padding(start = 6.dp, top = 4.dp).size(28.dp))
         else AppIcon("chevron", Modifier.padding(start = 4.dp, top = 4.dp).size(14.dp), AppColors.Muted)
     }
@@ -415,7 +428,12 @@ fun MyScreen(
     showMascotBubbles: Boolean = true,
     onMascotBubblesChange: (Boolean) -> Unit = {},
     reduceMascotMotion: Boolean = false,
-    onReduceMascotMotionChange: (Boolean) -> Unit = {}
+    onReduceMascotMotionChange: (Boolean) -> Unit = {},
+    yardPeriod: YardPeriod = YardPeriod.MONTH,
+    onYardPeriodChange: (YardPeriod) -> Unit = {},
+    spendingGoalWon: Long? = null,
+    onGoalEdit: () -> Unit = {},
+    onReports: () -> Unit = {},
 ) {
     ContentFrame {
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
@@ -450,9 +468,22 @@ fun MyScreen(
             Spacer(Modifier.height(8.dp))
             MascotSettingRow("캐릭터 움직임 줄이기", "호흡과 축하를 정적인 모습으로 보여드려요", reduceMascotMotion, onReduceMascotMotionChange, "mascot_reduce_motion")
             SettingsHeading("내 기록")
+            SettingRow("마당 일기", "지난 기간의 선택을 돌아봐요", "history", onReports)
+            Spacer(Modifier.height(8.dp))
             SettingRow("내 기록 내보내기", "", "download", onExport)
             Spacer(Modifier.height(8.dp))
             SettingRow("모든 기록 삭제", "", "trash", onDelete, destructive = true)
+            SettingsHeading("마당과 소비 목표")
+            Text("마당 주기", style = MaterialTheme.typography.titleSmall, color = AppColors.Text)
+            YardPeriod.entries.forEach { period ->
+                Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).testTag("setting_yard_${period.name.lowercase(Locale.ROOT)}")
+                    .selectable(period == yardPeriod, role = Role.RadioButton) { onYardPeriodChange(period) }, verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(period == yardPeriod, onClick = null)
+                    Text(period.label, Modifier.padding(start = 10.dp), color = AppColors.Text)
+                }
+            }
+            SettingRow("소비 목표", spendingGoalWon?.let { "${yardPeriod.label} ${money(it)}" } ?: "목표 없이 사용하고 있어요", "box", onGoalEdit)
+            Text("하루만에서 사기로 결정한 금액이에요. 실제 카드 지출과는 달라요.", Modifier.padding(8.dp), style = MaterialTheme.typography.bodySmall, color = AppColors.Secondary)
             Text("하루만 $appVersion", Modifier.fillMaxWidth().padding(top = 36.dp), fontSize = 12.sp, color = AppColors.Muted, textAlign = TextAlign.Center)
             Text("기록은 이 기기에 보관돼요", Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 24.dp), fontSize = 12.sp, color = AppColors.Muted, textAlign = TextAlign.Center)
         }

@@ -1,14 +1,34 @@
 # 하루만 APK 작업 체크포인트
 
-상태: **사용자 요청으로 앱 구현 중지** · 기준일: **2026-09-29, Asia/Seoul**
+현재 상태: **v3.2 구현·검수 진행 중** · 기준일: **2026-09-29, Asia/Seoul**
 
-> **재개 기록:** 2026-09-29 12:04:47 KST에 사용자가 구현 재개를 지시했다. 15:04:47 KST를 목표 마감으로 `md_plus` 감시·API/애셋 반영·연결 폰 검수·release 작업을 시작한다. 아래 중지 체크포인트는 이전 코드의 보존 기록이며, 현재 진척은 [todo.md](./todo.md)의 실시간 진행판과 실행 기록을 따른다. 재개 직전 원본 소스 50개 해시 일치를 다시 확인했다.
+사용자의 재개 지시에 따라 **12:04:47–15:04:47 KST, 180분** 개발을 진행하고 있다. 이 문서는 현재 실행 요약과 **그 전에 중지했던 버전 1.0 보존 기록**을 구분한다. 재개 직전 과거 소스 ZIP의 50개 파일 해시 일치를 확인했으며, 그 ZIP을 최신 앱 소스로 표시하지 않는다.
 
-> **최신 요구 v3.1:** 링크 직접 입력/Android 공유 → 지정 상품 설명 API → 정상 응답 자동 추가 → 문제 정보 보완·저장 후 수정으로 설계한다. 스크린샷/이미지 전송은 제외했다. API 계약 초안은 수령했고 실제 접속·인증과 캐릭터 MD를 기다리며 설계 파일만 작성한다. 빨강 테마·라이트/다크/시스템·반응형·모션에 제공 애셋/필요 이미지 생성, 친근한 해요체, 실기기 반복 검수·todo·GitHub·release 운영을 추가했다. 아래는 변경되지 않은 기존 코드의 기록이다. 최신 기준은 [GOAL_SPEC.md](./GOAL_SPEC.md), [todo.md](./todo.md), [LINK_API_DESIGN.md](./LINK_API_DESIGN.md), [UI_CHARACTER_DESIGN.md](./UI_CHARACTER_DESIGN.md)다.
+## 현재 v3.2 실행 체크포인트
 
-이 문서는 현재 구현과 이미 생성된 증거를 보존한 기록이다. 중지 이후 앱 소스 수정, Gradle 빌드, Android 테스트, adb 명령은 실행하지 않았다. 앱 관련 작업은 문서 작성과 기존 파일의 복사·압축·해시 확인으로 한정했고, 별도로 제공된 쿠팡 링크를 읽기 전용으로 조사했다.
+| 구분 | 확인된 상태 | 아직 완료하지 않은 것 |
+| --- | --- | --- |
+| 소스 | 첫 통합 `dde656c`를 GitHub `main`에 반영 | 이후 수정과 최종 소스 SHA는 별도 체크포인트 필요 |
+| 입력·저장 | 쿠팡 링크 입력/공유 경계, 직접 텍스트 입력, 보관·편집·결정·초안 보존 구조 구현 | 모든 복합 UI 조건을 자동 테스트 통과로 대체하지 않음 |
+| API | 계약 초안 2개 수령, adapter·검증·자동 저장/보완·취소·중복 방어 구현 및 Fake 검증 | 실제 endpoint·인증 미제공, production `NotConfigured`, 실제 상품 조회 미검증 |
+| 디자인 | `md_plus/mascot-duo` MD 5개·제공 벡터 적용, 모아·토리·도토리·정리 시간·절약 숲·빨강 3모드 | 최종 수정 후 화면·모션·반응형 검수는 todo에 개별 기록 |
+| 테스트 | JVM 38개, 격리 저장 공간을 사용하는 Android 13 실기기 36개 통과 | 최종 release APK 자체의 전체 QA와 구분 |
+| 데이터 보존 | 최신 실제 폰 테스트 전후 운영 prefs·workspace 해시 동일 | 아래 데이터 손실 사건 이전 데이터 복구 증거는 없음 |
+| 내부 APK | 전용 키로 서명한 `1.1.0-rc.1`/code 2, 서명·버전·package·debuggable=false 및 깨끗한 API 36 emulator 설치 확인 | GitHub Release 미발행. 후속 수정 최종 APK의 QA·로컬 불변 보존·공개 배포·다운로드 해시 확인 대기 |
 
-### v3.1 설계 추가 체크포인트
+스크린샷/사용자 이미지 입력·인스타그램 신규 서비스·유튜브·앱 내부 페이지 파싱은 제외한다. 기존 인스타그램 데이터 호환은 유지한다. 상품 설명은 API 계약에 없는 필드이므로 직접 입력한다. 자세한 현재 기준은 [GOAL_SPEC.md](./GOAL_SPEC.md), [todo.md](./todo.md), [LINK_API_DESIGN.md](./LINK_API_DESIGN.md), [UI_CHARACTER_DESIGN.md](./UI_CHARACTER_DESIGN.md)를 따른다.
+
+### 기기 데이터 손실 사건과 변경한 검수 절차
+
+재개 후 `connectedDebugAndroidTest` 경로에서 실제 폰 앱이 제거되는 부작용이 발생했다. **사건 이전 기기 내부 데이터 백업은 없었고, 손실된 기존 데이터를 복구했다고 확인할 근거도 없다.** 아래 과거 ZIP은 소스·APK·검증 산출물 보존물이며 휴대전화 데이터 백업이 아니다. 최신 테스트에서 데이터가 유지된 사실이 과거 손실 복구를 뜻하지 않는다.
+
+이후 실제 폰에서는 해당 Gradle 연결 테스트 명령을 금지하고, [run_device_tests.py](./scripts/run_device_tests.py)의 사전 `run-as` 백업 → `install -r` → 수동 instrumentation → 앱 존재·운영 데이터 해시 확인을 사용한다. 백업 대상은 `shared_prefs`와 `files/ui-workspace/<SHA256(UTF-8 haruman_local_v1)>/`이며 테스트 UUID workspace와 `files/` 전체는 제외한다. 실행 명령은 이 문서 마지막 절과 [DEVELOPMENT_RUNBOOK](./DEVELOPMENT_RUNBOOK.md)에 있다. 원시 QA·기기 serial·백업은 Git 제외 경로에만 보존한다.
+
+## 과거 중지 체크포인트 — 버전 1.0, 아래 기록은 현재 구현 상태가 아님
+
+이하 과거 보존 내역에서 “현재”, “미구현”, “중지 이후 실행하지 않았다”는 **재개 전 해당 기록 시점**을 뜻한다. 당시에는 사용자 요청에 따라 앱 수정·빌드·adb를 중지하고 문서·복사·압축·해시 확인과 읽기 전용 쿠팡 조사를 수행했다. 이후 12:04:47 KST부터 다시 개발했으므로 아래 상태를 최신 상태로 해석하지 않는다.
+
+### 과거 v3.1 설계 전용 체크포인트
 
 - 사용자가 이번에는 **spec·todo 반영**으로 범위를 확인했다. 180분 개발 목표/타이머는 미시작이다.
 - [ASSET_PLAN.md](./ASSET_PLAN.md): 작업 도중 교체된 최신 img의 내용·알파·크기·해시 재점검, 화면별 배치와 필요한 이미지 생성 계획. Android 리소스 적용·이미지 생성은 하지 않았다.
@@ -18,7 +38,7 @@
 - [`releases/`](./releases/README.md)를 마련했다. release APK는 아직 제작·서명·검증·업로드하지 않았다. 기존 debug APK를 release로 이름만 바꾸어 보관하지 않는다.
 - 이미지 원본과 명세는 Git에 보존한다. 향후 APK는 GitHub Release asset으로 제공하고 로컬 `releases/<versionName>-<versionCode>/`에 각각 저장한다. 원시 기기 증거·키·빌드 산출물은 소스 commit에서 제외한다.
 
-## 현재 요구와 구현의 차이
+## 과거 중지 당시 요구와 구현의 차이
 
 - 다음 개발 목표는 쿠팡 중심으로 다시 정리한다. **현재 APK에는 쿠팡과 인스타그램 지원이 모두 남아 있으며, 쿠팡 전용 전환은 아직 구현하지 않았다.**
 - 외부 API, 상품 자동 추출, 서버 연결은 구현하지 않았다. Manifest에 인터넷 권한도 없다.
@@ -76,7 +96,7 @@
 
 위 Git 상태는 최초 코드 중지 시점 기준이다. 이후 사용자가 `udonsari0101/Kakao_Ralphthon`의 main에 현재 작업을 반영하도록 요청했다. 로컬 빌드·APK·스크린샷·압축 보존물은 그대로 유지하고 Git에는 소스·문서·정제된 조사/보존 메타데이터를 기록한다. 큰 바이너리·SDK 경로·기기 증거는 로컬 전용이므로 새 clone에 존재한다고 가정하지 않는다. 과거 `documentation.zip`은 v1 기록으로 유지하며 현재 요구와 구분한다.
 
-## 마지막 APK와 테스트 결과
+## 과거 중지 APK와 테스트 결과
 
 앱 ID는 `org.ralphthon.haruman_ralphthon`, 버전 이름은 `1.0`, 버전 코드는 `1`이다.
 
@@ -119,7 +139,7 @@ Compose 테스트 범위:
 
 두 파일을 직접 열어 내용을 확인하고 보존본 이름을 실제 화면에 맞췄다. 원본 파일명과 파일 내용은 그대로 유지했다. 이 화면들로 최종 APK 전체 화면의 시각 검수가 완료되었다고 판단하지 않는다.
 
-## 로컬 데이터와 동작
+## 과거 버전 1.0의 로컬 데이터와 동작
 
 저장 구현: [`LocalStore.kt`](apk-project/app/src/main/java/org/ralphthon/haruman_ralphthon/data/LocalStore.kt)
 
@@ -141,7 +161,7 @@ SharedPreferences 이름은 `haruman_local_v1`이며 다음 키를 사용한다.
 - 원문 URL이 같은 보류 항목만 중복 저장을 막는다. 추적 파라미터가 다른 같은 상품을 합치는 로직은 없다.
 - 전체 JSON 손상 시 빈 목록을 반환하고, 개별 항목 해석 실패 시 해당 항목을 제외한다. 별도 데이터 마이그레이션·복구 안내는 없다.
 
-## 재개 전에 확인할 항목
+## 과거에 남긴 재개 전 확인 항목
 
 1. 쿠팡 전용 범위 전환 시 인스타그램 enum·샘플·필터·문구·테스트와 기존 저장 데이터 처리 기준을 함께 정한다.
 2. 마지막 중앙 정렬 수정을 실제 휴대전화에서 다시 확인한다. 키보드가 열린 추가 화면과 작은 화면의 스크롤도 확인한다.
@@ -149,9 +169,9 @@ SharedPreferences 이름은 `haruman_local_v1`이며 다음 키를 사용한다.
 4. 공유로 실행된 `MainActivity`는 `onCreate()`에서 기존 Intent를 다시 읽는다. 소비 후 Intent 자체를 제거하지 않으므로 회전·화면 재생성 시 같은 공유 입력이 다시 열리는지 확인한다. 현재는 코드 검토상 확인 필요 항목이며 재현 완료로 기록하지 않는다.
 5. 저장 손상 처리, 샘플 통계 포함 여부, URL 정규화, 밝은 테마 고정 상태를 후속 요구에 맞춰 정리한다.
 
-## 재개 환경과 명령
+## 현재 사용하는 개발 환경과 데이터 보존 명령
 
-아래 명령은 **사용자가 구현 재개를 지시한 뒤 실행할 예시**이며, 체크포인트 보존 과정에서는 실행하지 않았다.
+여기부터는 v3.2 재개 후의 실행 절차다. 과거 보존 과정의 실행 기록과 구분한다. 실제 기기에 대한 설치·검증 전 대상과 서명 호환성을 확인한다.
 
 | 항목 | 확인한 값 |
 | --- | --- |
@@ -168,22 +188,24 @@ SharedPreferences 이름은 `haruman_local_v1`이며 다음 키를 사용한다.
 ```powershell
 Set-Location -LiteralPath 'D:\Develop\ralphthon\apk-project'
 $env:JAVA_HOME = 'C:\Program Files\Android\Android Studio\jbr'
+$env:DEBUG = ''
 .\gradlew.bat :app:assembleDebug :app:testDebugUnitTest :app:assembleDebugAndroidTest --console=plain
+if ($LASTEXITCODE -ne 0) { throw '빌드 또는 JVM 테스트 실패' }
 ```
 
-연결 테스트가 필요한 변경을 한 뒤 기존 SM-G970N 연결 상태를 확인하고 실행한다.
+실제 폰에서는 `connectedDebugAndroidTest`를 **절대 실행하지 않는다.** 빌드 성공 후 저장소 루트에서 아래 runner를 실행한다. 원시 목록·serial·백업은 공개하지 않는다.
 
 ```powershell
-$taskAdb = 'C:\Users\UdonSari\AppData\Local\Android\Sdk\platform-tools\adb.exe'
-& $taskAdb devices -l
-.\gradlew.bat :app:connectedDebugAndroidTest --console=plain
+Set-Location -LiteralPath 'D:\Develop\ralphthon'
+$taskAdb = Read-Host 'adb.exe 전체 경로'
+$taskSerial = Read-Host '검증할 기기의 adb serial'
+python .\scripts\run_device_tests.py --serial $taskSerial --adb $taskAdb --apk .\apk-project\app\build\outputs\apk\debug\app-debug.apk --test-apk .\apk-project\app\build\outputs\apk\androidTest\debug\app-debug-androidTest.apk
+if ($LASTEXITCODE -ne 0) { throw '기기 테스트 또는 데이터 보존 확인 실패' }
 ```
 
-직접 APK를 올릴 때는 `devices -l`에서 확인한 정확한 기기 serial을 지정한다. `REPLACE_WITH_DEVICE_SERIAL`은 실제 값으로 교체한다.
+runner는 사전 백업 실패 시 설치를 중단한다. 성공 후 UI를 이어서 확인할 때는 같은 기기를 지정해 실행한다. 아래 앱 실행 명령은 데이터 초기화를 수행하지 않는다.
 
 ```powershell
-$taskSerial = 'REPLACE_WITH_DEVICE_SERIAL'
-& $taskAdb -s $taskSerial install -r '.\app\build\outputs\apk\debug\app-debug.apk'
 & $taskAdb -s $taskSerial shell am start -n 'org.ralphthon.haruman_ralphthon/.MainActivity'
 ```
 

@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.findViewTreeLifecycleOwner
+import org.ralphthon.haruman_ralphthon.ui.mascot.LocalReduceMotion
 
 @Composable
 fun PrimaryAction(
@@ -56,7 +57,7 @@ fun PrimaryAction(
 ) {
     val interactions = remember { MutableInteractionSource() }
     val pressed by interactions.collectIsPressedAsState()
-    val reducedMotion = rememberReducedMotion()
+    val reducedMotion = rememberReducedMotion() || LocalReduceMotion.current
     val scale by animateFloatAsState(
         if (pressed && enabled && !reducedMotion) 0.985f else 1f,
         animationSpec = tween(if (reducedMotion) 0 else 100), label = "buttonPress"
