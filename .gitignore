@@ -44,3 +44,5 @@ Thumbs.db
 /releases/**/download-verification/
 /releases/**/staging/
 /md_plus/**/*.zip
+# Local API integration credentials: never stage or publish this original document.
+/md_plus/HARUMAN_API_INTEGRATION_PRIVATE.md

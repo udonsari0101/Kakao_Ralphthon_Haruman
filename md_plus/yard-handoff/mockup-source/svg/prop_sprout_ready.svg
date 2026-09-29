@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <title>결정할 때 새싹</title>
+  <g id="mound">
+    <path d="M12,84 C18,58 78,58 84,84 Z" fill="#C29366" stroke="#5B3A22" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M30,74 q5,-5 10,-1 M54,72 q5,-5 10,-1" fill="none" stroke="#A57A52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="sprout">
+    <path d="M48,66 C48,52 48,44 48,36" fill="none" stroke="#57A34C" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M48,44 C36,44 28,36 28,26 C40,26 48,34 48,44 Z" fill="#78C166" stroke="#5B3A22" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M48,40 C58,40 68,32 68,20 C56,20 48,28 48,40 Z" fill="#78C166" stroke="#5B3A22" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="sparkles">
+    <path d="M20,16 Q21.68,20.32 26,22 Q21.68,23.68 20,28 Q18.32,23.68 14,22 Q18.32,20.32 20,16 Z" fill="#FFC83D"/>
+    <path d="M78,7 Q79.96,12.04 85,14 Q79.96,15.96 78,21 Q76.04,15.96 71,14 Q76.04,12.04 78,7 Z" fill="#FFC83D"/>
+  </g>
+</svg>

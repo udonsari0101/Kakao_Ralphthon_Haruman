@@ -1,13 +1,15 @@
-﻿# 하루만 — 이미지 애셋 적용·생성 계획
+# 하루만 — 이미지 애셋 적용·생성 계획
 
-갱신일: 2026-09-29 · `1.1.0-rc.2` 자산 구현·검수 기록
+갱신일: 2026-09-29 · RC2 자산 기록 보존 · RC3 후속 가로 로고·토리 적용은10절
+
+**새 작업:** 사용자 제공 [yard-handoff](./md_plus/yard-handoff/README.md)의 테라스 마당으로 수정 중이다. 새4벡터 원본·확정 PNG를 확인했으며 복사·화면 적용·검수 결과는9절에서 별도 관리한다. 아래 RC2 완료 기록은 새 화면의 완료를 뜻하지 않는다.
 상태: **제공 브랜드 자산과 모아·토리 벡터를 앱에 적용했고, 실제 Android 폰과 에뮬레이터에서 표시·상호작용·모션을 검토했다. 원본 이미지는 보존했으며 새 래스터 이미지는 생성하지 않았다.**
 
 **13:43 KST에 추가 수령한 [storage-visualization.md](./md_plus/storage-visualization.md)**를 반영해 볼 5단계·날짜 마당·소비 목표·리포트를 구현했다. 현재 기준은 소스 `d6fa562349905764d60c0924d505a4eb8b1b91f7`, 서명 release `1.1.0-rc.2`(code 3)이며, GitHub `v1.1.0-rc.2` 발행과 다운로드 파일 해시 일치까지 확인했다. 검수한 화면 조합과 남은 고급 연출은 5·7·8절에서 구분한다. 수령 문서 SHA-256: `A9AEDB110BF812A52EF0C1A26EDFAD529F3E27668118FABF625FE72D42131176`.
 
 최종 APK SHA-256: `3e136b7a876f0868bb0fb69dcdf1b2bcf3e28a1ed059fc2b2c9ddfd0672a0a90`. [배포 매니페스트](./releases/1.1.0-rc.2-3/manifest.json)와 [최종 APK 검수 기록](./releases/1.1.0-rc.2-3/qa-summary.md)에 빌드·서명·환경·한계를 보존했다.
 
-## 1. 현재 적용 기준
+## 1. 이어받는 브랜드·데이터 기준
 
 - **런처·브랜드:** 빨간 장바구니와 웃는 영수증/종이 모티프, 제공된 ‘하루만’ 워드마크를 유지한다.
 - **앱 안 캐릭터:** `md_plus/mascot-duo/`의 햄스터 **모아**와 다람쥐 **토리**를 사용한다. 영수증 그림을 앱 안의 두 캐릭터 대신 배치하지 않는다.
@@ -88,7 +90,7 @@
 | `drawable/ic_haruman_foreground.xml`, `ic_haruman_monochrome.xml` | 전경·단색 리소스 존재. 모든 런처 마스크와 테마 아이콘 검증 완료를 뜻하지 않음 |
 | `mipmap-anydpi-v26/ic_launcher*.xml` | 적응형 리소스는 존재하지만 현재 Manifest의 직접 참조 대상은 아님 |
 | `drawable-nodpi/haruman_mascot.png` | 제공 `haruman_app_icon_512.png`를 복사한 브랜드 원본. 앱 안 상태 캐릭터는 모아·토리 사용 |
-| `drawable-nodpi/haruman_wordmark_color.png`, `haruman_wordmark_white.png` | 제공 원본을 사용하며 `BrandLogo`가 라이트/다크에 맞춰 선택 |
+| `drawable-nodpi/haruman_wordmark_color.png`, `haruman_wordmark_white.png` | RC2의 제공 워드마크 리소스. 후속 `BrandLogo`는10절의 가로 로고2개를 선택 |
 | `drawable/haruman_splash_icon.xml`, `values-v31/themes.xml` | Android 12+ 시작 화면에 브랜드 아이콘 연결. 인위적인 시작 대기 없음 |
 | `ui/theme/Color.kt`, `Theme.kt` | 빨강 기반 light/dark 토큰과 SYSTEM/LIGHT/DARK 선택 연결 |
 
@@ -108,7 +110,7 @@
 
 근거 테스트: [VisualLayoutTest.kt](./apk-project/app/src/androidTest/java/org/ralphthon/haruman_ralphthon/ui/VisualLayoutTest.kt), [MotionUiTest.kt](./apk-project/app/src/androidTest/java/org/ralphthon/haruman_ralphthon/ui/MotionUiTest.kt), [YardUiTest.kt](./apk-project/app/src/androidTest/java/org/ralphthon/haruman_ralphthon/ui/YardUiTest.kt). 실제 실행·배포별 증거는 [최종 APK 검수 기록](./releases/1.1.0-rc.2-3/qa-summary.md)과 [CHECKPOINT.md](./CHECKPOINT.md)를 따른다.
 
-상품 썸네일은 실제 `imageUrl`과 `imageHidden`을 따른다. HTTPS·응답 4MB·디코딩 768px·동시 3개·메모리 캐시 12MB 제한이 있고 실패/숨김은 중립 상자 아이콘으로 대체한다. 샘플 그림은 샘플에만 사용한다. 실제 상품 API의 주소·인증이 아직 없어 실서비스 이미지 응답까지 확인한 상태는 아니다.
+상품 썸네일은 실제 `imageUrl`과 `imageHidden`을 따른다. HTTPS·응답 4MB·디코딩 768px·동시 3개·메모리 캐시 12MB 제한이 있고 실패/숨김은 중립 상자 아이콘으로 대체한다. 샘플 그림은 샘플에만 사용한다. 실제 상품 API의 주소·인증이 없던 RC2에서는 실서비스 이미지 응답을 확인하지 않았다. 후속 비공개 설정 수령과 실제 Android 원격 이미지 검수는 별도다.
 
 ## 6. 개발 중 추가 이미지 제작 범위
 
@@ -169,3 +171,67 @@
 - [ ] 실제 주/월 경계 자동 리포트·목표 반응 영상 검수, 전용 삽질·물주기와 개별 상태 전환 고급 모션 구현.
 
 데이터·설정 코드와 자동 테스트는 자산 전체의 시각 검수를 대신하지 않는다. 구현·직접 확인·남은 범위를 위 표와 최종 APK 검수 기록에 맞춰 유지한다.
+
+## 9. 새 확정 테라스 마당 — 자산 수령·적용 진행 중
+
+사용자의 추가 요청에 따라 `md_plus/yard-handoff/`의 확정 테라스 A안으로 기존 달력 grid를 교체한다. [확정 PNG](./md_plus/yard-handoff/mockups/마당탭_테라스밭.png)를 직접 확인했고 README·lay.py·v.css·data.py를 읽었다. PNG는780×1688(390×844의2배), SHA-256 `2f6e6aca3759b10a59b762358ec53efc2010ffe7ff74f0c71934383abb7b3f8d`다. 위8절의 RC2 날짜칸/최대3/Canvas그림 기록은 과거 채택 상태로 보존한다.
+
+### 원본4종과 복사 계약
+
+아래 파일은 `md_plus/yard-handoff/assets/android-drawable/`에서 제공됐다. 대응 SVG는 `assets/svg/`에 보존하고 런타임에는 XML을 그대로 복사한다. 새 PNG 생성이나 원본 재작화는 하지 않는다. 기존 앱에 같은 리소스명이 있으면 제공 원본으로 교체하는 변경을 별도로 확인하고 과거 RC2 원본 기록을 지우지 않는다.
+
+| 제공 XML | 용도 | 원본 SHA-256 |
+| --- | --- | --- |
+| `prop_hole.xml` | BUY의 파인 흙·양옆 흙더미 | `72b414ae5b4417163bec4581ed846a75a3dbf6f549ae5ca8880882ef34efc5d0` |
+| `prop_sign_unknown.xml` | 가격 미정 팻말, 주/상품 상세에서만 | `0082c19f0919763d71b8602e7be016bf959c26c0dbfd440aa11d445692e412c3` |
+| `prop_sprout_ready.xml` | 준비된 새싹·노란 빛/반짝임 | `a3dd859716ea195a4063f7f886e330319cea20d37d23ab3bb4bcc3b4ab4a90e8` |
+| `prop_tree_fruit.xml` | 결정 가격20만 원 이상 열매 나무 | `cdb7d45b0d7b2f376a061ec9dafc5966cf08b31369a48e9b84ed0d578dc168bd` |
+
+기존 토리·흙더미·작은/큰 나무의 실제 원본 위치는 `md_plus/mascot-duo/assets/android-drawable/`다. README의 `../README.md`와 `../guides/storage-visualization.md`는 배포 폴더 구조와 맞지 않으며 실제 가이드는 `md_plus/mascot-duo/README.md`, 기존 시각화 문서는 `md_plus/storage-visualization.md`다. 사용자 원문 링크는 수정하지 않는다.
+
+### 화면 적용과 품질 기준
+
+- sky→grass 배경, 초록 잔디, 갈색 흙면, 나무 팻말, 이번 주 파랑 테두리·오늘 파랑 알약을 PNG대로 구성한다. 전역 CTA/탭의 빨강·3모드와 친근한 해요체는 유지하며 다크 모드의 글자·배지를 따로 확인한다.
+- CSS 최종92dp 층과10dp 간격을 출발점으로 삼고 칩 줄바꿈/큰 글꼴에 따라 확장한다. 고정 좌표로 토리를 띄워 다른 층이나 CTA를 가리지 않는다. 토리·말풍선은 준비된 새싹과 의미 있게 연결하되 필수 정리 접근은 말풍선OFF에도 남긴다.
+- 가중 요일 슬롯에 앞3+뒤3을 배치하고7개 이상 `+N`을 그린다. 뒤는78%·10dp 위로 둔다. 월간에는 미정 `?` 팻말을 생략하고 주/상세만 표시한다. 예시·미상·0원과 실제 결정 스냅샷 의미를 그림 때문에 바꾸지 않는다.
+- 새 제공 벡터와 장식이 360dp/font1.3,320dp/font2에서 잘리거나 겹치지 않는지 확인한다. 그림 밀집 시 주 상세의48dp 카드로 모든 상품에 접근할 수 있어야 한다.
+- 준비새싹/나무360ms·구덩이300ms·금액400–650ms의1회 전환을 검토하며 모션 감소에서는 즉시 최종 그림이다. 저장과 CTA를 효과가 막지 않는다. 새 테라스 모션은 별도 녹화로 확인한다.
+
+- [x] 확정 PNG 실물·README·배치/CSS/목업 데이터 확인,4벡터 원본 해시 기록.
+- [ ] 제공4벡터의 앱 복사본 해시 일치 확인 및 채택 경로 기록.
+- [ ] 37개fixture의7개/6개 밀집·앞뒤 깊이·`+N`·팻말/층 경계·스크롤 검수.
+- [ ] 라이트/다크·글꼴1.3/2·48dp 접근·말풍선OFF 검수.
+- [ ] 상태 변경·반복 진입·모션 감소/OS0·저장 비차단의 새 기기 증거 기록.
+
+현재 이 절은 새 자산 수령·적용 계획이다. 소스 복사·화면 코드 작성과 기기 검수 완료를 각각 확인한 뒤 체크한다. `data.py`는 테스트fixture 참고 전용이며 사용자 저장소에37개 상품이나 새 기본 데이터를 만들지 않는다.
+
+## 10. 후속 사용자 수정 — 앱 안 가로 로고·토리 표정·구덩이 안내
+
+이 절은 RC3 후속 소스의 적용 기록이며 위 RC2 자산·검수 이력을 대체하지 않는다. 소스 연결과 아래 복사본 해시는 확인했지만 최신 APK의 전체 화면·모션 검수를 완료했다고 표시하지 않는다.
+
+### 제공 가로 로고의 직접 적용
+
+| 제공 원본 → 앱 복사본 | SHA-256 | 현재 연결 |
+| --- | --- | --- |
+| `img/haruman_logo_horizontal.png` → `res/drawable-nodpi/haruman_logo_horizontal.png` | `701f69e24673d87f1392a882679d248130152619b62a35c485914d48d9e377d8` | 라이트 모드의 바구니+하루만 가로 로고 |
+| `img/haruman_logo_horizontal_white.png` → `res/drawable-nodpi/haruman_logo_horizontal_white.png` | `a9cf81beb8fb085d2d2f4c8ae23f406561dc3dbf93c48724fce5643e651c4d62` | 다크 모드의 흰색 가로 로고 |
+
+두 파일 모두 제공 원본과 앱 복사본의 바이트·SHA-256이 일치한다. 재생성·재색칠·원본 편집 없이 복사했다. `BrandLogo`는 앱 팔레트의 라이트/다크에 따라 이 두 리소스를 선택하고 `ContentScale.Fit`, 기본116×38dp로 비율을 보존한다. 기존 온보딩과 함께 보관함 헤더(`vault_brand_logo`)·MY 헤더(`my_brand_logo`)에 연결했다. 이전 wordmark-only 리소스의 존재를 현재 `BrandLogo`의 선택 대상으로 해석하지 않는다.
+
+### 토리의 추가 파생 벡터와 위치
+
+`res/drawable/mascot_tori_disappointed.xml`은 제공 `mascot_tori_idle.xml`을 바탕으로 만든 **로컬 파생 VectorDrawable**이다. 고개를 왼쪽으로 기울이고 아래로 숙인 얼굴·왼쪽 시선·슬픈 눈썹·눈물·내린 앞발을 사용한다. 제공 원본 파일은 수정하지 않았고 새 래스터도 생성하지 않았다. 조사 시 파생본 SHA-256은 `eff2cbccef8f62a0109555f1ee6bfa1c9ccd79e36de94f3de5c7f7a2ce3cf01a`다.
+
+- `MascotPose.TORI_DISAPPOINTED`를 추가했고, 현재 표시 기간의 실제 BUY 구덩이가 있으면 이 포즈, 없으면 기존 `TORI_CHEER`를 사용한다. 예시 항목은 표정 판정에서도 제외한다.
+- 토리는 준비된 상품 수가0이거나 말풍선이 꺼져도 **모든 테라스 아래의 독립 영역**에 존재한다. 스크롤을 따라 배치하며 화면 위에 고정해 층·버튼을 덮지 않는다. 토리 앞에 별도 장식 구덩이를 더 만들지 않는다.
+- 말풍선 OFF는 문구만 숨긴다. 준비된 상품이 있으면48dp 이상의 `정리 시간 시작` 버튼을 유지한다. 기본 표정은 정적이며 `breathing=false`다.
+
+### 실제 구덩이 클릭 안내
+
+마당의 실제 BUY 식물을 누르면 **‘구덩이 제거는 500원이에요’** 안내 팝업을 연다. 사용자가 확정한 범위는 안내뿐이다. 실제 결제·청구·구덩이/상품 기록 삭제·기존 합계 변경은 하지 않는다. `상품 보기`로 원래 상품 상세에 들어갈 수 있고 `닫기`로 그대로 돌아온다. 팝업의 구덩이 아이콘은 제공 `prop_hole`을 사용한다.
+
+- [x] 가로 로고2개 복사본의 원본 일치, `BrandLogo` 테마 선택과 온보딩/보관함/MY 연결 확인.
+- [x] `TORI_DISAPPOINTED` 파생 출처·표정 선택·테라스 아래 배치·추가 장식 구덩이 없음 확인.
+- [x] 실제 BUY 식물 클릭과 안내/상품 보기/닫기의 소스 연결 확인.
+- [ ] 최신 정확한 APK에서 라이트/다크 로고 대비·원본 비율·큰 글꼴의 헤더 공간과 토리/말풍선/CTA 접근을 확인.
+- [ ] 실제 구덩이와 없음·빈 마당·예시 제외·말풍선 OFF, 팝업 전후 기록/합계 불변을 기기에서 확인.

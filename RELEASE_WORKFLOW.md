@@ -1,10 +1,24 @@
 # 개발 중 검증과 APK 배포 절차
 
-기준일: 2026-09-29 · GOAL_SPEC **v3.2** · 상태: **RC2/code3 서명 APK 보존·GitHub 프리릴리스 발행·재다운로드 해시 검증 완료**
+기준일: 2026-09-29 · GOAL_SPEC **v3.2** · 상태: **RC3/code4 개발 APK·실제 API 등록 검수 진행, 정확한 release 검수·배포 대기. RC2 배포 이력 보존**
 
-2026-09-29 **12:04:47–15:04:47 KST**의 180분 개발 작업이 진행 중이다. 첫 통합 소스 체크포인트 `dde656c`의 GitHub `main` 반영을 확인했다. 이후 수정과 최종 artifact 검증은 별도로 기록하며, 이 commit이 모든 후속 수정을 포함한다고 가정하지 않는다.
+2026-09-29 **12:04:47–15:04:47 KST**는 RC2의180분 작업 기록이다. 이후 RC3 테라스·API·그래프·저장 수정은 추가 사용자 작업으로 진행한다. 첫 통합 소스 체크포인트 `dde656c`의 GitHub `main` 반영을 확인했다. 이후 수정과 최종 artifact 검증은 별도로 기록하며, 이 commit이 모든 후속 수정을 포함한다고 가정하지 않는다.
 
-구현 범위는 [GOAL_SPEC.md](./GOAL_SPEC.md), 실제 진행 상황은 [todo.md](./todo.md), 운영은 [DEVELOPMENT_RUNBOOK.md](./DEVELOPMENT_RUNBOOK.md), API 경계는 [LINK_API_DESIGN.md](./LINK_API_DESIGN.md)를 따른다. 사용자의 개발 재개 지시가 과거 문서 전용 제한을 대체했다. `md_plus/mascot-duo`의 Markdown 5개와 제공 벡터를 반영했다. 실제 상품 API endpoint·인증은 아직 없어 production은 `NotConfigured`이며, 추가 API 연결 문서를 기다린다.
+구현 범위는 [GOAL_SPEC.md](./GOAL_SPEC.md), 실제 진행 상황은 [todo.md](./todo.md), 운영은 [DEVELOPMENT_RUNBOOK.md](./DEVELOPMENT_RUNBOOK.md), API 경계는 [LINK_API_DESIGN.md](./LINK_API_DESIGN.md)를 따른다. 사용자의 개발 재개 지시가 과거 문서 전용 제한을 대체했다. `md_plus/mascot-duo`의 Markdown 5개와 제공 벡터를 반영했다. RC2 당시 실제 상품 API 설정이 없어 `NotConfigured`였다. 이후 설정 수령과 사용자 명시 요청에 따라 RC3 시험용 APK에 기본 API 주소·토큰을 포함하는 아래 정책을 추가한다.
+
+## 0. 후속 시험용 배포: 사용자 승인 API 기본 설정 내장
+
+사용자는 API 주소와 토큰을 앱에 내장하도록 명시했다. **이 시험용 APK에는 제공된 공유 Bearer 토큰이 들어가며 추출·재사용 가능하다.** 앞선 ‘키가 없는 APK’ 정책은 이 추가 지시로 대체한다. Git 소스에서 비밀값을 제외한다는 사실을 APK도 비밀값이 없다는 주장으로 바꾸지 않는다.
+
+- 비공개 원문과 이를 읽는 로컬 도구는 Git에서 제외한다. 실제 값은 명령 인자·콘솔·공개 문서에 쓰지 않는다. 빌드 환경변수 `HARUMAN_API_BASE_URL`·`HARUMAN_API_TOKEN`에서 `BuildConfig.PRODUCT_API_BASE_URL`·`PRODUCT_API_TOKEN`으로 주입한다.
+- 추적 소스에는 환경변수 이름과 주입 코드만 있고 실제 값은 없다. 생성 BuildConfig·빌드 폴더는 Git에 올리지 않는다. APK는 승인된 release asset에 포함될 수 있으므로 내장 토큰도 그 APK와 함께 배포된다는 점을 릴리스 노트에 명시한다.
+- 런타임 재설정이 내장 기본값보다 우선한다. 둘 다 없는 빌드는 `NotConfigured`다. Keystore는 런타임 저장을 보호하며 APK에 포함한 기본 토큰을 보호하지 않는다.
+- 시험용 공유키 범위로만 기록한다. 장기 프로덕션 자격증명 발급·회수·사용자별 인증을 구현했다고 주장하지 않는다. 키 파일·서명 비밀번호·원시 인증 문서·기기 serial은 계속 공개 금지다.
+- 빌드 전후 실제 값은 출력하지 않고 설정 포함 여부만 확인한다. metadata/릴리스 노트에는 ‘시험용 기본 API 자격증명 포함/추출 가능’과 적용 방식·실제 API 관찰 범위를 값 없이 기록한다.
+- 환경 주입 값이 달라지면 같은 소스 commit이라도 APK 바이트가 달라질 수 있다. 정확한 APK SHA-256·버전·서명·기기 QA를 다시 확인하고 확정된 기존 버전 폴더나 asset을 덮어쓰지 않는다.
+- 내장 여부와 실제 연결 결과를 분리한다. 데스크탑 호출·fixture 성공은 Android 성공이 아니다. 실제 APK가 받는 성공/부분/오류와 저장/수동 폴백을 관찰한 범위만 QA에 넣는다.
+
+이 절은 후속 배포 정책이며 기존 RC2의 `NotConfigured` QA와 배포 해시를 변경하지 않는다. 서명·소스·정확한 APK QA·업로드/다운로드 해시 gate는 그대로 적용한다.
 
 ## 1. 확인된 현재 상태
 
@@ -13,13 +27,19 @@
 | 항목 | 현재 값 |
 | --- | --- |
 | applicationId | `org.ralphthon.haruman_ralphthon` |
-| 현재 소스 후보 versionName / versionCode | `1.1.0-rc.2` / `3` |
+| 현재 소스 후보 versionName / versionCode | `1.1.0-rc.3` / `4`, 예정 tag `v1.1.0-rc.3` |
 | compileSdk / targetSdk / minSdk | `36` / `36` / `24` |
 | release signingConfig | 외부 환경변수로 전용 release 키를 주입하는 설정 구현 |
 | debug 패키지 분리 | `applicationIdSuffix` 없음 |
 | product flavor | 없음 |
 
-**최종 배포 증거:** RC2(`1.1.0-rc.2`, code3), 소스 `d6fa562349905764d60c0924d505a4eb8b1b91f7`와 APK SHA256 `3e136b7a876f0868bb0fb69dcdf1b2bcf3e28a1ed059fc2b2c9ddfd0672a0a90`를 고정했다. `apksigner verify`/v2, package·버전·`debuggable=false`와 정확한 APK의 API36 설치·주요 흐름·재실행을 확인했다. 공개 인증서 SHA256은 `9e301264b6a98f3a8c79db0374717d09e4384c9778ee1a9ae2acd155c3831f04`다. [버전별 폴더](./releases/1.1.0-rc.2-3/)에 보존하고 [GitHub Release](https://github.com/udonsari0101/Kakao_Ralphthon/releases/tag/v1.1.0-rc.2)의 첨부파일5개를 다시 내려받아 체크섬을 대조했다. [publication.json](./releases/1.1.0-rc.2-3/publication.json)에 발행 결과를 기록한다. RC1은 과거 내부 후보이며 최종 파일의 증거로 대신하지 않는다.
+**이전 RC2 배포 증거:** RC2(`1.1.0-rc.2`, code3), 소스 `d6fa562349905764d60c0924d505a4eb8b1b91f7`와 APK SHA256 `3e136b7a876f0868bb0fb69dcdf1b2bcf3e28a1ed059fc2b2c9ddfd0672a0a90`를 고정했다. `apksigner verify`/v2, package·버전·`debuggable=false`와 정확한 APK의 API36 설치·주요 흐름·재실행을 확인했다. 공개 인증서 SHA256은 `9e301264b6a98f3a8c79db0374717d09e4384c9778ee1a9ae2acd155c3831f04`다. [버전별 폴더](./releases/1.1.0-rc.2-3/)에 보존하고 [GitHub Release](https://github.com/udonsari0101/Kakao_Ralphthon/releases/tag/v1.1.0-rc.2)의 첨부파일5개를 다시 내려받아 체크섬을 대조했다. [publication.json](./releases/1.1.0-rc.2-3/publication.json)에 발행 결과를 기록한다. RC1은 과거 내부 후보이며 최종 파일의 증거로 대신하지 않는다.
+
+### RC3 현재 관측 — release 검수와 구분
+
+15:59 실제 폰의 개발 APK UI에서 새4링크를 각각 한 번 등록했다. 기존3상품 JSON의 모든 필드는 유지됐고 새4상품은 정확히1개씩 추가돼 총7개다. 반환된 가격4개(21,900/22,000/6,900/179,000원)가 저장값과 일치했고 `imageUrl`과 API snapshot이 모두 존재했다. 앞선 데스크탑4건200/success와 별도 Android opt-in의blocked 관측도 환경별로 구분한다. 이 관측은 전체 판매 조건·실제 결제액의 보증이 아니다.
+
+최신 전체 회귀·저장 경계 수정은 진행 중이며 정확한 signed release APK의 source/hash·설치·재실행·API 등록은 아직 검수 전이다. RC3 metadata의 `RealApiVerified`는 그 **최종 파일 자체**의 상품 추출 성공을 확인한 후에만 채운다. 개발 APK의 성공을 복사하지 않는다. 최신 실행 결과는 [QA_TERRACE_RC3](./QA_TERRACE_RC3.md)와 [todo](./todo.md)를 따른다.
 
 ## 2. 개발 중 반복 검증과 todo 갱신
 
@@ -41,7 +61,7 @@
 
 개발 중 `connectedDebugAndroidTest` 실행 경로가 기기 앱을 제거하는 부작용이 발생했다. **사건 이전 휴대전화 내부 데이터 백업은 없었으며, 그때 잃은 데이터를 복구했다고 보고하지 않는다.** 이후 만든 백업이 이전 손실을 되돌린다는 뜻도 아니다. 데이터가 있는 실제 폰에서는 `connectedDebugAndroidTest`를 절대 실행하지 않는다. `uninstall`, `pm clear`, 서명 충돌 해소를 위한 삭제도 사용하지 않는다.
 
-최종 소스의 **JVM62개 + 테스트 전용 저장 공간을 사용하는 Android13 실기기63개**, 별도 OS모션0 검사1개와 runner 회귀3개가 통과했다. 최신 실기기 실행 전후 운영3파일 SHA256이 동일했다. 초기36개 실행은 runner의 목록 파싱 오류로 빈 hash 비교가 무효였으며, 이후 `ls -1a`·엄격 파싱·tar 검증으로 수정했다. 테스트 수는 전체 화면·기기 조합이나 최종 signed APK 자체의 검수를 대신하지 않는다.
+RC2 최종 소스의 **JVM62개 + 테스트 전용 저장 공간을 사용하는 Android13 실기기63개**, 별도 OS모션0 검사1개와 runner 회귀3개가 통과했다. 최신 실기기 실행 전후 운영3파일 SHA256이 동일했다. 초기36개 실행은 runner의 목록 파싱 오류로 빈 hash 비교가 무효였으며, 이후 `ls -1a`·엄격 파싱·tar 검증으로 수정했다. 테스트 수는 전체 화면·기기 조합이나 최종 signed APK 자체의 검수를 대신하지 않는다.
 
 저장 데이터가 있는 폰은 APK만 빌드한 다음 [runner](./scripts/run_device_tests.py)로 명시한 한 기기에 update 설치하고 수동 instrumentation을 실행한다. 명령은 저장소 루트에서 실행하며 serial과 SDK 경로는 로컬에서만 입력한다.
 
@@ -91,7 +111,7 @@ Android APK는 설치·업데이트 전에 서명되어야 한다. `assembleRele
 
 release 제작이 승인된 재개 작업에서는 먼저 기존 배포 키·서명 기록·배포 이력을 확인한다. **기존 키와 배포 이력이 없음을 확인했다면 새 release 키 준비를 해당 제작 권한에 포함해 진행할 수 있다.** 작업자는 Git 밖의 지속적인 위치에 키를 한 번 생성하고, 비밀값을 로컬 비밀 저장소 또는 접근 제한된 로컬 설정에 보관하고, 별도 안전한 백업과 공개 인증서 fingerprint를 기록한다. 실제 비밀값은 콘솔·문서·commit에 노출하지 않는다. 기존 키의 존재나 사용 이력이 불명확하면 해당 키를 덮어쓰거나 새 키로 대체하지 않고, 확인되지 않은 조건을 인계한다.
 
-배포할 APK마다 `versionName`, `versionCode`, tag의 대응을 정한다. 같은 applicationId의 이후 배포본은 이전 배포본보다 큰 `versionCode`를 사용한다. Android는 versionCode를 다운그레이드 판정에 사용한다. 과거 debug는 code 1, 내부 RC1은 code 2이며 현재 소스 후보 RC2는 `1.1.0-rc.2`/code 3이다. 실제 APK의 값이 이 계획과 일치하는지 검증하며 보존·배포 전 바뀌면 해당 값으로 기록을 맞춘다. [Android 버전 관리](https://developer.android.com/studio/publish/versioning)
+배포할 APK마다 `versionName`, `versionCode`, tag의 대응을 정한다. 같은 applicationId의 이후 배포본은 이전 배포본보다 큰 `versionCode`를 사용한다. Android는 versionCode를 다운그레이드 판정에 사용한다. 과거 debug는 code 1, 내부 RC1은 code 2이며 배포된 RC2는 `1.1.0-rc.2`/code3이며 현재 소스 후보 RC3는 `1.1.0-rc.3`/code4다. 실제 APK의 값이 이 계획과 일치하는지 검증하며 보존·배포 전 바뀌면 해당 값으로 기록을 맞춘다. [Android 버전 관리](https://developer.android.com/studio/publish/versioning)
 
 내부 RC1의 versionName은 `1.1.0-rc.1`이지만 해당 이름의 공개 tag/Release가 생성됐다는 뜻은 아니다. 최종 정식 배포에는 실제 APK의 정식 versionName과 대응하는 tag를 사용한다. 보존을 확정한 버전의 APK 바이트가 바뀌면 새 versionCode와 폴더를 만든다.
 
@@ -129,7 +149,7 @@ Android build variant는 build type 또는 flavor별 applicationId suffix를 지
 | 최종 설치 | 최종 APK를 서명 호환 실기기 또는 깨끗한 emulator에 기존 데이터 손실 없이 설치하고 실행 |
 | 주요 흐름 | 해당 버전의 입력·저장·편집·공유·재실행과 관련 회귀 확인 |
 | 해시 | 로컬 보존본·검증본·업로드 대상으로 선택한 APK의 SHA256 일치 |
-| 공개 설명 | API 미연결, 알려진 제한, 기존 debug 설치 충돌 등 실제 상태를 명시 |
+| 공개 설명 | API 시험용 기본값 내장·추출 가능, 정확한 APK에서 확인한 연결 범위, 알려진 제한·기존 debug 설치 충돌 등 실제 상태 명시 |
 
 공식 `apksigner`는 서명 확인과 인증서 출력 기능을 제공하고, `apkanalyzer`는 APK manifest의 package·버전·debuggable 등을 확인할 수 있다. 출력에서 공개할 값만 manifest에 옮기고 불필요한 개인 인증서 정보나 로컬 경로를 그대로 붙이지 않는다. [apksigner](https://developer.android.com/tools/apksigner), [apkanalyzer](https://developer.android.com/tools/apkanalyzer)
 
@@ -185,18 +205,20 @@ Git은 `README.md`와 버전별 정제한 `manifest.json`, `release-notes.md`, `
 | tests | 테스트 종류·실행 시각·개수·실패 수·관련 근거. 예제와 기능 테스트를 구분 |
 | finalArtifactQa | 최종 production APK를 검증한 실기기 또는 emulator 구분, 모델/AVD·Android 버전·설치/동작/재실행 결과 |
 | releaseQaVariantQa | 별도 검증 package를 사용했다면 그 결과와 최종 APK와의 차이 |
-| apiIntegration | production의 `NotConfigured` 또는 `RealApiVerified`, 실제 연결 여부와 검증 환경. Fake 검증은 tests에 별도 기록 |
+| apiIntegration | `NotConfigured` / `ConfiguredResponseVerified` / `RealApiVerified`. 정확한 APK의 실제 관찰과 환경을 기록하며 Fake 검증은 tests에 별도 기록 |
 | knownLimitations | 미완료·미검증·기존 설치 호환 제한 |
+
+API metadata 상태는 다음처럼 구분한다. `ConfiguredResponseVerified`는 인증된 API의 계약 응답(예: `blocked`)을 **정확한 release APK**에서 확인했지만 상품 추출 성공은 확인하지 못한 경우다. 이때 `realApiConnected=true`로 기록할 수 있으나 상품 자동 추출 성공으로 보고하지 않는다. `RealApiVerified`는 실제 상품 추출 성공까지 확인한 경우에만 사용한다. `NotConfigured`는 사용 가능한 설정이 없는 상태다. 내장값 존재나 데스크탑 요청 관찰만으로 앞의 두 Android 검수 상태를 채우지 않는다.
 
 릴리스 노트에는 사용자에게 보이는 변경, 검증한 동작, 버전·package·서명 fingerprint·APK SHA256, source commit, API 연결 상태, 알려진 제한을 기록한다. 구매 결정 기록을 주문 완료로 표현하지 않고 API 미설정을 실제 자동 추출 성공으로 표현하지 않는다.
 
-`SHA256SUMS.txt`는 APK와 확정된 metadata의 해시를 담고 자기 자신은 제외한다. 나중에 추가되는 `publication.json`은 기존 checksum 목록을 다시 쓰지 않고 그 안에 업로드·다운로드 비교 결과를 기록한다. 원시 인증값·키 파일·기기 serial은 manifest와 Release asset에 포함하지 않는다.
+`SHA256SUMS.txt`는 APK와 확정된 metadata의 해시를 담고 자기 자신은 제외한다. 나중에 추가되는 `publication.json`은 기존 checksum 목록을 다시 쓰지 않고 그 안에 업로드·다운로드 비교 결과를 기록한다. 원시 인증값·키 파일·기기 serial은 manifest·릴리스 노트·별도 문서 asset에 포함하지 않는다. 예외적으로 사용자 승인 시험용 APK에는0절의 기본 API 토큰이 포함되며 이를 숨기거나 secret-free APK로 표시하지 않는다.
 
 ### 8.1 구현된 로컬 보존 도구
 
 [`scripts/stage_release.ps1`](./scripts/stage_release.ps1)은 실제 `apksigner`·`apkanalyzer` 출력, `debuggable=false`, package·버전·공개 인증서, full source SHA와 앱 경로의 미커밋 변경 여부, 정확한 APK SHA256에 대한 QA 증거를 확인한 뒤 새 `releases/<versionName>-<versionCode>/`를 만든다. 이미 있는 버전 폴더는 덮어쓰지 않는다. 도구 호출 중에만 `DEBUG` 환경변수를 비워 SDK BAT의 echo 출력을 막고 원래 값을 복원한다. 이 스크립트 자체는 빌드·서명·설치·tag 생성·업로드를 하지 않는다.
 
-QA JSON의 정확한 형식은 스크립트 첫머리를 따른다. 최종 APK의 해시·full source SHA, 설치/실행/주요 흐름/재실행 관찰, 기기 또는 emulator 환경, 빌드/테스트/도구 버전, API 연결 여부와 검증 환경이 필요하다. 현재 API 상태는 `NotConfigured`, `realApiConnected=false`다. 빈 항목을 가짜 성공 값으로 채우지 않는다. QA 원문은 비공개 경로에 두며 공개 metadata에는 정제된 항목만 기록한다.
+QA JSON의 정확한 형식은 스크립트 첫머리를 따른다. 최종 APK의 해시·full source SHA, 설치/실행/주요 흐름/재실행 관찰, 기기 또는 emulator 환경, 빌드/테스트/도구 버전, API 연결 여부와 검증 환경이 필요하다. RC2의 API 상태는 `NotConfigured`, `realApiConnected=false`였다. 후속 빌드는 내장/런타임 설정 여부와 정확한 APK의 실제 관찰을 다시 기록한다. 토큰 내장만으로 `RealApiVerified`나 실추출 성공을 채우지 않는다. 빈 항목을 가짜 성공 값으로 채우지 않는다. QA 원문은 비공개 경로에 두며 공개 metadata에는 정제된 항목만 기록한다.
 
 아래 변수에는 **최종 파일과 관찰값**을 지정한다. RC1 검사 결과를 수정된 새 APK의 QA로 재사용하거나 7자리 `dde656c`를 최종 full source SHA로 넣지 않는다.
 
@@ -253,13 +275,13 @@ gh release create $releaseTag $releaseApk $releaseManifest $releaseChecksums $re
 
 업로드가 중간에 실패하면 이미 올라간 tag·Release·asset을 조회해 같은 해시의 남은 작업만 이어간다. HTTP 성공이나 목록에 파일이 보이는 것만으로 업로드 확인을 끝내지 않고 다운로드 바이트를 대조한다. [GitHub CLI release download](https://cli.github.com/manual/gh_release_download)
 
-## 10. 180분 운영과 최종 30분
+## 10. RC2의180분 운영 기록과 후속 검수 원칙
 
 0–20분 모델·호환 경계, 20–60분 링크 입력·공유·서비스, 60–100분 저장·편집·실패 처리, 100–150분 테마·반응형·캐릭터·모션, 150–180분 최종 QA·배포 검증이라는 기본 배분을 유지한다. 서명키·기기 설치 호환성처럼 마지막에 막힐 수 있는 조건은 시작 구간에 읽기 확인해 조기에 기록한다.
 
 기능이 일찍 연결되어도 예정된 실기기 QA와 인계를 생략하고 조기 종료하지 않는다. 남은 시간은 요구된 품질 확인, 재현된 결함 수정, 관련 재검증에 사용한다. 의미 없는 빌드 반복이나 시간 채우기 대기는 하지 않는다. 마지막 30분은 최종 APK·서명·동작·보존·Release 확인을 위해 확보한다.
 
-180분이 되었다는 이유로 gate를 실패한 APK를 배포하거나 미검증 기능을 완료로 표시하지 않는다. 남은 필수 작업과 구체적 장애를 `todo.md`에 기록하고 확인된 소스·로컬 산출물을 보존한다. API 계약 초안은 수령했지만 실제 연결 주소·인증·운영 조건이 아직 없으므로 미연결 상태를 명시하고 준비 구조와 독립 로컬 기능을 검증한다.
+180분이 되었다는 이유로 gate를 실패한 APK를 배포하거나 미검증 기능을 완료로 표시하지 않는다. 남은 필수 작업과 구체적 장애를 `todo.md`에 기록하고 확인된 소스·로컬 산출물을 보존한다. RC2의 API 미연결 기록은 당시 이력으로 보존한다. RC3는 설정 내장과 개발 APK의 실제 등록을 확인했지만 최종 release 자체의 연결·저장 검수를 별도로 끝내야 한다.
 
 ## 11. 최종 상태 표현
 
@@ -271,4 +293,4 @@ gh release create $releaseTag $releaseApk $releaseManifest $releaseChecksums $re
 | 로컬 release 보존 완료 | 버전 폴더·APK·SHA256·최종 artifact 검증 결과 |
 | GitHub 배포 완료 | Release/tag/source commit·asset URL·다운로드 SHA256 일치·로컬 보존 위치 |
 
-현재 확인된 상태는 **내부 서명 RC1 제작·emulator 설치 검수, 최종 공개 배포 대기**다. 최종 APK의 QA·불변 폴더 보존·GitHub asset 업로드·다운로드 해시 확인까지 마쳐야 배포 완료로 표시한다. 실제 배포가 끝나면 GitHub 다운로드 링크와 로컬 버전 APK 경로, 검증 결과와 남은 제한을 함께 제공한다.
+현재 확인된 상태는 **RC2 배포 완료 후 RC3 개발 APK에서 실제4상품 등록 성공, 최신 저장 수정·그래프 검수 및 정확한 RC3 release 검수·배포 대기**다. RC1은 과거 내부 후보 이력이다. 최종 APK의 QA·불변 폴더 보존·GitHub asset 업로드·다운로드 해시 확인까지 마쳐야 배포 완료로 표시한다. 실제 배포가 끝나면 GitHub 다운로드 링크와 로컬 버전 APK 경로, 검증 결과와 남은 제한을 함께 제공한다.

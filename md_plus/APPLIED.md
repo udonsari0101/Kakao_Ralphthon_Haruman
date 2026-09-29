@@ -1,5 +1,13 @@
 # 추가 문서 적용 기록
 
+## 16:00 후속 적용 상태
+
+사용자가 추가한 11번가·올리브영·무신사·네이버 상품 링크는 실제 API와 폰 입력 화면에서 모두 불러와 저장했다. 각 URL1건과 가격·이미지 URL·snapshot, 기존3상품 불변을 확인했다. [등록 검수](../LINK_REGISTRATION_QA.md)에 기록했다. 상품 상세에는 실제 통계와 분리된 가상100명/6시점 소비 패턴 그래프를 구현했고, history 경로의 ‘마당으로’ CTA를 제거했다. 최신 통합 검수·서명 APK 검증은 진행 중이다.
+
+테라스 구현 이후 사용자 지시를 계속 반영한다. 토리는 모든 밭 아래에 항상 표시하며 별도 장식 구덩이를 만들지 않는다. 실제 구매 구덩이가 보이는 기간에는 실망/눈물, 없으면 행복 포즈를 사용한다. 구덩이를 누르면 “구덩이 제거는 500원이에요” 안내만 표시하고 실제 결제·삭제·금액 변경은 하지 않는다. 제공 가로 로고는 온보딩·보관함·MY에 적용했다.
+
+사용자가 API·토큰 앱 내장을 명시해 시험용 접속 정보를 빌드 환경에서 APK에 주입했다. 기본 연결이 자동 사용되고 런타임 설정은 선택적 override다. 공개 Git·원문 문서는 계속 비밀값 제외하며 APK에서 공통키 추출 가능은 안내했다. 이전 “키 미포함 APK” 계획은 이 지시가 대체한다. 초기 데스크탑 호출은 상태200/ok와 상품502/blocked였고, 이후 위4상품의 실제 추출·등록이 성공했다. 최종 서명 APK 검수는 별도로 기록한다.
+
 개발 시작: 2026-09-29 12:04:47 KST · 목표 마감: 15:04:47 KST
 
 | 확인 시각 KST | 파일/내용 해시 | 적용 내용 | 상태 |
@@ -11,6 +19,32 @@
 | 12:19:40 | copy-deck · `933c1454` | 역할별 문구를 친근한 해요체로 적용, API 공유는 재입력 강제 없음 | 현재 앱 정책에 맞춰 조정 |
 | 12:19:40 | motion-and-tokens · `dc1def36` | 호흡/포즈/받았다/도토리/카드/나무, 모션 감소·1회 축하 | 실기기 검수 예정 |
 | 13:43 | storage-visualization · `A9AEDB110BF812A52EF0C1A26EDFAD529F3E27668118FABF625FE72D42131176` | R3 볼 5단계, R5 흙더미/준비된 새싹, R8 주·월 마당, 선택 소비 목표와 기간 리포트 | 원문 전체 확인; 데이터·설정 코드와 테스트 작성, UI 통합·신규 화면 검수 진행 중 |
+| 14:55 | yard-handoff/README.md · `b8652c7243c41d42f9ce9074b4f39323f081803f6f53e0ba0e21aa9ecef5c22d` | 사용자 확정 테라스 디자인: 기존 grid 대체, 주별 층·밀집 배치·주 상세·신규4벡터 | README/PNG/lay.py/v.css/data.py 확인·문서 반영; 새 구현/검수 진행 중, RC2 기록 별도 보존 |
+| 15:13 | HARUMAN_API_INTEGRATION_PRIVATE.md · 비공개 원문, hash/값 공개하지 않음 | 실제 HTTPS/Bearer 구성 정보 수령, 기존 상품 응답 계약·운영 제한 검토 | 로컬 검토·Git 제외 확인. API 코드·호출 미실행, production NotConfigured 유지 |
+
+## 비공개 API 인계의 공개 가능한 요약 — 15:13 당시 검토 기록
+
+원문은 `.gitignore`의 `/md_plus/HARUMAN_API_INTEGRATION_PRIVATE.md`로 제외했으며 Git 추적 대상이 아니다. 원문 주소·인증값·명령·응답의 민감값은 공개 문서나 로그·커밋에 복사하지 않는다.
+
+- HTTPS endpoint와 Bearer 구성 정보가 제공돼 연결 준비가 가능해졌다. 실제 앱의 접속·인증·추출 성공은 아직 관찰하지 않았다. 다른 환경의 상태/오류 응답 확인 보고는 Android 검증과 구분한다.
+- `POST /v1/products/extract`, body의 `url` 하나, 직접 JSON 응답이며 원래 success/partial/error·상품 필드 구조를 유지한다. null 가격과0원을 구분하고 원본 URL·옵션·가격 조건을 보존한다.
+- URL4096자·본문8KB, 앱 전체60초·서버55초, 동시1건·분당12건과 Retry-After, 성공 캐시60초를 명시했다. 인증 실패와 쇼핑몰 로그인/차단, 서버 timeout과 앱 연결 오류를 구분해야 한다.
+- 현재 소스의 URL8192자·전체 deadline/즉시 취소 미구현·401/413와 Retry-After 처리·단일 provider 검증이 새 구성/멀티 쇼핑몰 설명과 차이가 있다. API 구현은 이번 검토에서 변경하지 않았으며 필요한 후속 범위는 todo에 남겼다.
+- 현재 production은 NotConfigured다. 시험용 공통 인증값의 배포 주입·관리 정책과 정확한 APK의 실응답 검증 전까지 연결 완료로 표시하지 않는다.
+
+### 테라스 RC3 중간 검수 상태
+
+JVM72개와 실제 폰 YardUi8+TerraceFlow6=14개 초기 PASS, 운영3파일 hash 동일을 통합 담당이 확인했다. 마지막37개fixture의320dp/font2 변경은 해당 빌드에 반영되지 않았을 수 있어 소스 freeze 후 최신 전체 검증이 남아 있다. 원본 PNG 직접 검토는 진행 중이고 목표 산출물은 새 마당 RC3다. 기존RC2 검수/배포 기록은 그대로 보존한다.
+
+## 새 사용자 작업: yard-handoff 적용 기준
+
+- 최신 사용자 요청으로 확정 `target` 디자인을 적용한다. 이전 RC2의 배포·hash·테스트 성공은 새 테라스 검수의 증거가 아니다. 새 작업의 추가 Markdown 감시 재개는 예정이며 실제 상태는 todo에 기록한다.
+- PNG의 테라스 A안을 적용한다. CSS에 남아 있는 B/C/D 후보·중간 치수는 채택하지 않고 마지막92dp 층·32dp 흙면을 기준으로 큰 글꼴에서 확장한다. sky/grass/이번 주 파랑은 마당에 한정하고 전역 빨강·3모드·해요체를 보존한다.
+- README의 `+N`은 lay.py에 빠져 있어 별도 구현한다. data.py의 고정 WEEKS/TODAY/무작위37상품은 목업자료이며 운영 로직·기본 데이터로 사용하지 않는다. 테스트 fixture에서만 재현한다.
+- 월 summary=월createdAt, 목표=월decidedAt BUY, 층칩/주 상세=경계 주전체다. 가격 미정·0원·예시 실적 제외와 결정가격 snapshot 불변은 유지한다. API 실연동 상태도 NotConfigured 그대로다.
+- 신규 원본은 `md_plus/yard-handoff/assets/android-drawable/{prop_hole,prop_sign_unknown,prop_sprout_ready,prop_tree_fruit}.xml`4개다. 원본 그대로 복사하고 앱 채택본의 해시를 확인한다.
+- 원문 `../README.md`의 실제 기존 자료는 `md_plus/mascot-duo/README.md`와 `md_plus/mascot-duo/assets/android-drawable/`다. 원문 `../guides/storage-visualization.md`의 실제 파일은 `md_plus/storage-visualization.md`다. 원본 링크는 수정하지 않았다.
+- 월간 밭에는 미정가격 `?`를 그리지 않고 주/상품 상세에서 표시한다. 주/월 전환·층/식물 클릭·토리 정리·모션1회/감소와 좁은 화면의 모든 상품 접근을 새 검수 대상으로 둔다.
 
 ## 가이드와 기존 요구의 조정
 
