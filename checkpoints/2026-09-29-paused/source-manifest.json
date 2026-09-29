@@ -1,0 +1,302 @@
+﻿[
+    {
+        "path":  "apk-project/.gitignore",
+        "bytes":  225,
+        "modified_at":  "2026-09-29T10:28:23.4774556+09:00",
+        "sha256":  "703238443066325af08e3868d1e4b571a633baf68fcc93e323f0066999a97e1b"
+    },
+    {
+        "path":  "apk-project/app/.gitignore",
+        "bytes":  6,
+        "modified_at":  "2026-09-29T10:28:23.8585365+09:00",
+        "sha256":  "5c3174b74edc6f2b9e0743594b8bd3c7f31e4f4405758cc9872b3fe1de1d28b4"
+    },
+    {
+        "path":  "apk-project/app/build.gradle.kts",
+        "bytes":  1786,
+        "modified_at":  "2026-09-29T10:28:25.4260078+09:00",
+        "sha256":  "4f3b0b086c392a63428fd250e5d95d6ecd9cccf596d84c7c22c351d75cbdc0bf"
+    },
+    {
+        "path":  "apk-project/app/proguard-rules.pro",
+        "bytes":  750,
+        "modified_at":  "2026-09-29T10:28:23.9269057+09:00",
+        "sha256":  "56fd960cf225f6ca40f982b13a5dbb0d8bc3dfde13ff76422825c6070d0a1890"
+    },
+    {
+        "path":  "apk-project/app/src/androidTest/java/org/ralphthon/haruman_ralphthon/ExampleInstrumentedTest.kt",
+        "bytes":  689,
+        "modified_at":  "2026-09-29T10:28:24.6245862+09:00",
+        "sha256":  "4da021a47003e4ea6610fe743616e0d77407cfac15a93de1950aff42d0c57c71"
+    },
+    {
+        "path":  "apk-project/app/src/androidTest/java/org/ralphthon/haruman_ralphthon/ui/ScaffoldUiTest.kt",
+        "bytes":  5463,
+        "modified_at":  "2026-09-29T10:46:55.8456045+09:00",
+        "sha256":  "345940e136f33097c42b14a9cfa029d59b926ec9c7dd9afc8d6887b48ef3fa19"
+    },
+    {
+        "path":  "apk-project/app/src/main/AndroidManifest.xml",
+        "bytes":  1390,
+        "modified_at":  "2026-09-29T10:47:41.6223625+09:00",
+        "sha256":  "f71d470b2fb5c42b56d0f1a63437e0469ab084064df01dc7515ae18567bdaa0f"
+    },
+    {
+        "path":  "apk-project/app/src/main/java/org/ralphthon/haruman_ralphthon/data/LocalStore.kt",
+        "bytes":  7647,
+        "modified_at":  "2026-09-29T10:37:20.4954811+09:00",
+        "sha256":  "21194561103a6c568b696da89f59767048ec4d08622824a8a783268e7fb85479"
+    },
+    {
+        "path":  "apk-project/app/src/main/java/org/ralphthon/haruman_ralphthon/MainActivity.kt",
+        "bytes":  1555,
+        "modified_at":  "2026-09-29T10:42:06.3035510+09:00",
+        "sha256":  "151640975fd367e4ae8be1393814ce1791b8936de680d3bb62c3c5a48f9e5c62"
+    },
+    {
+        "path":  "apk-project/app/src/main/java/org/ralphthon/haruman_ralphthon/ui/AddSheet.kt",
+        "bytes":  4971,
+        "modified_at":  "2026-09-29T10:45:59.2823762+09:00",
+        "sha256":  "d0b3f8cecd8f3cbe70e5dfa6df900a2041ce82d2db140e44c42f51d0bce6c747"
+    },
+    {
+        "path":  "apk-project/app/src/main/java/org/ralphthon/haruman_ralphthon/ui/Components.kt",
+        "bytes":  11413,
+        "modified_at":  "2026-09-29T10:41:37.2592112+09:00",
+        "sha256":  "857171a2f747a06aec5702c39089aa5e4440f4ec2d1f20d1642d4333b7080207"
+    },
+    {
+        "path":  "apk-project/app/src/main/java/org/ralphthon/haruman_ralphthon/ui/DecisionScreens.kt",
+        "bytes":  12518,
+        "modified_at":  "2026-09-29T10:49:25.1537233+09:00",
+        "sha256":  "b9d4582a2588c2657b552359643e68819541ff3bb984c275a39e2dddc8279bcc"
+    },
+    {
+        "path":  "apk-project/app/src/main/java/org/ralphthon/haruman_ralphthon/ui/HarumanApp.kt",
+        "bytes":  7251,
+        "modified_at":  "2026-09-29T10:42:06.3045499+09:00",
+        "sha256":  "797f570cf8d499ffc52e9ed2c467d9422a4a7dc12dbc39b6cbd1a0b50671c19a"
+    },
+    {
+        "path":  "apk-project/app/src/main/java/org/ralphthon/haruman_ralphthon/ui/Screens.kt",
+        "bytes":  16641,
+        "modified_at":  "2026-09-29T10:45:08.2840709+09:00",
+        "sha256":  "ddc57be27856feeded847a89581c9a1282819b81cef3ceb83e4e965676aaee14"
+    },
+    {
+        "path":  "apk-project/app/src/main/java/org/ralphthon/haruman_ralphthon/ui/theme/Color.kt",
+        "bytes":  585,
+        "modified_at":  "2026-09-29T10:39:15.8030478+09:00",
+        "sha256":  "60104a1dd529929eea4b916b9a4a78ec36f9ae55933776935573f5b16015cdf1"
+    },
+    {
+        "path":  "apk-project/app/src/main/java/org/ralphthon/haruman_ralphthon/ui/theme/Theme.kt",
+        "bytes":  1255,
+        "modified_at":  "2026-09-29T10:39:15.8040493+09:00",
+        "sha256":  "54e8b84043a638062c344ab5b2ace5db879db2cf06c591536d99d151f9ebfb8a"
+    },
+    {
+        "path":  "apk-project/app/src/main/java/org/ralphthon/haruman_ralphthon/ui/theme/Type.kt",
+        "bytes":  1256,
+        "modified_at":  "2026-09-29T10:39:15.8051383+09:00",
+        "sha256":  "8582e77c624d1614c0010e1b35e4d22d113e68d1d303eec75d333b1c52fc22a5"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/drawable/ic_haruman.xml",
+        "bytes":  646,
+        "modified_at":  "2026-09-29T10:47:41.6180120+09:00",
+        "sha256":  "be3e70ae7124b7d7ca361e2e649ef6307025480d327bb4f5ca48e78c0bf75006"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/drawable/ic_haruman_foreground.xml",
+        "bytes":  502,
+        "modified_at":  "2026-09-29T10:47:41.6190356+09:00",
+        "sha256":  "75993479d1da5ffb08210f5485dbdf867c2e8039260af0f3b7bdcf8691525f6c"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/drawable/ic_launcher_background.xml",
+        "bytes":  5606,
+        "modified_at":  "2026-09-29T10:28:24.9160109+09:00",
+        "sha256":  "ed423c73a6f40a4d2909f0901e60527b3a807cd59e1b5593bcaae1808b1c6321"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/drawable/ic_launcher_foreground.xml",
+        "bytes":  1702,
+        "modified_at":  "2026-09-29T10:28:24.9360933+09:00",
+        "sha256":  "01d1a6a6c1234eb7fe270d097eb283d72b9c95ae5118886f1b6573aad280f1f7"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/drawable-v26/ic_haruman.xml",
+        "bytes":  290,
+        "modified_at":  "2026-09-29T10:47:41.6200099+09:00",
+        "sha256":  "4cdaadf878c8172127b54b399de777c0a4d347b199176e652d748e610fa0d759"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+        "bytes":  343,
+        "modified_at":  "2026-09-29T10:28:24.6441044+09:00",
+        "sha256":  "88f7653499ef524126ea5018a99baf9cc3269e7e584d6205dfdd76db39f39cc0"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+        "bytes":  343,
+        "modified_at":  "2026-09-29T10:28:24.9476107+09:00",
+        "sha256":  "88f7653499ef524126ea5018a99baf9cc3269e7e584d6205dfdd76db39f39cc0"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/mipmap-hdpi/ic_launcher.webp",
+        "bytes":  1404,
+        "modified_at":  "2026-09-29T10:28:23.9359071+09:00",
+        "sha256":  "dd00996198640ed28fbc09cdcd7a3807cf8707f3eb255b659634da3ca6a6ff01"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/mipmap-hdpi/ic_launcher_round.webp",
+        "bytes":  2898,
+        "modified_at":  "2026-09-29T10:28:23.9404196+09:00",
+        "sha256":  "1ed73f5341a69d3b41c7e02e126803f50cc8c3284adf4bbb737f0c93577aef07"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/mipmap-mdpi/ic_launcher.webp",
+        "bytes":  982,
+        "modified_at":  "2026-09-29T10:28:23.9494210+09:00",
+        "sha256":  "846219e6f72fe9a6c104ca8919cbee36a101e7d2ff8da9da67b689a5888f060d"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/mipmap-mdpi/ic_launcher_round.webp",
+        "bytes":  1772,
+        "modified_at":  "2026-09-29T10:28:23.9544206+09:00",
+        "sha256":  "4e2c58b91de01130e6479e00cbbaaf6e77cd961dd2c8e303cf13cd077fa92632"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/mipmap-xhdpi/ic_launcher.webp",
+        "bytes":  1900,
+        "modified_at":  "2026-09-29T10:28:23.9629277+09:00",
+        "sha256":  "398340dad816fc9a6338cb151a8cf1e45b926f9bfb70628b24c4bd2523cc94d4"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/mipmap-xhdpi/ic_launcher_round.webp",
+        "bytes":  3918,
+        "modified_at":  "2026-09-29T10:28:23.9679287+09:00",
+        "sha256":  "91b490aef86574901137f0a252272e1f1add99c1ad709e0696ed68929b88d261"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/mipmap-xxhdpi/ic_launcher.webp",
+        "bytes":  2884,
+        "modified_at":  "2026-09-29T10:28:23.9749359+09:00",
+        "sha256":  "58ae87fa0c5b5d1562d27fd648d2c061553fe20e3ed570bde588162d01ea7a27"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp",
+        "bytes":  5914,
+        "modified_at":  "2026-09-29T10:28:23.9789368+09:00",
+        "sha256":  "3009fad079f5772f30ecd767f98924367fbe0f81c30048d672d4fda2d5ca7d12"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp",
+        "bytes":  3844,
+        "modified_at":  "2026-09-29T10:28:23.9849368+09:00",
+        "sha256":  "f98fef5bc3bfe5b65692c40ad1cbae2bec4faf9f1b249c397626740db71b62d8"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp",
+        "bytes":  7778,
+        "modified_at":  "2026-09-29T10:28:23.9894507+09:00",
+        "sha256":  "5faf033745c8c882c43bb1b372d4e4a5890caec63d9892a2e756c954108b85dc"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/values/brand.xml",
+        "bytes":  72,
+        "modified_at":  "2026-09-29T10:47:41.6210091+09:00",
+        "sha256":  "72987352b0934aa3df52da55fbf108475118a1354a6420bb0fe48e0ee1fb56d5"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/values/colors.xml",
+        "bytes":  378,
+        "modified_at":  "2026-09-29T10:28:25.0053238+09:00",
+        "sha256":  "b5626527d503417f0d8e5b1e08f338de7b31173bf0e122815f03e64932adbd88"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/values/strings.xml",
+        "bytes":  72,
+        "modified_at":  "2026-09-29T10:45:59.2849696+09:00",
+        "sha256":  "a9f37c52f5e36adc8bbeeb243cf3f16f403fb41b607789d676781c601e747e19"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/values/themes.xml",
+        "bytes":  159,
+        "modified_at":  "2026-09-29T10:28:25.4875563+09:00",
+        "sha256":  "6d523e1039bf23372c1c2d1582a936062a6eb1eb74111a0fcba5eca81432a26f"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/xml/backup_rules.xml",
+        "bytes":  478,
+        "modified_at":  "2026-09-29T10:28:25.0163405+09:00",
+        "sha256":  "6cf1a27e6807b1d24e41d3fbe7ddc1bfe1f42226027964f6eaf477d71b43b283"
+    },
+    {
+        "path":  "apk-project/app/src/main/res/xml/data_extraction_rules.xml",
+        "bytes":  551,
+        "modified_at":  "2026-09-29T10:28:25.0233530+09:00",
+        "sha256":  "cb1fc47ab4a984530ed60e0e6ee638929c3038290e7e7e0b4b03a3a30fbe7381"
+    },
+    {
+        "path":  "apk-project/app/src/test/java/org/ralphthon/haruman_ralphthon/data/DecisionRulesTest.kt",
+        "bytes":  4566,
+        "modified_at":  "2026-09-29T10:37:20.4964805+09:00",
+        "sha256":  "383b5cc5833936d1692555ee46e09fbc5b2ffd2e653a40f600d02bba24d6964e"
+    },
+    {
+        "path":  "apk-project/app/src/test/java/org/ralphthon/haruman_ralphthon/ExampleUnitTest.kt",
+        "bytes":  355,
+        "modified_at":  "2026-09-29T10:28:24.5965450+09:00",
+        "sha256":  "04f334bfe2d485d0449f4885d76684c166061ed0b2389241496835aa3d82aa75"
+    },
+    {
+        "path":  "apk-project/build.gradle.kts",
+        "bytes":  269,
+        "modified_at":  "2026-09-29T10:28:25.3359818+09:00",
+        "sha256":  "b001f81a8a22975c7a2b3af65cfdd80a7ba5b8cc524be259f9537f325fff8829"
+    },
+    {
+        "path":  "apk-project/gradle.properties",
+        "bytes":  1346,
+        "modified_at":  "2026-09-29T10:28:23.7085535+09:00",
+        "sha256":  "51e4b5a131eb01b1cdeb2f6f26aaba69d367a4a9d4ccd10c6d6f6d12fd545b66"
+    },
+    {
+        "path":  "apk-project/gradle/libs.versions.toml",
+        "bytes":  1833,
+        "modified_at":  "2026-09-29T10:28:25.3162655+09:00",
+        "sha256":  "486fbadab59e1abf39f1373845f36250a976a8ed2c7b7f019aef9cff8ae2ce11"
+    },
+    {
+        "path":  "apk-project/gradle/wrapper/gradle-wrapper.jar",
+        "bytes":  59203,
+        "modified_at":  "2026-09-29T10:28:23.5024814+09:00",
+        "sha256":  "e996d452d2645e70c01c11143ca2d3742734a28da2bf61f25c82bdc288c9e637"
+    },
+    {
+        "path":  "apk-project/gradle/wrapper/gradle-wrapper.properties",
+        "bytes":  237,
+        "modified_at":  "2026-09-29T10:28:23.7341410+09:00",
+        "sha256":  "4ba5c413c81e14e008bafd4a45fa89f34dd930f7f7dbdd2df950c7f2f8c2560b"
+    },
+    {
+        "path":  "apk-project/gradlew",
+        "bytes":  5766,
+        "modified_at":  "2026-09-29T10:28:23.5115849+09:00",
+        "sha256":  "63135287117a1e6d12c84580f1f49c61d1ba02218ecd28660605e97f976e7d65"
+    },
+    {
+        "path":  "apk-project/gradlew.bat",
+        "bytes":  2763,
+        "modified_at":  "2026-09-29T10:28:23.5155856+09:00",
+        "sha256":  "af835f98787e9269af5a046edcb821a592fed372139df7b947b471a63cfc236b"
+    },
+    {
+        "path":  "apk-project/settings.gradle.kts",
+        "bytes":  533,
+        "modified_at":  "2026-09-29T10:45:59.2849696+09:00",
+        "sha256":  "13ee3b736284e41fc898c0f0292be461b3cf0f77020c201679ed266387cee2fd"
+    }
+]

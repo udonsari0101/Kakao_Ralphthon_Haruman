@@ -1,0 +1,114 @@
+﻿{
+    "checkpoint":  "2026-09-29-paused",
+    "created_at":  "2026-09-29T11:02:38.4734672+09:00",
+    "state":  "APK implementation paused by user; preservation and documentation only",
+    "source_root":  "D:\\Develop\\ralphthon\\apk-project",
+    "source_archive":  "apk-project-source.zip",
+    "source_file_count":  50,
+    "excluded_source_paths":  [
+                                  "**/build/**",
+                                  "**/.gradle/**",
+                                  "**/.idea/**",
+                                  "**/.git/**",
+                                  "**/.kotlin/**",
+                                  "**/local.properties",
+                                  "verification/**"
+                              ],
+    "verification":  {
+                         "source_archive_entries_sha256":  "50 of 50 matched source-manifest and unchanged live source files",
+                         "device_data_backup_included":  false,
+                         "copied_artifacts_sha256":  "7 of 7 matched original artifacts",
+                         "app_build_or_tests_started_after_stop":  false,
+                         "final_centering_visual_recheck_completed":  false,
+                         "adb_commands_after_stop":  false
+                     },
+    "test_summary":  {
+                         "failures":  0,
+                         "errors":  0,
+                         "jvm_meaningful":  8,
+                         "android_template":  1,
+                         "android_total":  6,
+                         "previously_observed_gradle_seconds":  27,
+                         "android_version":  "13",
+                         "skipped":  0,
+                         "android_xml_timestamp":  "2026-09-29T01:50:32",
+                         "jvm_total":  9,
+                         "android_device":  "SM-G970N",
+                         "android_compose":  5,
+                         "android_xml_suite_seconds":  9.954,
+                         "jvm_template":  1
+                     },
+    "artifacts":  [
+                      {
+                          "path":  "apk-project-source.zip",
+                          "bytes":  127874,
+                          "sha256":  "4355d0264fb7aca2d080745b44983125fc1033be36151c1fb016bc85177d9c0d",
+                          "source_path":  null,
+                          "source_modified_at":  null
+                      },
+                      {
+                          "path":  "apks/app-debug.apk",
+                          "bytes":  10834519,
+                          "sha256":  "1e2ec6bb29e4984bcbf045852458ed1b10e1f131aa9c3efd2a6b0f37ce660661",
+                          "source_path":  "apk-project/app/build/outputs/apk/debug/app-debug.apk",
+                          "source_modified_at":  "2026-09-29T10:50:09.7501426+09:00"
+                      },
+                      {
+                          "path":  "apks/app-debug-androidTest.apk",
+                          "bytes":  1011122,
+                          "sha256":  "046b1de629ec8ef582e00a1a58354dfbb5ca29e5ffcc9de8dbd542e6a29b3c36",
+                          "source_path":  "apk-project/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
+                          "source_modified_at":  "2026-09-29T10:47:47.5949623+09:00"
+                      },
+                      {
+                          "path":  "screenshots/decision_before_centering.png",
+                          "bytes":  101513,
+                          "sha256":  "fe562371140463a32010ed35c9c31f9f7e95a2d1580c87a475808666b9c44fcb",
+                          "source_path":  "apk-project/verification/onboarding.png",
+                          "source_modified_at":  "2026-09-29T10:48:54.7681573+09:00"
+                      },
+                      {
+                          "path":  "screenshots/README.md",
+                          "bytes":  1086,
+                          "sha256":  "603f7d57b0eac0857604d09f0d76e09b38b55dae911e312c173e5a4071ae445d",
+                          "source_path":  null,
+                          "source_modified_at":  null
+                      },
+                      {
+                          "path":  "screenshots/vault_scrolled_before_final_build.png",
+                          "bytes":  151366,
+                          "sha256":  "df068b57c78bb4fdb92be3c9afe5200e608722d4cbab87c7035e08769ec3a3df",
+                          "source_path":  "apk-project/verification/vault.png",
+                          "source_modified_at":  "2026-09-29T10:49:54.9733599+09:00"
+                      },
+                      {
+                          "path":  "source-manifest.json",
+                          "bytes":  13425,
+                          "sha256":  "826f96e97b7b6e409f5c09268d895e1a3558578645a410ddfd51705e0b225a75",
+                          "source_path":  null,
+                          "source_modified_at":  null
+                      },
+                      {
+                          "path":  "test-results/android/TEST-SM-G970N-Android13.xml",
+                          "bytes":  1264,
+                          "sha256":  "f38743a94713b9f7bc1288ff865c70427764138c919cfe0988cc15252f2b48fd",
+                          "source_path":  "apk-project/app/build/outputs/androidTest-results/connected/debug/TEST-SM-G970N - 13-_app-.xml",
+                          "source_modified_at":  "2026-09-29T10:50:32.7089478+09:00"
+                      },
+                      {
+                          "path":  "test-results/jvm/TEST-org.ralphthon.haruman_ralphthon.data.DecisionRulesTest.xml",
+                          "bytes":  1514,
+                          "sha256":  "e55db99db7f9279391d8cb033ddf0cf774c7ab0986b930112f4a029bd5bccdc8",
+                          "source_path":  "apk-project/app/build/test-results/testDebugUnitTest/TEST-org.ralphthon.haruman_ralphthon.data.DecisionRulesTest.xml",
+                          "source_modified_at":  "2026-09-29T10:47:47.1524690+09:00"
+                      },
+                      {
+                          "path":  "test-results/jvm/TEST-org.ralphthon.haruman_ralphthon.ExampleUnitTest.xml",
+                          "bytes":  458,
+                          "sha256":  "559dd66b93f68f3fd07cdd9edfe7c5da3fa0e75e5c04fa491f6bebf48c202068",
+                          "source_path":  "apk-project/app/build/test-results/testDebugUnitTest/TEST-org.ralphthon.haruman_ralphthon.ExampleUnitTest.xml",
+                          "source_modified_at":  "2026-09-29T10:47:47.1524690+09:00"
+                      }
+                  ],
+    "hash_scope":  "This manifest excludes its own hash and SHA256SUMS.txt; SHA256SUMS.txt includes this manifest and excludes itself."
+}

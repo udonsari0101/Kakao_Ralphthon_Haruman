@@ -1,0 +1,42 @@
+# Android and local IDE state
+**/.idea/
+**/.gradle/
+**/.kotlin/
+**/build/
+**/.cxx/
+**/.externalNativeBuild/
+**/captures/
+**/local.properties
+*.iml
+*.jks
+*.keystore
+*.apk
+*.aab
+
+# Design development dependencies and generated outputs
+**/node_modules/
+**/dist/
+**/.vite/
+**/coverage/
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.key
+*.log
+__pycache__/
+.DS_Store
+Thumbs.db
+
+# Local archives and device evidence; preserve these files on disk
+/*.zip
+/apk-project/verification/
+/checkpoints/**/*.zip
+/checkpoints/**/apks/
+/checkpoints/**/test-results/
+/checkpoints/**/screenshots/*.png

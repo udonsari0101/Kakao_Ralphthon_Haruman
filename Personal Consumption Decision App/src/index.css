@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+@theme inline {
+  --font-sans: 'Noto Sans KR', system-ui, sans-serif;
+  --color-grey-50: #f7f8fa;
+  --color-grey-100: #f1f3f5;
+  --color-grey-200: #e5e8eb;
+  --color-grey-300: #d1d6db;
+  --color-grey-400: #aeb5bc;
+  --color-grey-500: #8b95a1;
+  --color-blue-50: #edf5ff;
+  --color-blue-100: #d9ebff;
+  --color-blue-500: #3182f6;
+  --color-blue-600: #2272eb;
+  --color-blue-700: #1b64da;
+  --color-green-50: #eafaf1;
+  --color-green-700: #168451;
+  --color-red-500: #f04452;
+  --color-txt-primary: #191f28;
+  --color-txt-secondary: #4e5968;
+  --color-txt-tertiary: #8b95a1;
+  --text-typo-1: 28px;
+  --text-typo-2: 24px;
+  --text-typo-3: 22px;
+  --text-typo-4: 17px;
+  --text-typo-5: 15px;
+  --text-typo-6: 14px;
+  --text-typo-7: 12px;
+  --text-typo-timer: 36px;
+}
+
+html, body { font-family: 'Noto Sans KR', system-ui, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; background: #dfe2e8; }
+* { scrollbar-width: none; }
+*::-webkit-scrollbar { display: none; }
+button, input { font: inherit; }
+button { -webkit-tap-highlight-color: transparent; }

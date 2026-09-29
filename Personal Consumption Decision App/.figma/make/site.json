@@ -1,0 +1,10 @@
+{
+  "description": "Save and review impulse purchases from multiple platforms with a cooldown timer to help users make thoughtful buying decisions and track savings.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

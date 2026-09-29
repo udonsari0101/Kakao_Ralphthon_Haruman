@@ -1,0 +1,47 @@
+{
+  "archive": "documentation.zip",
+  "sha256": "2b92f76e0e1bd72fb5e4ba8d22d901d05edd7cd98b00dda0b48cb354912069f9",
+  "files": [
+    {
+      "path": "GOAL_SPEC.md",
+      "bytes": 16580,
+      "sha256": "020757e5d10f41e9596aa6b3c0c295cbc1de3f9b391e29847f0e1b26636e9a86"
+    },
+    {
+      "path": "todo.md",
+      "bytes": 9475,
+      "sha256": "5e55833186a1230343c61912e70e44de3b26d52ee2f9614cb590d6cd8defe622"
+    },
+    {
+      "path": "CHECKPOINT.md",
+      "bytes": 12790,
+      "sha256": "a424e55b3a54907819bf8526532aa8147edcfe12713511935ab355e6ac71aa92"
+    },
+    {
+      "path": "COUPANG_PARSING_TECHNICAL.md",
+      "bytes": 22106,
+      "sha256": "25611612abbbee71fa45b48079ec754a8aaaa8babac61b73a5d1a212866673fa"
+    },
+    {
+      "path": "DEVELOPMENT_GUIDE.md",
+      "bytes": 12475,
+      "sha256": "fc9e40b2d76e367764276f074631c10195400ee8f4a854a4702671015248ce9e"
+    },
+    {
+      "path": "API_PREREQUISITES.md",
+      "bytes": 11500,
+      "sha256": "2e42709e5265435ceb9c3f0adc8391b19eaad3a42156a673763117d52918e807"
+    },
+    {
+      "path": "research/coupang-observations-2026-09-29.json",
+      "bytes": 4777,
+      "sha256": "4e37d5390307c27fda09b781b14972c2b8fe955457ca8d616a401a40c27ac53e"
+    },
+    {
+      "path": "ralphthon-product-brief-b58jYyjbQYHVtRNKNPE6hpmB-20260926-v4 (1).md",
+      "bytes": 19404,
+      "sha256": "53bc9b0f372417bf6dd4a3e797292d01f6bbe17eb7ebf3fdd1e7903e079b3be1"
+    }
+  ],
+  "note": "Immutable pause-time documentation snapshot. Source and APK checksums are maintained separately in artifact-manifest.json and SHA256SUMS.txt."
+}
