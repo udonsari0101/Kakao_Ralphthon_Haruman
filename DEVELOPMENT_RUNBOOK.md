@@ -7,11 +7,11 @@
 
 ### 현재 확인된 실행 상태
 
-- 첫 통합 소스 `dde656c`의 GitHub `main` 반영을 확인했다. 이후 수정은 다음 소스 체크포인트로 구분한다.
+- `dde656c` → `9e00db6` → `eefb3ca` → 최종 APK 소스 `d6fa562`를 단계별 `main` 체크포인트로 반영했다. 배포 tag `v1.1.0-rc.2`는 최종 APK 소스를 가리키고 후속 문서 commit과 구분한다.
 - `md_plus/mascot-duo`의 Markdown 5개(README, implementation-requirements, character-bible, copy-deck, motion-and-tokens)와 제공 벡터를 적용했다. 모아·토리·도토리·정리 시간·절약 숲을 현재 화면에 연결했다. 세부 QA 결과는 [todo](./todo.md)를 따른다.
-- 최신 **JVM 38개·격리 저장 공간을 사용하는 Android 13 실기기 테스트 36개가 통과**했다. 초기 runner의 디렉터리 목록 해석 오류 때문에 이 실행의 운영 파일 해시 비교는 무효로 정정했다. 실제 tar를 별도 백업했고 수정한 runner로 재검증한다.
+- 최신 **JVM62개·격리 저장 공간을 사용하는 Android13 실기기63개**, 별도 OS모션0 검사1개·runner 회귀3개가 통과했다. 초기36개 실행의 운영 파일 해시 비교는 목록 파싱 오류로 무효다. 실제 tar를 별도 백업하고 runner를 수정했으며 최신 실행의 운영3파일 SHA256이 동일했다. 초기 앱 제거 사건 이전 데이터가 복구됐다는 뜻은 아니다.
 - 상품 API는 계약 초안과 adapter/응답 검증 구조까지만 준비됐다. 실제 endpoint·인증이 없어 production은 `NotConfigured`다. 추가 API 문서·접속 정보·허용된 실제 테스트 환경을 기다리며, Fake 성공을 실제 API 성공으로 표시하지 않는다.
-- 서명된 `1.1.0-rc.1`/code 2는 내부 검수용이다. API 36 emulator 설치와 서명·패키지·버전·`debuggable=false` 검사를 수행했으며, GitHub Release 발행과 최종 수정 APK의 정확한 파일 QA는 아직 완료하지 않았다.
+- 서명된 `1.1.0-rc.1`/code2는 과거 내부 검수용이다. 최종 `1.1.0-rc.2`/code3 APK 자체의 API36 설치·주요 흐름·재실행·서명·패키지·버전·`debuggable=false` 검사를 통과했고, 로컬 버전별 보존·GitHub 프리릴리스·첨부파일 재다운로드 해시 일치를 확인했다. [배포 기록](./releases/README.md)에 결과를 남겼다.
 
 자동 테스트 통과는 미실행 화면·모션·반응형 조합이나 최종 APK 전체 검수의 대체 증거가 아니다. 현재 결과와 다음 작업은 `todo.md`에 실시간으로 추가한다.
 

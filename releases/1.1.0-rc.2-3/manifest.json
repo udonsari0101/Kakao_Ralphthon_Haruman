@@ -1,0 +1,67 @@
+{
+    "schemaVersion":  1,
+    "stagedAt":  "2026-09-29T05:37:56.5869394+00:00",
+    "sourceCommit":  "d6fa562349905764d60c0924d505a4eb8b1b91f7",
+    "tag":  "v1.1.0-rc.2",
+    "packageName":  "org.ralphthon.haruman_ralphthon",
+    "versionName":  "1.1.0-rc.2",
+    "versionCode":  3,
+    "minSdk":  24,
+    "variant":  "release",
+    "artifactName":  "haruman-1.1.0-rc.2-3-release.apk",
+    "sizeBytes":  8192194,
+    "apkSha256":  "3e136b7a876f0868bb0fb69dcdf1b2bcf3e28a1ed059fc2b2c9ddfd0672a0a90",
+    "signingCertificateSha256":  "9e301264b6a98f3a8c79db0374717d09e4384c9778ee1a9ae2acd155c3831f04",
+    "signatureVerified":  true,
+    "debuggable":  false,
+    "buildStartedAt":  "2026-09-29T14:21:07.4428824+09:00",
+    "buildFinishedAt":  "2026-09-29T14:21:19.8897152+09:00",
+    "toolchain":  {
+                      "java":  "OpenJDK / Android Studio JBR 21",
+                      "gradle":  "8.13",
+                      "agp":  "8.13.2",
+                      "kotlin":  "2.0.21",
+                      "buildTools":  "36.0.0",
+                      "compileSdk":  36
+                  },
+    "tests":  {
+                  "passed":  true,
+                  "summary":  "Final source: JVM 62 passed; isolated instrumentation on physical Android 13: 63 passed, production data hashes for 3 files unchanged; separate real-clock motion test with OS animator scale 0: 1 passed; safe-runner Python regression: 3 passed. Final signed APK separately installed and manually checked on Android 16; cold restart preserved records. Release build and lintVital passed. Earlier full lintDebug on eefb3ca had 0 errors, 44 warnings, 2 hints."
+              },
+    "sourceVerification":  {
+                               "appTreeMatchesCommit":  true,
+                               "appWorkingTreeClean":  true,
+                               "localTag":  "not-created"
+                           },
+    "finalArtifactQa":  {
+                            "apkSha256":  "3e136b7a876f0868bb0fb69dcdf1b2bcf3e28a1ed059fc2b2c9ddfd0672a0a90",
+                            "environment":  {
+                                                "kind":  "emulator",
+                                                "name":  "Haruman_Release_API_36",
+                                                "androidVersion":  "16",
+                                                "checkedAt":  "2026-09-29T14:37:00.0000000+09:00"
+                                            },
+                            "installed":  true,
+                            "launched":  true,
+                            "mainFlows":  true,
+                            "restarted":  true,
+                            "summary":  "상품 링크 입력·공유 수신 구조, 직접 입력·저장 후 수정, 빨강 기반 라이트/다크/시스템 테마, 모아·토리 캐릭터, 도토리 마당과 선택형 소비 목표를 구현했어요.\n\n최종 서명 APK에서 업데이트 시 설정 보존, 새 설치 온보딩, 링크 미연결 안내와 수동 전환, IME BACK의 입력 보존, 가격 있는 상품의 저장·수정·구매 포기, 링크 없는 가격 미정 상품의 저장을 확인했어요. 14:30 cold 재시작 후 두 기록과 대기 시간이 유지됐어요. 88,000/50,000원은 176%로 표시됐어요.\n\n320dp/글꼴2배에서 상세·정리 버튼을 스크롤해 사용했고, 360dp/1배, 412dp/1.3배, 600dp·840dp의 보관함과 마당, 넓고 짧은 창의 입력 시트를 확인했어요. LIGHT·DARK 즉시 전환과 SYSTEM의 OS dark/light 추종을 관찰했어요. 각 화면 검수는 이 환경에서 확인한 범위이며 모든 기기에서의 보장을 뜻하지 않아요."
+                        },
+    "apiIntegration":  {
+                           "state":  "NotConfigured",
+                           "realApiConnected":  false,
+                           "environment":  "not-configured",
+                           "verifiedApkSha256":  "3e136b7a876f0868bb0fb69dcdf1b2bcf3e28a1ed059fc2b2c9ddfd0672a0a90"
+                       },
+    "knownLimitations":  [
+                             "실제 API 주소·인증·timeout 정책이 미제공 상태예요. 현재 NotConfigured이며 실서버 상품 자동 추가는 아직 사용할 수 없어요. 링크 원문을 보존한 직접 입력은 가능해요. 상품 설명 필드는 계약 확정 후 연결해요.",
+                             "화면은 상품 링크로 통일했지만, 현재 링크 검증 범위는 제공된 API 계약의 HTTPS 상품 주소와 공유 주소예요. 임의 쇼핑몰 지원을 의미하지 않아요.",
+                             "시스템 공유의 Manifest·수신·중복 처리 모델은 구현했어요. 자동 승인 검토에서 직접 ADB 공유 Intent 검수가 차단되어 시스템 공유 메뉴 아이콘과 cold/warm 진입의 직접 검수는 미완료예요.",
+                             "고급 삽질·물주기 전용 포즈와 개별 상태 변환 연출은 후속 작업이에요. 현재 볼 5단계, 날짜별 상태 그림, 기존 결정·축하 모션을 적용했어요. 자동 기간 리포트의 실제 달력 전환 시나리오는 검수하지 않았어요.",
+                             "네트워크 요청은 취소 후 read timeout까지 연결이 남을 수 있어요. 실제 API 연결 전에 전체 deadline과 즉시 취소를 확정해야 해요. 늦은 응답의 UI·저장 반영은 차단해요.",
+                             "연결된 실제 폰은 데이터 보존을 위해 debug 서명을 유지했어요. 이 release는 별도 서명이라 debug 설치 위에 덮어쓸 수 없어요. 데이터를 옮기기 위해 앱을 먼저 삭제하지 마세요.",
+                             "개발 중 초기 Gradle 연결 테스트가 실제 폰의 앱을 제거한 사건이 있었어요. 당시 이전 데이터 복구는 확인되지 않았어요. 이후에는 백업과 해시 비교를 포함한 격리 runner로 검수했어요.",
+                             "강제 앱 테마와 OS 테마가 다르면 시스템 시작 화면의 첫 프레임은 OS 테마를 따를 수 있어요. 본문은 선택한 테마를 적용해요. 모든 OEM·런처 마스크는 검수하지 않았어요.",
+                             "서명키는 저장소 밖에 보관하고 동일 디스크에 백업했어요. 별도 장치의 독립 백업은 아직 없어요."
+                         ]
+}

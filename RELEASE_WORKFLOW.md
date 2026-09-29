@@ -1,6 +1,6 @@
 # 개발 중 검증과 APK 배포 절차
 
-기준일: 2026-09-29 · GOAL_SPEC **v3.2** · 상태: **RC2/code3 소스 통합·검수 진행, RC1은 과거 내부 검수용, GitHub Release 생성 전**
+기준일: 2026-09-29 · GOAL_SPEC **v3.2** · 상태: **RC2/code3 서명 APK 보존·GitHub 프리릴리스 발행·재다운로드 해시 검증 완료**
 
 2026-09-29 **12:04:47–15:04:47 KST**의 180분 개발 작업이 진행 중이다. 첫 통합 소스 체크포인트 `dde656c`의 GitHub `main` 반영을 확인했다. 이후 수정과 최종 artifact 검증은 별도로 기록하며, 이 commit이 모든 후속 수정을 포함한다고 가정하지 않는다.
 
@@ -19,7 +19,7 @@
 | debug 패키지 분리 | `applicationIdSuffix` 없음 |
 | product flavor | 없음 |
 
-**과거 검수 증거:** 내부 RC1(`1.1.0-rc.1`, code 2)은 전용 release 인증서로 서명했으며 `apksigner verify` 및 v2 검증, package·버전·`debuggable=false` 확인과 깨끗한 API 36 emulator 설치를 수행했다. 공개 인증서 SHA256은 `9e301264b6a98f3a8c79db0374717d09e4384c9778ee1a9ae2acd155c3831f04`다. **GitHub Release는 아직 생성하지 않았다.** 현재 소스의 RC2/code3은 새 최종 APK 자체의 빌드·서명·QA·버전별 보존·공개 배포·다운로드 해시 검증이 필요하다. RC1이나 과거 debug의 검증 결과를 RC2의 증거로 옮겨 적지 않는다.
+**최종 배포 증거:** RC2(`1.1.0-rc.2`, code3), 소스 `d6fa562349905764d60c0924d505a4eb8b1b91f7`와 APK SHA256 `3e136b7a876f0868bb0fb69dcdf1b2bcf3e28a1ed059fc2b2c9ddfd0672a0a90`를 고정했다. `apksigner verify`/v2, package·버전·`debuggable=false`와 정확한 APK의 API36 설치·주요 흐름·재실행을 확인했다. 공개 인증서 SHA256은 `9e301264b6a98f3a8c79db0374717d09e4384c9778ee1a9ae2acd155c3831f04`다. [버전별 폴더](./releases/1.1.0-rc.2-3/)에 보존하고 [GitHub Release](https://github.com/udonsari0101/Kakao_Ralphthon/releases/tag/v1.1.0-rc.2)의 첨부파일5개를 다시 내려받아 체크섬을 대조했다. [publication.json](./releases/1.1.0-rc.2-3/publication.json)에 발행 결과를 기록한다. RC1은 과거 내부 후보이며 최종 파일의 증거로 대신하지 않는다.
 
 ## 2. 개발 중 반복 검증과 todo 갱신
 
@@ -41,7 +41,7 @@
 
 개발 중 `connectedDebugAndroidTest` 실행 경로가 기기 앱을 제거하는 부작용이 발생했다. **사건 이전 휴대전화 내부 데이터 백업은 없었으며, 그때 잃은 데이터를 복구했다고 보고하지 않는다.** 이후 만든 백업이 이전 손실을 되돌린다는 뜻도 아니다. 데이터가 있는 실제 폰에서는 `connectedDebugAndroidTest`를 절대 실행하지 않는다. `uninstall`, `pm clear`, 서명 충돌 해소를 위한 삭제도 사용하지 않는다.
 
-최근 관찰 결과는 **JVM 38개 통과 + 테스트 전용 저장 공간을 사용하는 Android 13 실기기 36개 통과**다. 최신 실기기 실행 전후 운영 SharedPreferences와 초안 workspace의 해시가 같음을 확인했다. 테스트 수는 전체 화면·모션·모든 반응형 조합 또는 최종 release APK의 QA 완료를 뜻하지 않는다.
+최종 소스의 **JVM62개 + 테스트 전용 저장 공간을 사용하는 Android13 실기기63개**, 별도 OS모션0 검사1개와 runner 회귀3개가 통과했다. 최신 실기기 실행 전후 운영3파일 SHA256이 동일했다. 초기36개 실행은 runner의 목록 파싱 오류로 빈 hash 비교가 무효였으며, 이후 `ls -1a`·엄격 파싱·tar 검증으로 수정했다. 테스트 수는 전체 화면·기기 조합이나 최종 signed APK 자체의 검수를 대신하지 않는다.
 
 저장 데이터가 있는 폰은 APK만 빌드한 다음 [runner](./scripts/run_device_tests.py)로 명시한 한 기기에 update 설치하고 수동 instrumentation을 실행한다. 명령은 저장소 루트에서 실행하며 serial과 SDK 경로는 로컬에서만 입력한다.
 

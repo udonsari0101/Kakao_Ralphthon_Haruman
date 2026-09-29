@@ -1,0 +1,24 @@
+﻿{
+    "schemaVersion":  1,
+    "releaseUrl":  "https://github.com/udonsari0101/Kakao_Ralphthon/releases/tag/v1.1.0-rc.2",
+    "tag":  "v1.1.0-rc.2",
+    "sourceCommit":  "d6fa562349905764d60c0924d505a4eb8b1b91f7",
+    "publishedAt":  "2026-09-29T05:38:32Z",
+    "verifiedAt":  "2026-09-29T14:40:50.8241694+09:00",
+    "prerelease":  true,
+    "apkSha256":  "3e136b7a876f0868bb0fb69dcdf1b2bcf3e28a1ed059fc2b2c9ddfd0672a0a90",
+    "assetCount":  5,
+    "uploadedAssets":  [
+                           "haruman-1.1.0-rc.2-3-release.apk",
+                           "manifest.json",
+                           "release-notes.md",
+                           "qa-summary.md",
+                           "SHA256SUMS.txt"
+                       ],
+    "downloadedChecksumsMatchLocal":  true,
+    "allFourChecksummedDownloadsMatch":  true,
+    "apiIntegration":  "NotConfigured",
+    "finalArtifactEnvironment":  "Android 16 / Haruman_Release_API_36",
+    "physicalDeviceInstall":  "debug signing retained; no release replacement",
+    "note":  "Published metadata and APK are immutable for this version. Public release verified by downloading all five assets and comparing every checksum."
+}

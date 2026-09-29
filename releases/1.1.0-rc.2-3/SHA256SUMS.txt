@@ -1,0 +1,4 @@
+3e136b7a876f0868bb0fb69dcdf1b2bcf3e28a1ed059fc2b2c9ddfd0672a0a90  haruman-1.1.0-rc.2-3-release.apk
+299359999ca265522a17f4a249760b484fcf3c9ee6b78347a3a5eb0bafbb4232  manifest.json
+31780a361a663da42ff73cc77845e1e605c80592fe3a7a3f8ffff9810b95d03f  release-notes.md
+d564e1ec18a76a0d6490b0c4f85de993ffe8e01fa55ffcac46c691990eaef8f5  qa-summary.md
