@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.json.JSONArray
@@ -179,6 +180,15 @@ class HarumanViewModel internal constructor(
         }
         // Migrate old Bundle payloads on first load and remove them only after the file is safe.
         persist()
+        // Another activity (for example a share entry) may own the same product store.
+        // Refresh only committed products; unsaved input and its CAS baseline stay intact.
+        viewModelScope.launch {
+            store.itemChanges().collect { refreshItems() }
+        }
+    }
+
+    fun refreshItems() {
+        items = store.items()
     }
 
     private fun workspaceJson(): String = JSONObject().apply {

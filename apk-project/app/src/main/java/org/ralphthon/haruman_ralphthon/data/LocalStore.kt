@@ -4,6 +4,11 @@ import android.content.Context
 import android.content.SharedPreferences
 import java.io.File
 import java.security.MessageDigest
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.callbackFlow
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -222,6 +227,17 @@ class LocalStore(context: Context, prefsName: String = "haruman_local_v1") {
     }
 
     fun items(): List<WishItem> = repository.items()
+    /** Invalidate live owners without replaying a list captured before a newer write. */
+    internal fun itemChanges(): Flow<Unit> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == "items" || key == null) trySend(Unit)
+        }
+        preferences.registerOnSharedPreferenceChangeListener(listener)
+        // Register first so a write between initial read and subscription cannot be lost.
+        trySend(Unit)
+        awaitClose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
+    }.buffer(Channel.CONFLATED)
+
     fun saveItems(items: List<WishItem>): Boolean = repository.saveItems(items)
     fun saveNewItemOnce(item: WishItem): SaveItemResult = repository.saveNewItemOnce(item)
     fun updateItem(expected: WishItem, updated: WishItem): UpdateItemResult = repository.updateItem(expected, updated)

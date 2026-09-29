@@ -15,8 +15,8 @@ android {
         applicationId = "org.ralphthon.haruman_ralphthon"
         minSdk = 24
         targetSdk = 36
-        versionCode = 4
-        versionName = "1.1.0-rc.3"
+        versionCode = 5
+        versionName = "1.1.0-rc.4"
         // Supplied only by the local build environment. Never commit the shared test credential.
         buildConfigField("String", "PRODUCT_API_BASE_URL", buildConfigLiteral(providers.environmentVariable("HARUMAN_API_BASE_URL").orNull.orEmpty()))
         buildConfigField("String", "PRODUCT_API_TOKEN", buildConfigLiteral(providers.environmentVariable("HARUMAN_API_TOKEN").orNull.orEmpty()))
