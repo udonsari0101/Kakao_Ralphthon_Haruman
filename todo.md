@@ -1,4 +1,4 @@
-﻿# 하루만 개발 todo — v3.2
+# 하루만 개발 todo — v3.2
 
 기준: 2026-09-29 · 진행 중 · **12:04:47–15:04:47 KST**
 
@@ -9,14 +9,14 @@
 | 항목 | 현재 상태 |
 | --- | --- |
 | 목표 | 쿠팡 링크/수동 입력·정보 수정·모아/토리·테마·반응형·정리/절약 숲 구현과 검수, signed release 배포 |
-| 현재 작업 | 통합 테스트 통과 후 첫 구현 체크포인트, 실폰 시각/모션 검수 |
+| 현재 작업 | 임시 저장 경계 보강·실폰36개 검증 완료, 반응형/테마/모션 시각 검수 |
 | 시간 | 시작 12:04:47, 목표 마감 15:04:47 KST |
-| 마지막 원격 확정 | 9cf6061 — 설계·API 초안·img·운영. 구현 체크포인트 반영 중 |
-| 빌드/테스트 | debug/AndroidTest APK 빌드 성공, JVM38개·실폰 Android28개 통과 |
+| 마지막 원격 확정 | dde656c — API 경계·로컬 상품 흐름·mascot-duo 구현, 원격 SHA 확인 |
+| 빌드/테스트 | debug/AndroidTest APK 빌드 성공, JVM38개·실폰 Android36개 통과 |
 | API | 계약 적용·HTTPS adapter·상태 처리 구현. 실제 base URL/인증 미제공, production은 NotConfigured |
 | 캐릭터 | md_plus/mascot-duo MD5개·벡터18개 적용. 원본 보존 |
-| release | 외부 경로 전용 키·DPAPI 비밀번호 준비, 별도 API36 emulator 부팅 중. 최종 APK 미제작 |
-| md_plus | 15초 해시 감시, 약3분/단계 경계 검토. 12:44 스캔 신규 없음 |
+| release | 전용 키로 RC1 서명·API36 emulator 설치/기본 흐름 확인. 최종 APK/게시 전 |
+| md_plus | 15초 해시 감시, 약3분/단계 경계 검토. 13:10 스캔 신규 없음 |
 
 `[x]`는 해당 범위의 관찰 근거가 있을 때만 표시한다. 구현과 실서버/실폰 전체 검증을 구분한다. 아래 테스트 fake는 테스트 소스에만 존재하며 실제 상품 수신을 증명하지 않는다.
 
@@ -53,7 +53,7 @@
 - [x] 공백 이름/음수/소수/초과 금액 거부, 가격 미정과0원 구분, 숨긴 이미지 상태를 UI 테스트로 확인했다.
 - [x] 기존 상세에서 수정, 원본 링크/API snapshot·결정 시점 금액 유지, 설정 변경 후 draft 유지 테스트 통과.
 - [ ] 폰에서 직접 작성→저장→수정→재실행 흐름과 IME/스크롤을 시각 검수한다.
-- [ ] 현재 작성 draft와 여러 번 연속 공유가 만나는 경계를 추가 검토한다.
+- [x] 연속 공유 draft FIFO·기존 수정 복원·API 재조회 시 수동 값 유지·중복 상품 전환·대량 리뷰 상태를 8개 추가 실폰 테스트로 검증했다.
 
 ## T06–T08 테마·반응형·모션
 
@@ -84,7 +84,7 @@
 - [x] Android28개(Scaffold11+Review6+Workflow10+기본1) 실폰 수동 instrumentation 실행 통과.
 - [x] 이후 테스트는 고유 test prefs만 사용한다. 현재 production prefs는 로컬 비공개 backup을 만든다.
 - [x] 기존 release 이력/키 설정 없음 확인 후 Git 밖 전용 키·접근 제한·DPAPI 비밀번호·로컬 중복 백업 준비.
-- [ ] 구현 체크포인트를 main에 반영하고 원격 SHA 확인.
+- [x] 구현 체크포인트 dde656c를 main에 반영하고 원격 SHA 확인.
 - [ ] 최종 source commit 고정 후 signed release 빌드·서명/cert/package/version/debuggable/hash 확인.
 - [ ] 최종 정확 APK를 깨끗한 API36 emulator에 설치해 시작·입력·수정·공유·재실행 확인. 실폰 debug QA와 구분.
 - [ ] releases/<versionName>-<versionCode>/에 APK·manifest·SHA256·release notes 보존(기존 폴더 덮어쓰기 금지).
@@ -102,7 +102,11 @@
 | 12:36–12:38 | Gradle connectedDebugAndroidTest가 앱까지 제거한 부작용 확인. 이후 앱 재설치. 이전 기기 prefs 백업 없으므로 기존 데이터 복구를 보장하지 못함. 사용자에게 알림. 이 명령은 이후 실제 폰에서 사용하지 않음 |
 | 12:38 | 잠금 상태에서 시작한 theme 테스트만 화면 탐색 실패; 깨어 있는 기기 재실행 통과 |
 | 12:44–12:46 | 현재 prefs 비공개 로컬 tar 백업 후 APK update+am instrument로Android28개 전부 통과. 앱 제거 없음 |
-| 12:46 | 전용 release 키 준비, 기존 AVD와 별개의 Haruman_Release_API_36 생성/부팅. 실제 APK 검증은 아직 |
+| 12:46 | 전용 release 키 준비, 기존 AVD와 별개의 Haruman_Release_API_36 생성/부팅 |
+| 12:50–12:58 | dde656c 기반 signed RC1 제작, debug=false·v2 서명 확인. 별도 emulator에서 온보딩→수동 입력→저장→정리 스와이프→절약 요약 확인. 게시 전 내부 후보 |
+| 13:00 | 녹화에서 저장 모아가 CTA를 덮는 문제 발견→상단 고정100dp 영역으로 이동. 작은 보관함 빈 상태 높이/글자2배 입력 모드 줄바꿈 개선 |
+| 13:01 | 직접 ADB 공유 Intent 주입이 자동 승인 검토에서 정책 차단(상세 사유 미제공). 직접 시스템 공유 검수는 미완료; 모델/격리 UI 검증과 구분 |
+| 13:05–13:08 | 안전한 별도 runner로 실폰36개 테스트 통과, 앱 설치 유지 및 production prefs/workspace SHA 불변 확인. draft/대량 리뷰는 AtomicFile로 보관 |
 
 ### 기기 임시 설정 복원값
 

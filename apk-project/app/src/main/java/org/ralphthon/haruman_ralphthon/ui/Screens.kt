@@ -188,7 +188,7 @@ fun VaultScreen(items: List<WishItem>, now: Long, onAdd: () -> Unit, onItem: (Wi
             }
             if ((filter == 1 && cooling.isEmpty()) || (filter == 2 && ready.isEmpty()) || active.isEmpty()) {
                 item("vault_empty") {
-                    EmptyState(if (filter == 2) "아직은 고민할 시간이에요" else "어떤 마음을 담아볼까요?", if (filter == 2) "시간이 지나면 여기서 다시 결정할 수 있어요." else "쿠팡 링크를 가져오거나\n상품 이름을 직접 적어보세요.", if (filter == 2) MascotPose.TORI_BURY else MascotPose.MOA_SLEEP)
+                    EmptyState(if (filter == 2) "아직은 고민할 시간이에요" else "어떤 마음을 담아볼까요?", if (filter == 2) "시간이 지나면 여기서 다시 결정할 수 있어요." else "쿠팡 링크를 가져오거나\n상품 이름을 직접 적어보세요.", if (filter == 2) MascotPose.TORI_BURY else MascotPose.MOA_SLEEP, compact = true)
                     if (active.isEmpty()) PrimaryAction("첫 상품 담기", onAdd, Modifier.fillMaxWidth().padding(horizontal = 20.dp))
                 }
             }
@@ -287,10 +287,10 @@ fun Pill(text: String, background: Color, color: Color) {
 }
 
 @Composable
-fun EmptyState(title: String, subtitle: String, pose: MascotPose? = null) {
-    Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Mascot(pose ?: MascotPose.MOA_SLEEP, size = 88.dp)
-        Text(title, Modifier.padding(top = 18.dp), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = AppColors.Text, textAlign = TextAlign.Center)
+fun EmptyState(title: String, subtitle: String, pose: MascotPose? = null, compact: Boolean = false) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = if (compact) 20.dp else 32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Mascot(pose ?: MascotPose.MOA_SLEEP, size = if (compact) 72.dp else 88.dp)
+        Text(title, Modifier.padding(top = if (compact) 12.dp else 18.dp), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = AppColors.Text, textAlign = TextAlign.Center)
         Text(subtitle, Modifier.padding(top = 10.dp), fontSize = 14.sp, color = AppColors.Secondary, textAlign = TextAlign.Center, lineHeight = 23.sp)
     }
 }

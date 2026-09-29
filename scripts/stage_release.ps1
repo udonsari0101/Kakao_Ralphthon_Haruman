@@ -67,11 +67,19 @@ function Resolve-File([string]$Path, [string]$Label) {
 function Invoke-CheckedNative([string]$Tool, [string[]]$Arguments, [int[]]$AllowedExitCodes = @(0)) {
     # Capture stderr without printing certificate DNs, internal paths, or raw logs.
     $priorPreference = $ErrorActionPreference
+    $hadDebugVariable = Test-Path Env:DEBUG
+    $priorDebug = $env:DEBUG
     try {
+        # Android SDK .bat launchers enable command echo when DEBUG is set.
+        $env:DEBUG = ''
         $ErrorActionPreference = 'Continue'
         $lines = @(& $Tool @Arguments 2>&1 | ForEach-Object { $_.ToString() })
         $nativeExit = $LASTEXITCODE
-    } finally { $ErrorActionPreference = $priorPreference }
+    } finally {
+        $ErrorActionPreference = $priorPreference
+        if ($hadDebugVariable) { $env:DEBUG = $priorDebug }
+        else { Remove-Item Env:DEBUG -ErrorAction SilentlyContinue }
+    }
     if ($nativeExit -notin $AllowedExitCodes) {
         throw "$([IO.Path]::GetFileName($Tool)) failed with exit code $nativeExit."
     }

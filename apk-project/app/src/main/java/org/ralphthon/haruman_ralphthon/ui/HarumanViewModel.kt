@@ -12,6 +12,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import org.json.JSONArray
 import org.json.JSONObject
 import org.ralphthon.haruman_ralphthon.data.*
 import java.util.UUID
@@ -33,6 +34,7 @@ data class ProductDraft(
     val snapshot: ProductSnapshot? = null,
     val reviewMessage: String? = null,
     val dirty: Boolean = false,
+    val editedFields: Set<String> = emptySet(),
 ) {
     val priceWon: Long? get() = price.toLongOrNull()
     val priceError: Boolean get() = price.isNotEmpty() &&
@@ -47,6 +49,7 @@ data class ProductDraft(
         put("imageHidden", imageHidden); put("reviewMessage", reviewMessage ?: JSONObject.NULL)
         put("desire", desire?.name ?: JSONObject.NULL); put("snapshot", snapshot?.toJson() ?: JSONObject.NULL)
         put("dirty", dirty)
+        put("editedFields", JSONArray(editedFields.toList()))
     }.toString()
 
     companion object {
@@ -62,6 +65,9 @@ data class ProductDraft(
                 hours = json.optInt("hours", 24).coerceIn(0, 168), imageUrl = json.optionalText("imageUrl"),
                 imageHidden = json.optBoolean("imageHidden"), reviewMessage = json.optionalText("reviewMessage"),
                 dirty = json.optBoolean("dirty"),
+                editedFields = json.optJSONArray("editedFields")?.let { fields ->
+                    List(fields.length()) { index -> fields.getString(index) }.toSet()
+                }.orEmpty(),
                 desire = runCatching { Desire.valueOf(json.getString("desire")) }.getOrNull(),
                 snapshot = json.optJSONObject("snapshot")?.toSnapshot(),
             )
@@ -70,6 +76,13 @@ data class ProductDraft(
 }
 
 private fun JSONObject.optionalText(key: String): String? = if (isNull(key)) null else optString(key).takeIf { it.isNotBlank() }
+private fun JSONObject?.stringList(key: String): List<String> = this?.optJSONArray(key)?.let { values ->
+    List(values.length()) { values.getString(it) }
+}.orEmpty()
+private fun ProductDraft.worthKeeping(): Boolean = dirty || editingId != null || url.isNotBlank() ||
+    name.isNotBlank() || price.isNotBlank() || description.isNotBlank() || userMemo.isNotBlank() || snapshot != null
+private fun ProductDraft.hasManualEdits(): Boolean = editedFields.any { it in setOf("name", "price", "description", "userMemo", "imageHidden") } ||
+    (dirty && editedFields.isEmpty() && (name.isNotBlank() || price.isNotBlank() || description.isNotBlank() || userMemo.isNotBlank()))
 
 /** Owns requests across configuration changes; process death restores an editable draft, never replays a POST. */
 class HarumanViewModel internal constructor(
@@ -80,12 +93,20 @@ class HarumanViewModel internal constructor(
     constructor(application: Application, state: SavedStateHandle) : this(application, state, LocalStore(application))
     private val messages = Channel<String>(Channel.BUFFERED)
     val notices = messages.receiveAsFlow()
+    private val workspaceStore = store.uiWorkspaceStore()
+    private val workspaceToken = state.get<String>("workspaceToken") ?: "active-workspace"
+    private val reviewToken = state.get<String>("reviewToken") ?: "active-review"
+    private val restoredWorkspaceText = workspaceStore.read(workspaceToken)
+    private val restoredWorkspace = restoredWorkspaceText?.let { runCatching { JSONObject(it) }.getOrNull() }
+    private val restoredReviewText = workspaceStore.read(reviewToken)
+    private var lastWorkspaceText = restoredWorkspaceText
+    private var workspaceWriteFailed = false
 
     var items by mutableStateOf(store.items()); private set
     var route by mutableStateOf(state.get<String>("route") ?: if (store.onboardingDone) "vault" else "onboarding"); private set
     var selectedId by mutableStateOf(state.get<String>("selectedId")); private set
-    var draft by mutableStateOf(ProductDraft.decode(state["draft"])); private set
-    var sheetOpen by mutableStateOf(state.get<Boolean>("sheetOpen") ?: false); private set
+    var draft by mutableStateOf(ProductDraft.decode(if (restoredWorkspace != null) restoredWorkspace.optionalText("draft") else state["draft"])); private set
+    var sheetOpen by mutableStateOf(state.get<Boolean>("sheetOpen") ?: restoredWorkspace?.optBoolean("sheetOpen") ?: false); private set
     var defaultHours by mutableStateOf(store.defaultCooldownHours); private set
     var themePreference by mutableStateOf(store.themePreference); private set
     var mascotBubbles by mutableStateOf(store.mascotBubbles); private set
@@ -93,12 +114,19 @@ class HarumanViewModel internal constructor(
     var processing by mutableStateOf(false); private set
     var requestError by mutableStateOf<String?>(null); private set
     var retryAllowed by mutableStateOf(false); private set
-    var sharedChoices by mutableStateOf<List<String>>(state.get<ArrayList<String>>("sharedChoices")?.toList() ?: emptyList()); private set
-    var pendingSharedLinks by mutableStateOf<List<String>>(state.get<ArrayList<String>>("pendingSharedLinks")?.toList() ?: emptyList()); private set
-    var shareConflict by mutableStateOf(false); private set
+    var sharedChoices by mutableStateOf<List<String>>(state.get<ArrayList<String>>("sharedChoices")?.toList() ?: restoredWorkspace.stringList("sharedChoices")); private set
+    var pendingSharedLinks by mutableStateOf<List<String>>(state.get<ArrayList<String>>("pendingSharedLinks")?.toList() ?: restoredWorkspace.stringList("pendingSharedLinks")); private set
+    var shareConflict by mutableStateOf(restoredWorkspace?.optBoolean("shareConflict") ?: false); private set
+    private var heldDrafts by mutableStateOf(
+        (restoredWorkspace.stringList("heldDrafts").mapNotNull { ProductDraft.decode(it) } +
+            if (restoredWorkspace == null) listOfNotNull(ProductDraft.decode(state["heldDraft"])) else emptyList())
+            .distinctBy { it.acquisitionId },
+    )
     var celebrationId by mutableStateOf(state.get<String>("celebrationId")); private set
     var receivedId by mutableStateOf(state.get<String>("receivedId")); private set
-    var review by mutableStateOf(ReviewSession.decode(state["review"])); private set
+    var review by mutableStateOf(ReviewSession.decode(restoredReviewText ?: state["review"])); private set
+    private var lastPersistedReview = review
+    private var reviewFileDirty = restoredReviewText == null
 
     var linkService: ProductLinkService = NotConfiguredProductLinkService
     private var activeRequest: Job? = null
@@ -116,16 +144,43 @@ class HarumanViewModel internal constructor(
         if (route !in setOf("onboarding", "vault", "history", "my", "detail", "decide", "result", "added", "review")) route = "vault"
         if (route == "review" && review == null) route = "vault"
         if (route in setOf("detail", "decide", "result", "added") && selected == null) route = "vault"
+        // Migrate old Bundle payloads on first load and remove them only after the file is safe.
+        persist()
     }
 
-    private fun persist() {
+    private fun workspaceJson(): String = JSONObject().apply {
+        put("draft", draft?.encoded() ?: JSONObject.NULL)
+        put("heldDrafts", JSONArray(heldDrafts.map { it.encoded() }))
+        put("sheetOpen", sheetOpen); put("shareConflict", shareConflict)
+        put("sharedChoices", JSONArray(sharedChoices)); put("pendingSharedLinks", JSONArray(pendingSharedLinks))
+    }.toString()
+
+    private fun persist(): Boolean {
+        // A keystroke must not serialize or write every completed review card again.
+        if (reviewFileDirty || review !== lastPersistedReview) {
+            if (!workspaceStore.write(reviewToken, review?.encoded() ?: "null")) return workspaceFailure()
+            lastPersistedReview = review; reviewFileDirty = false
+        }
+        val workspace = workspaceJson()
+        if (workspace != lastWorkspaceText) {
+            if (!workspaceStore.write(workspaceToken, workspace)) return workspaceFailure()
+            lastWorkspaceText = workspace
+        }
+        workspaceWriteFailed = false
         state["route"] = route; state["selectedId"] = selectedId
-        state["draft"] = draft?.encoded(); state["sheetOpen"] = sheetOpen
-        state["sharedChoices"] = ArrayList(sharedChoices)
-        state["pendingSharedLinks"] = ArrayList(pendingSharedLinks)
+        state["workspaceToken"] = workspaceToken; state["reviewToken"] = reviewToken
+        state["sheetOpen"] = sheetOpen
         state["celebrationId"] = celebrationId
         state["receivedId"] = receivedId
-        state["review"] = review?.encoded()
+        listOf("draft", "heldDraft", "review", "sharedChoices", "pendingSharedLinks").forEach { state.remove<Any>(it) }
+        return true
+    }
+
+    private fun workspaceFailure(): Boolean {
+        requestError = "작성 중인 내용을 기기에 보관하지 못했어요. 입력은 열어 두었어요. 다시 저장해 주세요"
+        if (!workspaceWriteFailed) notifyUser("임시 저장을 마치지 못했어요. 이전에 보관한 내용은 그대로 있어요")
+        workspaceWriteFailed = true
+        return false
     }
 
     fun notifyUser(message: String) { messages.trySend(message) }
@@ -173,7 +228,15 @@ class HarumanViewModel internal constructor(
     fun changeDraft(transform: (ProductDraft) -> ProductDraft) {
         val current = draft ?: return
         if (processing) cancelRequest()
-        val changed = transform(current).copy(dirty = true)
+        val transformed = transform(current)
+        val editedFields = current.editedFields + buildSet {
+            if (transformed.name != current.name) add("name")
+            if (transformed.price != current.price) add("price")
+            if (transformed.description != current.description) add("description")
+            if (transformed.userMemo != current.userMemo) add("userMemo")
+            if (transformed.imageHidden != current.imageHidden) add("imageHidden")
+        }
+        val changed = transformed.copy(dirty = true, editedFields = editedFields)
         draft = if (changed.url != current.url) changed.copy(snapshot = null, imageUrl = null, reviewMessage = null) else changed
         requestError = null
         persist()
@@ -188,7 +251,13 @@ class HarumanViewModel internal constructor(
 
     fun edit(item: WishItem) {
         cancelRequest(); extracted = null; requestError = null
-        draft = ProductDraft(
+        if (draft?.editingId == item.id) {
+            sheetOpen = true; persist(); return
+        }
+        val previousEdit = heldDrafts.firstOrNull { it.editingId == item.id }
+        holdCurrentDraft()
+        heldDrafts = heldDrafts.filterNot { it.acquisitionId == previousEdit?.acquisitionId }
+        draft = previousEdit ?: ProductDraft(
             editingId = item.id, mode = "manual", inputSource = item.inputSource,
             url = item.url, name = item.name, price = item.priceWon?.toString().orEmpty(),
             description = item.description, userMemo = item.userMemo, hours = defaultHours,
@@ -208,14 +277,15 @@ class HarumanViewModel internal constructor(
         store.onboardingDone = true
         if (processing && links.size == 1 && draft?.url == links.first()) return
         val current = draft
-        if (current != null && (current.dirty || processing || current.editingId != null)) {
+        if (current != null && (current.worthKeeping() || processing)) {
             pendingSharedLinks = links; shareConflict = true; persist()
         } else acceptLinks(links)
     }
 
     /** Keep a complete backup of the previous draft when switching to a newly shared link. */
     fun acceptPendingShare() {
-        state["heldDraft"] = draft?.encoded()
+        if (pendingSharedLinks.isEmpty()) return
+        holdCurrentDraft()
         shareConflict = false
         val links = pendingSharedLinks
         pendingSharedLinks = emptyList()
@@ -229,12 +299,19 @@ class HarumanViewModel internal constructor(
     }
 
     fun restoreHeldDraft() {
-        val held = ProductDraft.decode(state["heldDraft"]) ?: return
-        if (draft != null) state["heldDraft"] = draft?.encoded() else state["heldDraft"] = null
+        val held = heldDrafts.firstOrNull() ?: return
+        heldDrafts = heldDrafts.drop(1)
+        holdCurrentDraft()
         cancelRequest(); draft = held; sheetOpen = true; extracted = null; requestError = null; persist()
     }
 
-    fun hasHeldDraft(): Boolean = state.get<String>("heldDraft") != null
+    fun hasHeldDraft(): Boolean = heldDrafts.isNotEmpty()
+
+    private fun holdCurrentDraft() {
+        draft?.takeIf { it.worthKeeping() }?.let { current ->
+            heldDrafts = heldDrafts.filterNot { it.acquisitionId == current.acquisitionId } + current
+        }
+    }
 
     private fun acceptLinks(links: List<String>) {
         if (links.isEmpty()) return
@@ -267,6 +344,7 @@ class HarumanViewModel internal constructor(
         val url = links.single()
         val duplicate = items.find { it.decision == Decision.PENDING && it.url == url }
         if (duplicate != null) {
+            holdCurrentDraft()
             selectedId = duplicate.id; route = "detail"; sheetOpen = false; draft = null
             notifyUser("이미 보관함에 있어요"); persist(); return
         }
@@ -292,12 +370,15 @@ class HarumanViewModel internal constructor(
                     is ProductLinkResult.Complete -> {
                         extracted = result.product
                         draft = captured.fromExtracted(result.product)
-                        saveDraft(automatic = true)
+                        if (captured.hasManualEdits()) {
+                            draft = draft?.copy(reviewMessage = "직접 고친 내용은 그대로 두었어요. 새 상품 정보를 확인하고 저장해 주세요. " + result.product.proposal())
+                        } else saveDraft(automatic = true)
                     }
                     is ProductLinkResult.NeedsReview -> {
                         extracted = result.product
                         draft = captured.fromExtracted(result.product).copy(
-                            mode = "manual", reviewMessage = result.reasons.distinct().joinToString(" ").take(500),
+                            mode = "manual", reviewMessage = (result.reasons.distinct().joinToString(" ") +
+                                if (captured.hasManualEdits()) " 직접 고친 내용은 그대로 두었어요. ${result.product.proposal()}" else "").take(500),
                         )
                     }
                     is ProductLinkResult.Failure -> { requestError = result.message; retryAllowed = result.retryable }
@@ -322,13 +403,16 @@ class HarumanViewModel internal constructor(
 
     fun saveDraft(automatic: Boolean = false) {
         val current = draft ?: return
+        if (automatic && current.hasManualEdits()) return
         if (!current.canSave) return
         if (current.url.isNotBlank() && extractSupportedLinks(current.url).none { it == current.url } && current.editingId == null) {
             requestError = "상품 링크를 확인하거나 링크 없이 저장해 주세요"; return
         }
         cancelRequest()
         if (current.editingId != null) {
-            val existing = items.find { it.id == current.editingId } ?: return
+            val existing = items.find { it.id == current.editingId } ?: run {
+                requestError = "이 상품은 삭제됐어요. 작성한 내용은 아직 열어 두었어요"; return
+            }
             val updated = existing.copy(name = current.name.trim(), priceWon = current.priceWon,
                 description = current.description.trim(), userMemo = current.userMemo.trim(), imageHidden = current.imageHidden, desire = current.desire)
             val next = items.map { if (it.id == existing.id) updated else it }
@@ -338,7 +422,10 @@ class HarumanViewModel internal constructor(
         } else {
             val duplicate = items.find { it.decision == Decision.PENDING && current.url.isNotBlank() && it.url == current.url }
             if (duplicate != null) {
-                selectedId = duplicate.id; route = "detail"; notifyUser("이미 보관함에 있어요")
+                holdCurrentDraft()
+                selectedId = duplicate.id; route = "detail"; sheetOpen = false; draft = null
+                extracted = null; requestError = null
+                notifyUser("이미 보관함에 있어요. 작성한 내용도 따로 보관했어요"); persist(); return
             } else {
                 val now = System.currentTimeMillis()
                 val snapshot = current.snapshot
@@ -360,6 +447,8 @@ class HarumanViewModel internal constructor(
                 }
             }
         }
+        heldDrafts = heldDrafts.filterNot { it.acquisitionId == current.acquisitionId ||
+            (current.editingId != null && it.editingId == current.editingId) }
         sheetOpen = false; draft = null; extracted = null; requestError = null
         persist()
     }
@@ -437,13 +526,44 @@ class HarumanViewModel internal constructor(
 
     fun deleteAll() {
         cancelRequest()
-        if (store.saveItems(emptyList())) {
-            items = emptyList(); draft = null; sheetOpen = false; home(); notifyUser("모든 기록을 삭제했어요")
-        } else notifyUser("기록을 지우지 못했어요. 다시 시도해 주세요")
+        val previousWorkspace = workspaceJson()
+        val previousReview = review?.encoded() ?: "null"
+        val emptyWorkspace = JSONObject().apply {
+            put("draft", JSONObject.NULL); put("heldDrafts", JSONArray())
+            put("sheetOpen", false); put("shareConflict", false)
+            put("sharedChoices", JSONArray()); put("pendingSharedLinks", JSONArray())
+        }.toString()
+        // Clear persisted drafts before reporting success; a restart cannot resurrect them.
+        if (!workspaceStore.write(reviewToken, "null")) { workspaceFailure(); return }
+        if (!workspaceStore.write(workspaceToken, emptyWorkspace)) {
+            workspaceStore.write(reviewToken, previousReview)
+            workspaceFailure(); return
+        }
+        if (!store.saveItems(emptyList())) {
+            val restoredReview = workspaceStore.write(reviewToken, previousReview)
+            val restoredDrafts = workspaceStore.write(workspaceToken, previousWorkspace)
+            if (!restoredReview || !restoredDrafts) workspaceFailure()
+            notifyUser("기록을 지우지 못했어요. 작성한 내용은 열어 두었어요. 다시 시도해 주세요")
+            return
+        }
+        items = emptyList(); draft = null; heldDrafts = emptyList(); sheetOpen = false
+        review = null; lastPersistedReview = null; reviewFileDirty = false
+        sharedChoices = emptyList(); pendingSharedLinks = emptyList(); shareConflict = false
+        celebrationId = null; receivedId = null; selectedId = null
+        extracted = null; requestError = null; retryAllowed = false
+        lastWorkspaceText = emptyWorkspace
+        route = "vault"; persist(); notifyUser("모든 기록을 삭제했어요")
     }
 }
 
-private fun ProductDraft.fromExtracted(product: ExtractedProduct): ProductDraft = copy(
-    name = product.name, price = product.priceWon?.toString().orEmpty(), imageUrl = product.imageUrl,
-    mode = "manual", dirty = false, snapshot = product.snapshot,
-)
+private fun ProductDraft.fromExtracted(product: ExtractedProduct): ProductDraft {
+    // Old drafts did not record individual fields; preserve their manual content conservatively.
+    val preserveLegacy = hasManualEdits() && editedFields.isEmpty()
+    return copy(
+        name = if ("name" in editedFields || preserveLegacy) name else product.name,
+        price = if ("price" in editedFields || preserveLegacy) price else product.priceWon?.toString().orEmpty(),
+        imageUrl = product.imageUrl, mode = "manual", snapshot = product.snapshot,
+    )
+}
+
+private fun ExtractedProduct.proposal(): String = "새로 받은 정보: ${name.take(160)} · ${priceWon?.let { "${it}원" } ?: "가격 미정"}"

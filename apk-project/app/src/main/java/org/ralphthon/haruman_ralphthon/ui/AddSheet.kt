@@ -52,7 +52,7 @@ fun AddSheet(
         Text(if (editing) "고친 내용은 이 상품에만 저장돼요" else "링크로 불러오거나 직접 적을 수 있어요", color = AppColors.Secondary, fontSize = 14.sp)
         MascotMessage(MascotPose.MOA_RECEIVE, if (draft.inputSource == InputSource.LINK_SHARE) "링크를 받았어요! 함께 담아 볼까요?" else "마음에 든 상품을 모아 둘게요!", size = 56.dp)
         if (!editing) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 FilterChip(selected = !manual, onClick = { onModeChange("link") }, label = { Text("링크로 추가") }, modifier = Modifier.testTag("mode_link").heightIn(min = 48.dp))
                 FilterChip(selected = manual, onClick = { onModeChange("manual") }, label = { Text("직접 입력") }, modifier = Modifier.testTag("mode_manual").heightIn(min = 48.dp))
             }

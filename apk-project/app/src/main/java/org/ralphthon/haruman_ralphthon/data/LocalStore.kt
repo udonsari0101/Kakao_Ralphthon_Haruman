@@ -1,6 +1,8 @@
 ﻿package org.ralphthon.haruman_ralphthon.data
 
 import android.content.Context
+import java.io.File
+import java.security.MessageDigest
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -106,6 +108,11 @@ sealed interface SaveItemResult {
 /** New installs start empty. Old platform records are preserved, including Instagram and samples. */
 class LocalStore(context: Context, prefsName: String = "haruman_local_v1") {
     private val preferences = context.applicationContext.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+    // The same namespace as preferences keeps instrumentation fixtures away from real drafts.
+    internal val uiWorkspaceDirectory: File = File(context.applicationContext.filesDir,
+        "ui-workspace/" + MessageDigest.getInstance("SHA-256").digest(prefsName.toByteArray(Charsets.UTF_8))
+            .joinToString("") { "%02x".format(it) })
+    internal fun uiWorkspaceStore(): UiWorkspaceStore = UiWorkspaceStore(uiWorkspaceDirectory)
     private val repository = ItemRepository(object : ItemPersistence {
         override fun read(): String? = preferences.getString("items", null)
         override fun write(value: String): Boolean {

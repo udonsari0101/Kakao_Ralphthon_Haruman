@@ -97,7 +97,11 @@ private fun HarumanContent(model: HarumanViewModel) {
                 "detail" -> selected?.let { item -> DetailScreen(item, now, model::home, { openOriginal(item) }, model::openDecision, onEdit = { model.edit(item) }) }
                 "decide" -> selected?.let { item -> DecideScreen(item, model::home, model::extendSelected, model::decideSelected) }
                 "result" -> selected?.let { item -> ResultScreen(item, model.items, now, model::home, { openOriginal(item) }, celebrateEvent = model.celebrationId == item.id, onCelebrationConsumed = model::consumeCelebration) }
-                "added" -> selected?.let { item -> AddedScreen(item, model::home, { model.edit(item) }, { model.openDetail(item.id) }) }
+                "added" -> selected?.let { item -> AddedScreen(
+                    item, model::home, { model.edit(item) }, { model.openDetail(item.id) },
+                    receivedEventId = model.receivedId?.takeIf { it == item.id },
+                    onReceivedFinished = model::consumeReceived,
+                ) }
                 "review" -> model.review?.let { session -> ReviewScreen(
                     session, model.currentReviewItem(), model.defaultHours, now,
                     onBack = model::home, onAction = model::reviewAction, onUndo = model::undoReview,
@@ -111,7 +115,11 @@ private fun HarumanContent(model: HarumanViewModel) {
                 ) }
             }
           }
-          model.receivedId?.let { id -> ReceivedOverlay(id, model::consumeReceived, Modifier.align(Alignment.BottomCenter)) }
+          // Navigation stays available during the decorative receipt animation.
+          // Leaving this screen consumes the event instead of replaying it later.
+          LaunchedEffect(model.route, model.receivedId) {
+              if (model.route != "added" && model.receivedId != null) model.consumeReceived()
+          }
         }
     }
     val draft = model.draft
@@ -173,10 +181,25 @@ private fun ResumeBanner(message: String, action: String, onClick: () -> Unit) {
 }
 
 @Composable
-private fun AddedScreen(item: WishItem, onHome: () -> Unit, onEdit: () -> Unit, onDetail: () -> Unit) {
+internal fun AddedScreen(
+    item: WishItem,
+    onHome: () -> Unit,
+    onEdit: () -> Unit,
+    onDetail: () -> Unit,
+    receivedEventId: String?,
+    onReceivedFinished: () -> Unit,
+) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
         Column(Modifier.widthIn(max = 600.dp).fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            CharacterArt("success", Modifier.padding(top = 20.dp).size(100.dp))
+            // Keep one fixed header slot before, during, and after receipt motion.
+            // It never overlaps the product card or the navigation buttons.
+            Box(Modifier.padding(top = 20.dp).size(100.dp).testTag("added_character")) {
+                if (receivedEventId != null) {
+                    ReceivedOverlay(receivedEventId, onReceivedFinished, Modifier.fillMaxSize())
+                } else {
+                    CharacterArt("success", Modifier.fillMaxSize())
+                }
+            }
             Text("보관함에 추가했어요", Modifier.padding(top = 20.dp).testTag("added_title"), fontSize = 26.sp, fontWeight = FontWeight.Bold, color = AppColors.Text)
             Text("마음에 든 이유를 천천히 생각해 봐요", Modifier.padding(top = 8.dp), color = AppColors.Secondary, fontSize = 14.sp)
             Column(Modifier.padding(top = 24.dp).fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(AppColors.Surface).padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -187,7 +210,7 @@ private fun AddedScreen(item: WishItem, onHome: () -> Unit, onEdit: () -> Unit, 
                 Text("다시 볼 시간", color = AppColors.Secondary, fontSize = 12.sp)
                 Text(if (item.cooldownUntil <= item.createdAt) "지금 바로 생각할 수 있어요" else SimpleDateFormat("M월 d일 a h:mm", Locale.KOREAN).format(Date(item.cooldownUntil)), Modifier.padding(top = 6.dp), color = AppColors.Text, fontWeight = FontWeight.SemiBold)
             }
-            PrimaryAction("보관함으로", onHome, Modifier.fillMaxWidth().padding(top = 24.dp))
+            PrimaryAction("보관함으로", onHome, Modifier.fillMaxWidth().padding(top = 24.dp).testTag("added_home"))
             OutlinedButton(onClick = onEdit, modifier = Modifier.fillMaxWidth().padding(top = 8.dp).heightIn(min = 52.dp).testTag("edit_added"), shape = RoundedCornerShape(12.dp)) { Text("정보 수정") }
             TextButton(onClick = onDetail, modifier = Modifier.heightIn(min = 48.dp)) { Text("상품 자세히 보기") }
         }

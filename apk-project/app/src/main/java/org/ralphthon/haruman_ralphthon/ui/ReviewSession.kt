@@ -25,6 +25,7 @@ data class ReviewSession(
     val hasExamples: Boolean get() = results.any { it.after.isSample }
     val realSkipCount: Int get() = skipped.count { !it.isSample }
     val hasKnownSavings: Boolean get() = skipped.any { !it.isSample && it.decisionPriceWon != null }
+    /** File payload only. Keep this out of SavedStateHandle / Bundle. */
     fun encoded(): String = JSONObject().apply {
         put("id", id); put("ids", JSONArray(ids)); put("index", index)
         put("undoUntil", undoUntil); put("celebrationConsumed", celebrationConsumed)
