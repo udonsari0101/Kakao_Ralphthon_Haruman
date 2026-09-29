@@ -1,14 +1,15 @@
 # 로컬 버전별 release 보존
 
-상태: **1.1.0-rc.2(code3) 보존·GitHub 발행·재다운로드 해시 검증 완료** — 2026-09-29.
+상태: **최종1.1.0-rc.3(code4) 보존·GitHub 발행·재다운로드 해시 검증 완료** — 2026-09-29.
 
 | 버전 | 소스 | 배포 및 검증 기록 |
 | --- | --- | --- |
+| [1.1.0-rc.3-4](1.1.0-rc.3-4/) | `067ce4782480a317e56df82f3e45528e97e34f4e` | [GitHub Release](https://github.com/udonsari0101/Kakao_Ralphthon/releases/tag/v1.1.0-rc.3) · [발행 확인](1.1.0-rc.3-4/publication.json) · [검수](1.1.0-rc.3-4/qa-summary.md) |
 | [1.1.0-rc.2-3](1.1.0-rc.2-3/) | `d6fa562349905764d60c0924d505a4eb8b1b91f7` | [GitHub Release](https://github.com/udonsari0101/Kakao_Ralphthon/releases/tag/v1.1.0-rc.2) · [발행 확인](1.1.0-rc.2-3/publication.json) · [검수](1.1.0-rc.2-3/qa-summary.md) |
 
-APK SHA256: `3e136b7a876f0868bb0fb69dcdf1b2bcf3e28a1ed059fc2b2c9ddfd0672a0a90`.
+최종RC3 APK SHA256: `c5ef704f9c33008bd9e7d48948c276c0bea35bead519f13e333ef20b71d3378d`.
 
-실제 API는 `NotConfigured`다. 기기의 debug 설치와 배포 서명은 다르므로 사용자 데이터가 있는 앱을 삭제해서 설치하지 않는다.
+RC3 실제 API 상태는 `RealApiVerified`이며 정확 signed APK에서 상품 응답을 확인했다. RC2의 `NotConfigured`는 당시 이력이다. 기기의 debug 설치와 배포 서명은 다르므로 사용자 데이터가 있는 앱을 삭제해서 설치하지 않는다.
 
 검증된 서명 release는 다음 형식으로 보존한다. 전체 절차는 [RELEASE_WORKFLOW.md](../RELEASE_WORKFLOW.md)를 따른다.
 
