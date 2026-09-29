@@ -8,7 +8,7 @@
 
 | 구분 | 확인된 상태 | 아직 완료하지 않은 것 |
 | --- | --- | --- |
-| 소스 | 최종 APK 소스 `d6fa562349905764d60c0924d505a4eb8b1b91f7`, release tag `v1.1.0-rc.2` | 후속 문서·정제 metadata main push/원격 확인은 대기 |
+| 소스 | 최종 APK 소스 `d6fa562349905764d60c0924d505a4eb8b1b91f7`, release tag `v1.1.0-rc.2` | 문서 체크포인트 `ee425c6` push·원격 확인 완료; 배포 바이트 보존 설정을 후속 commit으로 관리 |
 | 입력·저장 | 상품 링크 입력/공유 경계, 직접 입력·수정·SKIP·초안 보존. 최종 APK에서 가격미정/링크없음/24시간과 기존SKIP12,345원 cold 재실행 보존 | 시스템 공유 chooser·cold/warm 직접 검수는 승인 차단으로 미완료 |
 | API | 계약 초안 2개 수령, adapter·검증·자동 저장/보완·취소·중복 방어 구현 및 Fake 검증 | 실제 endpoint·인증 미제공, production `NotConfigured`, 실제 상품 조회 미검증 |
 | 디자인 | mascot-duo MD5개+13:43 마당 MD, 볼5단계·주/월 마당·소비 목표·리포트·빨강3모드 연결 | 전용 삽질/물주기 및 고급 변환 미적용. 실제 기간 전환 리포트 첫 축하 미검수 |
@@ -32,7 +32,7 @@
 
 - 로컬 [`releases/1.1.0-rc.2-3/`](./releases/1.1.0-rc.2-3/)에 stage gate를 모두 통과한 APK·manifest·release-notes·qa-summary·SHA256SUMS를 보존했다.
 - [GitHub v1.1.0-rc.2 prerelease](https://github.com/udonsari0101/Kakao_Ralphthon/releases/tag/v1.1.0-rc.2)에5assets를 업로드하고 다시 다운로드했다. SHA256SUMS 자체가 로컬과 같고 목록의4개 파일 해시가 모두 일치했다.
-- 전용 emulator는 wm1080×2340·font_scale1 복원을 확인했다. 14:43 실폰 stay_on0/nightyes 복원과 모션3종1.0·font1·accelerometer1/user_rotation0·1080×2280 유지, 앱code3 설치·정상MAIN 전달을 확인했다. 이 단계에서 사용자 데이터 편집·삭제는 없었다. 후속 문서의 main push는 아직 대기다.
+- 전용 emulator는 wm1080×2340·font_scale1 복원을 확인했다. 14:43 실폰 stay_on0/nightyes 복원과 모션3종1.0·font1·accelerometer1/user_rotation0·1080×2280 유지, 앱code3 설치·정상MAIN 전달을 확인했다. 이 단계에서 사용자 데이터 편집·삭제는 없었다. 후속 문서 체크포인트 `ee425c6`의 main push와 원격 SHA도 확인했다.
 
 ### 명시적으로 남은 제한
 
@@ -41,7 +41,7 @@
 - 모아 삽질·토리 물주기 전용 포즈와 고급 변환은 미적용이다. 현재는 정적 구덩이/나무 아이콘과 기존 결정·축하 모션이다.
 - 자동 기간 리포트 첫 confetti는 코드에 연결됐으나 기기 기간을 강제로 바꾸는 실폰 시나리오는 미실행이다.
 - 연결 실폰 debug와 release의 인증서가 달라 같은 package 업데이트 충돌 가능성이 있다. 앱 삭제로 해결하지 않고 별도 전용 API36 emulator에서 정확한 release를 검수했다.
-- 후속 문서 main push는 완료 증거가 도착하기 전까지 진행 중으로 둔다. 로컬 보존·프리릴리스·다운로드 해시는14:38, 최종 기기 설정 복원은14:43 확인 결과로 완료 처리했다.
+- 후속 문서 main 체크포인트 `ee425c6`의 원격 일치를 확인했다. 로컬 보존·프리릴리스·다운로드 해시는14:38, 최종 기기 설정 복원은14:43 확인 결과로 완료 처리했다.
 
 ### 기기 데이터 손실 사건과 변경한 검수 절차
 

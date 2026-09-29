@@ -17,3 +17,10 @@
 *.jpg binary
 *.jpeg binary
 *.webp binary
+
+# Preserve the exact bytes used by each immutable release's SHA256SUMS.
+/releases/*/manifest.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+/releases/*/release-notes.md -text
+/releases/*/qa-summary.md -text
+/releases/*/SHA256SUMS.txt -text
+/releases/*/publication.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

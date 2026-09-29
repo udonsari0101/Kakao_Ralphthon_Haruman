@@ -1,16 +1,16 @@
-﻿# 하루만 — 구현 목표와 완료 기준
+# 하루만 — 구현 목표와 완료 기준
 
 개정일: 2026-09-29 · **v3.2: 링크 API + 모아·토리 통합**
 
 추가 반영: **13:43 KST 수령한 [저장 데이터 시각화](./md_plus/storage-visualization.md)**. 원문은 `draft`지만 새 문서를 적용하라는 사용자 지시에 따라 마당·볼주머니·소비 목표·기간 리포트를 현재 개발 범위에 포함한다. 내용 SHA-256: `A9AEDB110BF812A52EF0C1A26EDFAD529F3E27668118FABF625FE72D42131176`. 기존 검수 결과가 새 화면까지 검증한 것은 아니다.
 
-상태: **RC2 프리릴리스 배포·다운로드·기기 설정 복원 완료, 제한 사항을 명시한 문서 인계 진행 중**
+상태: **RC2 프리릴리스 배포·다운로드·기기 설정 복원·문서 main 반영 완료, 남은 외부 조건과 디자인 범위 별도 관리**
 
 작업 시간: **12:04:47–15:04:47 KST, 180분**
 
 사용자의 “지금부터 작업 시작” 지시가 앞선 문서 전용 제한을 대체했다. API 계약 초안 두 개와 12:19 KST에 받은 [모아·토리 요구사항](./md_plus/mascot-duo/implementation-requirements.md)·가이드·18개 Android 벡터를 현재 구현에 반영한다. `캐릭터 MD 대기`, `설계만 작성`, `구현 재개 대기`는 이전 체크포인트의 상태다.
 
-**현재 확인 범위 —14:43 KST:** JVM **62개**, 실제 Android13 폰 격리 테스트 **63개**, OS모션0의 실제 Choreographer 검사 별도1개 통과를 확인했다. 최종 소스는 `d6fa562349905764d60c0924d505a4eb8b1b91f7`, RC2/code3 APK SHA-256은 `3e136b7a876f0868bb0fb69dcdf1b2bcf3e28a1ed059fc2b2c9ddfd0672a0a90`다. 정확한 파일의 API36 emulator 설치·입력/편집·SKIP·cold 재실행·3모드·선택 폭/글꼴/짧은 창을 확인했고,14:38 [v1.1.0-rc.2 프리릴리스](https://github.com/udonsari0101/Kakao_Ralphthon/releases/tag/v1.1.0-rc.2) 발행과5assets 다운로드·체크섬 일치를 확인했다. 최종 실폰/emulator 설정 복원도14:43 확인했다. 실제 API 미연결, 시스템 공유 직접 검수 차단, 전용 삽질/물주기 미적용, 실제 기간 전환/회전 미검수 등은 남아 있다. 문서 main push는 대기 중이며 모든 요구의 완성을 주장하지 않는다. 상세 근거는 [QA_REPORT](./QA_REPORT.md)와 [todo](./todo.md)를 따른다.
+**현재 확인 범위 —14:43 KST:** JVM **62개**, 실제 Android13 폰 격리 테스트 **63개**, OS모션0의 실제 Choreographer 검사 별도1개 통과를 확인했다. 최종 소스는 `d6fa562349905764d60c0924d505a4eb8b1b91f7`, RC2/code3 APK SHA-256은 `3e136b7a876f0868bb0fb69dcdf1b2bcf3e28a1ed059fc2b2c9ddfd0672a0a90`다. 정확한 파일의 API36 emulator 설치·입력/편집·SKIP·cold 재실행·3모드·선택 폭/글꼴/짧은 창을 확인했고,14:38 [v1.1.0-rc.2 프리릴리스](https://github.com/udonsari0101/Kakao_Ralphthon/releases/tag/v1.1.0-rc.2) 발행과5assets 다운로드·체크섬 일치를 확인했다. 최종 실폰/emulator 설정 복원도14:43 확인했다. 실제 API 미연결, 시스템 공유 직접 검수 차단, 전용 삽질/물주기 미적용, 실제 기간 전환/회전 미검수 등은 남아 있다. 문서 main 체크포인트 `ee425c6`의 push와 원격 SHA를 확인했다. 모든 요구의 완성을 주장하지 않는다. 상세 근거는 [QA_REPORT](./QA_REPORT.md)와 [todo](./todo.md)를 따른다.
 
 ## 1. 이번 목표
 
