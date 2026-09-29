@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Haruman_Ralphthon" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowBackground">#121214</item>
+        <item name="android:colorBackground">#121214</item>
+        <item name="android:colorAccent">#FF6B73</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">#121214</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="android:windowSplashScreenBackground">#121214</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/haruman_splash_icon</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">#341B20</item>
+    </style>
+</resources>

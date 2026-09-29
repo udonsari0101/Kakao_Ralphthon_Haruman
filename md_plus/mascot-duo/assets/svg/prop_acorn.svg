@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <title>도토리 아이콘</title>
+  <g id="acorn">
+    <path d="M64,56.4 A16,19.2 0 1,1 32,56.4 A16,19.2 0 1,1 64,56.4 Z" fill="#DB9550" stroke="#5B3A22" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M47.04,51.96 A4.8,8 -15 1,1 37.76,54.44 A4.8,8 -15 1,1 47.04,51.96 Z" fill="#F4C58A" fill-opacity="0.9"/>
+    <path d="M27.2,45.2 Q48,22.8 68.8,45.2 Q48,51.6 27.2,45.2 Z" fill="#8A5A2B" stroke="#5B3A22" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M38.4,37.2 L43.2,45.2 M49.6,34 L52.8,45.2 M59.2,37.2 L60.8,43.6" fill="none" stroke="#A87444" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M48,32.4 Q49.6,24.4 56,22.8" fill="none" stroke="#5B3A22" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

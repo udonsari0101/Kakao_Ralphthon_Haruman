@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <title>도토리 3단계 · 다시 볼 시간</title>
+  <g id="mound">
+    <path d="M14,88 C20,70 76,70 82,88 Z" fill="#C29366" stroke="#5B3A22" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M30,78 q5,-5 10,-1 M54,76 q5,-5 10,-1" fill="none" stroke="#A57A52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="acorn">
+    <path d="M62.5,55.8 A14.5,17.4 0 1,1 33.5,55.8 A14.5,17.4 0 1,1 62.5,55.8 Z" fill="#DB9550" stroke="#5B3A22" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M47.13,51.77 A4.35,7.25 -15 1,1 38.72,54.03 A4.35,7.25 -15 1,1 47.13,51.77 Z" fill="#F4C58A" fill-opacity="0.9"/>
+    <path d="M29.15,45.65 Q48,25.35 66.85,45.65 Q48,51.45 29.15,45.65 Z" fill="#8A5A2B" stroke="#5B3A22" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M39.3,38.4 L43.65,45.65 M49.45,35.5 L52.35,45.65 M58.15,38.4 L59.6,44.2" fill="none" stroke="#A87444" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M48,34.05 Q49.45,26.8 55.25,25.35" fill="none" stroke="#5B3A22" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="sparkles">
+    <path d="M18,19 Q19.96,24.04 25,26 Q19.96,27.96 18,33 Q16.04,27.96 11,26 Q16.04,24.04 18,19 Z" fill="#FFC83D"/>
+    <path d="M80,12 Q82.24,17.76 88,20 Q82.24,22.24 80,28 Q77.76,22.24 72,20 Q77.76,17.76 80,12 Z" fill="#FFC83D"/>
+    <path d="M82,53 Q83.4,56.6 87,58 Q83.4,59.4 82,63 Q80.6,59.4 77,58 Q80.6,56.6 82,53 Z" fill="#FFC83D"/>
+  </g>
+</svg>

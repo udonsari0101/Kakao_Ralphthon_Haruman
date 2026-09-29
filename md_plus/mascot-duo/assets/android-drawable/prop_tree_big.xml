@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from the mascot handoff source. Edit the generator, not this file. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <path
+        android:pathData="M74,88 A26,5 0 1,1 22,88 A26,5 0 1,1 74,88 Z"
+        android:fillColor="#3A2418"
+        android:fillAlpha="0.1" />
+    <path
+        android:pathData="M42,88 L44,50 H52 L54,88 Z"
+        android:fillColor="#A06F3F"
+        android:strokeColor="#5B3A22"
+        android:strokeWidth="2.6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <group android:name="canopy" android:pivotX="48" android:pivotY="66">
+        <path
+            android:pathData="M74,40 A26,26 0 1,1 22,40 A26,26 0 1,1 74,40 Z"
+            android:fillColor="#71C06D"
+            android:strokeColor="#5B3A22"
+            android:strokeWidth="2.8"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <path
+            android:pathData="M50,33 A10,10 0 1,1 30,33 A10,10 0 1,1 50,33 Z"
+            android:fillColor="#96D58C"
+            android:fillAlpha="0.9" />
+        <path
+            android:pathData="M62,46 A4,4 0 1,1 54,46 A4,4 0 1,1 62,46 Z"
+            android:fillColor="#96D58C"
+            android:fillAlpha="0.8" />
+    </group>
+    <group android:name="acorn_fruit" android:pivotX="62" android:pivotY="52">
+        <path
+            android:pathData="M67,54 A5,6 0 1,1 57,54 A5,6 0 1,1 67,54 Z"
+            android:fillColor="#DB9550"
+            android:strokeColor="#5B3A22"
+            android:strokeWidth="2.4"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <path
+            android:pathData="M61.7,52.61 A1.5,2.5 -15 1,1 58.8,53.39 A1.5,2.5 -15 1,1 61.7,52.61 Z"
+            android:fillColor="#F4C58A"
+            android:fillAlpha="0.9" />
+        <path
+            android:pathData="M55.5,50.5 Q62,43.5 68.5,50.5 Q62,52.5 55.5,50.5 Z"
+            android:fillColor="#8A5A2B"
+            android:strokeColor="#5B3A22"
+            android:strokeWidth="2.4"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <path
+            android:pathData="M59,48 L60.5,50.5 M62.5,47 L63.5,50.5 M65.5,48 L66,50"
+            android:strokeColor="#A87444"
+            android:strokeWidth="1.6"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <path
+            android:pathData="M62,46.5 Q62.5,44 64.5,43.5"
+            android:strokeColor="#5B3A22"
+            android:strokeWidth="2.4"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+    </group>
+</vector>

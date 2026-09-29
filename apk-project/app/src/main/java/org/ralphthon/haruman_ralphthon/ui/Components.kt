@@ -1,6 +1,16 @@
 package org.ralphthon.haruman_ralphthon.ui
 
+import android.database.ContentObserver
+import android.os.Handler
+import android.os.Looper
+import android.provider.Settings
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,6 +18,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
@@ -17,12 +32,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.findViewTreeLifecycleOwner
 
 @Composable
 fun PrimaryAction(
@@ -32,26 +54,72 @@ fun PrimaryAction(
     enabled: Boolean = true,
     weak: Boolean = false
 ) {
+    val interactions = remember { MutableInteractionSource() }
+    val pressed by interactions.collectIsPressedAsState()
+    val reducedMotion = rememberReducedMotion()
+    val scale by animateFloatAsState(
+        if (pressed && enabled && !reducedMotion) 0.985f else 1f,
+        animationSpec = tween(if (reducedMotion) 0 else 100), label = "buttonPress"
+    )
+    val container by animateColorAsState(
+        targetValue = if (weak) AppColors.Soft else if (pressed) AppColors.Pressed else AppColors.Primary,
+        animationSpec = tween(if (reducedMotion) 0 else 100), label = "buttonColor"
+    )
     Button(
         onClick = onClick,
-        modifier = modifier.heightIn(min = 56.dp),
+        modifier = Modifier.heightIn(min = 56.dp).then(modifier)
+            .graphicsLayer { scaleX = scale; scaleY = scale },
         enabled = enabled,
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (weak) AppColors.Soft else AppColors.Blue,
+            containerColor = container,
             contentColor = if (weak) AppColors.Text else Color.White,
             disabledContainerColor = AppColors.Border,
-            disabledContentColor = AppColors.Muted
+            disabledContentColor = AppColors.Secondary
         ),
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 15.dp),
+        interactionSource = interactions,
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp, pressedElevation = 0.dp)
     ) {
-        Text(text = text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+        Text(text = text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
     }
+}
+
+/** Android's remove-animation setting is observed while the screen is visible. */
+@Composable
+fun rememberReducedMotion(): Boolean {
+    val resolver = LocalContext.current.contentResolver
+    val lifecycle = LocalView.current.findViewTreeLifecycleOwner()?.lifecycle
+    fun readSetting(): Boolean = runCatching {
+        Settings.Global.getFloat(resolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) <= 0f
+    }.getOrDefault(false)
+    var reduced by remember(resolver) { mutableStateOf(readSetting()) }
+    DisposableEffect(resolver, lifecycle) {
+        val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
+            override fun onChange(selfChange: Boolean) { reduced = readSetting() }
+        }
+        runCatching {
+            resolver.registerContentObserver(
+                Settings.Global.getUriFor(Settings.Global.ANIMATOR_DURATION_SCALE), false, observer
+            )
+        }
+        val resumeObserver = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) reduced = readSetting()
+        }
+        lifecycle?.addObserver(resumeObserver)
+        reduced = readSetting()
+        onDispose {
+            lifecycle?.removeObserver(resumeObserver)
+            runCatching { resolver.unregisterContentObserver(observer) }
+        }
+    }
+    return reduced
 }
 
 /** Small rounded line icons, kept local so the app works entirely offline. */
 @Composable
 fun AppIcon(name: String, modifier: Modifier = Modifier, tint: Color = AppColors.Text) {
+    val surface = AppColors.Surface
     Canvas(modifier = modifier.size(22.dp)) {
         withTransform({ scale(size.width / 24f, size.height / 24f, Offset.Zero) }) {
             val stroke = Stroke(width = 1.85f, cap = StrokeCap.Round, join = StrokeJoin.Round)
@@ -86,6 +154,26 @@ fun AppIcon(name: String, modifier: Modifier = Modifier, tint: Color = AppColors
                     path { moveTo(17f, 13f); lineTo(17f, 18f); quadraticBezierTo(17f, 20f, 15f, 20f); lineTo(6f, 20f); quadraticBezierTo(4f, 20f, 4f, 18f); lineTo(4f, 9f); quadraticBezierTo(4f, 7f, 6f, 7f); lineTo(11f, 7f) }
                 }
                 "check" -> path { moveTo(5f, 12f); lineTo(9.5f, 16.5f); lineTo(19f, 7f) }
+                "info" -> {
+                    drawCircle(tint, 8.5f, Offset(12f, 12f), style = stroke)
+                    drawCircle(tint, 1f, Offset(12f, 7.5f)); line(12f, 11f, 12f, 16.5f)
+                }
+                "edit" -> {
+                    path { moveTo(4f, 16f); lineTo(15f, 5f); lineTo(19f, 9f); lineTo(8f, 20f); lineTo(4f, 20f); close() }
+                    line(12.5f, 7.5f, 16.5f, 11.5f)
+                }
+                "sun" -> {
+                    drawCircle(tint, 4f, Offset(12f, 12f), style = stroke)
+                    line(12f, 2f, 12f, 4f); line(12f, 20f, 12f, 22f)
+                    line(2f, 12f, 4f, 12f); line(20f, 12f, 22f, 12f)
+                    line(5f, 5f, 6.5f, 6.5f); line(17.5f, 17.5f, 19f, 19f)
+                    line(5f, 19f, 6.5f, 17.5f); line(17.5f, 6.5f, 19f, 5f)
+                }
+                "moon" -> path { moveTo(17f, 3.5f); cubicTo(9f, 1f, 2f, 9f, 5f, 16f); cubicTo(8f, 23f, 19f, 22f, 21f, 14f); cubicTo(13f, 18f, 9f, 9f, 17f, 3.5f); close() }
+                "system" -> {
+                    drawRoundRect(tint, Offset(3f, 4f), Size(18f, 13f), CornerRadius(2f), style = stroke)
+                    line(12f, 17f, 12f, 21f); line(8f, 21f, 16f, 21f)
+                }
                 "link" -> {
                     path { moveTo(10f, 14f); lineTo(14f, 10f) }
                     path { moveTo(8.5f, 15.5f); cubicTo(6.5f, 17.5f, 3.4f, 14.5f, 5.5f, 12.5f); lineTo(9f, 9f); cubicTo(11f, 7f, 13f, 7.5f, 14f, 9f) }
@@ -103,9 +191,9 @@ fun AppIcon(name: String, modifier: Modifier = Modifier, tint: Color = AppColors
                 }
                 "settings" -> {
                     line(4f, 6f, 20f, 6f); line(4f, 12f, 20f, 12f); line(4f, 18f, 20f, 18f)
-                    drawCircle(AppColors.Surface, 2.4f, Offset(9f, 6f)); drawCircle(tint, 2.4f, Offset(9f, 6f), style = stroke)
-                    drawCircle(AppColors.Surface, 2.4f, Offset(15f, 12f)); drawCircle(tint, 2.4f, Offset(15f, 12f), style = stroke)
-                    drawCircle(AppColors.Surface, 2.4f, Offset(10f, 18f)); drawCircle(tint, 2.4f, Offset(10f, 18f), style = stroke)
+                    drawCircle(surface, 2.4f, Offset(9f, 6f)); drawCircle(tint, 2.4f, Offset(9f, 6f), style = stroke)
+                    drawCircle(surface, 2.4f, Offset(15f, 12f)); drawCircle(tint, 2.4f, Offset(15f, 12f), style = stroke)
+                    drawCircle(surface, 2.4f, Offset(10f, 18f)); drawCircle(tint, 2.4f, Offset(10f, 18f), style = stroke)
                 }
                 else -> drawCircle(tint, 7f, Offset(12f, 12f), style = stroke)
             }
@@ -124,7 +212,7 @@ fun ProductArtwork(kind: String, modifier: Modifier = Modifier) {
                 "headphones" -> Color(0xFFE8EDF3)
                 "hairdryer" -> Color(0xFFEEEAF1)
                 "stand" -> Color(0xFFEBEFEA)
-                else -> Color(0xFFEAF2FD)
+                else -> Color(0xFFFFF4F3)
             }, size = Size(100f, 100f))
             drawOval(Color(0x10000000), Offset(19f, 78f), Size(64f, 9f))
             when (kind) {
@@ -191,8 +279,8 @@ private fun DrawScope.drawStand() {
 }
 
 private fun DrawScope.drawBag() {
-    drawPath(Path().apply { moveTo(37f, 38f); lineTo(37f, 30f); cubicTo(37f, 13f, 63f, 13f, 63f, 30f); lineTo(63f, 38f) }, Color(0xFF4C7CBD), style = Stroke(4f, cap = StrokeCap.Round))
-    drawRoundRect(Color(0xFF76A9F2), Offset(24f, 34f), Size(52f, 47f), CornerRadius(9f))
+    drawPath(Path().apply { moveTo(37f, 38f); lineTo(37f, 30f); cubicTo(37f, 13f, 63f, 13f, 63f, 30f); lineTo(63f, 38f) }, Color(0xFFB80010), style = Stroke(4f, cap = StrokeCap.Round))
+    drawRoundRect(Color(0xFFE60012), Offset(24f, 34f), Size(52f, 47f), CornerRadius(9f))
     drawPath(Path().apply { moveTo(41f, 54f); lineTo(47f, 60f); lineTo(60f, 47f) }, Color.White, style = Stroke(4f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-    drawRoundRect(Color(0xFF9EC2F5), Offset(27f, 38f), Size(5f, 36f), CornerRadius(2f))
+    drawRoundRect(Color(0xFFFF6B73), Offset(27f, 38f), Size(5f, 36f), CornerRadius(2f))
 }

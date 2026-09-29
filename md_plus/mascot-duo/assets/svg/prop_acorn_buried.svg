@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <title>도토리 1단계 · 묻힘</title>
+  <g id="mound">
+    <path d="M12,84 C18,58 78,58 84,84 Z" fill="#C29366" stroke="#5B3A22" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M30,74 q5,-5 10,-1 M54,72 q5,-5 10,-1" fill="none" stroke="#A57A52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="acorn_peek">
+    <g id="acorn">
+      <path d="M56.5,65.4 A8.5,10.2 0 1,1 39.5,65.4 A8.5,10.2 0 1,1 56.5,65.4 Z" fill="#DB9550" stroke="#5B3A22" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M47.49,63.04 A2.55,4.25 -15 1,1 42.56,64.36 A2.55,4.25 -15 1,1 47.49,63.04 Z" fill="#F4C58A" fill-opacity="0.9"/>
+      <path d="M36.95,59.45 Q48,47.55 59.05,59.45 Q48,62.85 36.95,59.45 Z" fill="#8A5A2B" stroke="#5B3A22" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M42.9,55.2 L45.45,59.45 M48.85,53.5 L50.55,59.45 M53.95,55.2 L54.8,58.6" fill="none" stroke="#A87444" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M48,52.65 Q48.85,48.4 52.25,47.55" fill="none" stroke="#5B3A22" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+</svg>

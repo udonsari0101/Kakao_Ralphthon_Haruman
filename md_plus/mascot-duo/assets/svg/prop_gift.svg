@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <title>담긴 물건(상자)</title>
+  <g id="item">
+    <path d="M29,34 H67 A6,6 0 0,1 73,40 V68 A6,6 0 0,1 67,74 H29 A6,6 0 0,1 23,68 V40 A6,6 0 0,1 29,34 Z" fill="#FF8C7A" stroke="#5B3A22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M44,34 H52 V74 H44 Z" fill="#FFE08A"/>
+    <path d="M48,34 C34,20 30,36 48,34 Z" fill="#FFE08A" stroke="#5B3A22" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M48,34 C62,20 66,36 48,34 Z" fill="#FFE08A" stroke="#5B3A22" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M29,34 H67 A6,6 0 0,1 73,40 V68 A6,6 0 0,1 67,74 H29 A6,6 0 0,1 23,68 V40 A6,6 0 0,1 29,34 Z" fill="none" stroke="#5B3A22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

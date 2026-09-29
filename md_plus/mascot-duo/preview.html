@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>모아와 토리 미리보기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FBF7F1; --ink:#2B2118; --ink2:#6B5B4B; --muted:#9A8B7B; --line:#EADFD2; --card:#FFFFFF;
+  --stage:#FFF4E4; --accent:#C9773D; --accent2:#F4B56E;
+  /* current app tokens (AppColors) */
+  --app-bg:#F7F8FA; --app-surface:#FFFFFF; --app-soft:#F1F3F5; --app-border:#E5E8EB; --app-blue:#3182F6;
+  --app-blue-tint:#EDF5FF; --app-text:#191F28; --app-sec:#4E5968; --app-muted:#8B95A1; --app-green:#168451; --app-green-tint:#EAFAF1;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+header.hero{padding:56px 0 36px;border-bottom:1px solid var(--line)}
+.hero .kicker{font-size:13px;font-weight:700;letter-spacing:.08em;color:var(--accent);text-transform:uppercase}
+.hero h1{font-size:clamp(30px,5vw,48px);line-height:1.15;margin:10px 0 14px;font-weight:800;letter-spacing:-.02em}
+.hero p{max-width:720px;color:var(--ink2);font-size:17px;margin:0}
+.hero .duo{display:flex;align-items:flex-end;gap:8px;margin-top:28px}
+.hero .duo img{height:150px}
+section{padding:48px 0;border-bottom:1px solid var(--line)}
+h2{font-size:26px;margin:0 0 6px;letter-spacing:-.01em}
+.lead{color:var(--ink2);margin:0 0 26px;max-width:760px}
+.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+.role{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;display:flex;gap:18px;align-items:center}
+.role img{width:120px;flex:none}
+.role h3{margin:0;font-size:20px}
+.role .tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--stage);color:var(--accent);margin-bottom:6px}
+.role p{margin:6px 0 0;color:var(--ink2);font-size:14px}
+.role q{display:block;margin-top:10px;font-weight:600;font-size:14px;quotes:"“" "”"}
+.flowline{margin-top:22px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:14px;font-weight:600}
+.flowline span.arrow{color:var(--muted);font-weight:400}
+.flowline img{height:30px;vertical-align:middle}
+
+/* asset sheet */
+.toolbar{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.toolbar button{font:inherit;font-size:14px;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:99px;cursor:pointer}
+.toolbar button[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;padding:14px;border-radius:22px;background:#fff;border:1px solid var(--line);transition:background .2s}
+.sheet.dark{background:#121214;border-color:#2a2a30}
+.asset{border-radius:16px;padding:12px 10px 10px;text-align:center;background:rgba(0,0,0,.02)}
+.sheet.dark .asset{background:rgba(255,255,255,.04)}
+.asset img{width:100%;max-width:150px;aspect-ratio:1;object-fit:contain}
+.asset.wide{grid-column:span 2}
+.asset.wide img{max-width:300px;aspect-ratio:3/2}
+.asset code{display:block;font-size:11px;color:var(--ink2);word-break:break-all;margin-top:4px}
+.asset small{display:block;font-size:12px;color:var(--muted)}
+.sheet.dark .asset code{color:#c6c6cc}.sheet.dark .asset small{color:#8b8b95}
+.breathe{animation:breathe 2.4s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes breathe{50%{transform:scaleY(1.03)}}
+@media (prefers-reduced-motion: reduce){.breathe,.swipe-demo .top{animation:none!important}}
+
+/* phone mockups */
+.phones{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:26px}
+.mock h3{font-size:16px;margin:0 0 4px}
+.mock .req{font-size:12px;color:var(--accent);font-weight:700}
+.mock p.note{font-size:13px;color:var(--ink2);margin:10px 2px 0}
+.phone{width:100%;max-width:340px;border-radius:34px;background:var(--app-bg);border:8px solid #22201e;overflow:hidden;font-family:"Noto Sans KR",system-ui,sans-serif;color:var(--app-text);margin-top:10px;position:relative}
+.screen{height:620px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.p-pad{padding:16px}
+.p-title{font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:space-between}
+.p-plus{width:38px;height:38px;border-radius:50%;background:var(--app-blue);color:#fff;display:grid;place-items:center;font-size:22px;font-weight:400}
+.stage{background:var(--stage);border-radius:20px;height:112px;margin-top:12px;position:relative;display:flex;align-items:center;padding:0 12px;overflow:hidden}
+.stage .moa{width:88px;flex:none;margin-top:10px}
+.bubble{background:#fff;border:1px solid var(--app-border);border-radius:14px;padding:7px 11px;font-size:12.5px;line-height:1.45;position:relative;box-shadow:0 1px 2px rgba(0,0,0,.04);max-width:170px}
+.bubble.left::before{content:"";position:absolute;left:-6px;top:14px;width:10px;height:10px;background:#fff;border-left:1px solid var(--app-border);border-bottom:1px solid var(--app-border);transform:rotate(45deg)}
+.bubble.down::before{content:"";position:absolute;left:24px;bottom:-6px;width:10px;height:10px;background:#fff;border-right:1px solid var(--app-border);border-bottom:1px solid var(--app-border);transform:rotate(45deg)}
+.stage .tori{position:absolute;right:4px;bottom:-2px;width:52px}
+.cta{display:inline-block;white-space:nowrap;text-align:center;background:var(--app-blue);color:#fff;font-weight:700;font-size:12px;border-radius:10px;padding:7px 10px;margin-top:7px}
+.stats{font-size:12px;color:var(--app-sec);margin-top:8px}
+.stats b{color:var(--app-text)}
+.seg{display:flex;background:var(--app-soft);border-radius:12px;padding:4px;margin-top:12px}
+.seg span{flex:1;text-align:center;font-size:12px;font-weight:700;color:var(--app-muted);padding:7px 0;border-radius:9px}
+.seg span.on{background:#fff;color:var(--app-text)}
+.sec-h{padding:14px 16px 8px;display:flex;justify-content:space-between;align-items:baseline}
+.sec-h b{font-size:15px}.sec-h a{font-size:12px;color:var(--app-blue);font-weight:700;text-decoration:none}
+.row{display:flex;align-items:center;gap:10px;padding:11px 16px;background:#fff;border-bottom:.5px solid var(--app-border)}
+.art{width:50px;height:50px;border-radius:12px;display:grid;place-items:center;font-size:24px;flex:none}
+.row .t{flex:1;min-width:0}.row .t b{display:block;font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .t span{font-size:12px;color:var(--app-sec)}
+.row .r{text-align:right;font-size:11px;color:var(--app-blue);font-weight:600;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.row .r img{width:28px}
+.pill{font-size:10.5px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--app-blue-tint);color:var(--app-blue)}
+.tabs{margin-top:auto;display:flex;border-top:.5px solid var(--app-border);background:#fff;height:56px}
+.tabs span{flex:1;display:grid;place-items:center;font-size:11px;color:var(--app-muted);font-weight:600}
+.tabs span.on{color:var(--app-blue)}
+/* sheet */
+.dim{position:absolute;inset:0;background:rgba(0,0,0,.35)}
+.bsheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:26px 26px 0 0;padding:18px 16px 16px}
+.bsheet .hd{display:flex;gap:8px;align-items:center}
+.bsheet .hd img{width:56px}
+.bsheet h4{margin:10px 0 2px;font-size:20px}
+.field{border:1px solid var(--app-border);border-radius:11px;padding:10px 12px;font-size:13px;color:var(--app-muted);margin-top:8px}
+.field.filled{color:var(--app-text)}
+.lbl{font-size:13.5px;font-weight:700;margin:14px 0 8px}
+.chips{display:flex;gap:6px}
+.chips span{flex:1;text-align:center;font-size:12.5px;font-weight:700;padding:9px 0;border-radius:10px;background:var(--app-soft);color:var(--app-sec)}
+.chips span.on{background:var(--app-blue-tint);color:var(--app-blue);outline:1.5px solid var(--app-blue)}
+.btn{display:block;text-align:center;background:var(--app-blue);color:#fff;font-weight:700;font-size:14px;border-radius:12px;padding:13px 0;margin-top:14px}
+.btn.weak{background:var(--app-soft);color:var(--app-text)}
+/* review */
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;font-size:13px;color:var(--app-sec);font-weight:600}
+.review-head{display:flex;align-items:flex-end;gap:6px;padding:0 16px}
+.review-head img{width:96px}
+.stack{position:relative;height:270px;margin:6px 22px 0}
+.rcard{position:absolute;inset:0;background:#fff;border-radius:22px;box-shadow:0 6px 18px rgba(25,31,40,.10);padding:16px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.rcard.b1{transform:translateY(10px) scale(.95);opacity:.8}
+.rcard.b2{transform:translateY(20px) scale(.90);opacity:.55}
+.rcard .art{width:110px;height:110px;font-size:54px;border-radius:20px}
+.rcard b{font-size:16px;margin-top:12px}
+.rcard .meta{font-size:12.5px;color:var(--app-sec);margin-top:4px}
+.rcard .desire{margin-top:10px;font-size:11.5px;font-weight:700;background:#FFF1E6;color:#C4622D;padding:4px 9px;border-radius:99px}
+.stamp{position:absolute;top:18px;font-weight:800;font-size:15px;padding:4px 10px;border-radius:8px;border:2.5px solid}
+.stamp.skip{left:14px;color:var(--app-green);border-color:var(--app-green);transform:rotate(-10deg)}
+.stamp.buy{right:14px;color:var(--app-blue);border-color:var(--app-blue);transform:rotate(10deg);opacity:0}
+.rbtns{display:flex;gap:8px;padding:0 16px;margin-top:auto;margin-bottom:16px;align-items:center}
+.rbtns span{flex:1;text-align:center;font-weight:700;font-size:13.5px;padding:13px 0;border-radius:12px}
+.rbtns .s{background:var(--app-soft)}.rbtns .l{flex:.8;color:var(--app-blue);background:none}.rbtns .b{background:var(--app-blue);color:#fff}
+.swipe-demo .top{animation:swipe 3.6s ease-in-out infinite}
+.swipe-demo .top .stamp.skip{animation:stamp 3.6s ease-in-out infinite}
+@keyframes swipe{0%,20%{transform:none}45%{transform:translateX(-40px) rotate(-6deg)}60%{transform:translateX(-340px) rotate(-14deg);opacity:0}61%,100%{transform:none;opacity:0}}
+@keyframes stamp{0%,20%{opacity:0}45%,60%{opacity:1}61%,100%{opacity:0}}
+.float{position:absolute;left:50%;top:44%;transform:translateX(-50%);font-weight:800;color:var(--app-green);font-size:18px;opacity:0}
+.swipe-demo .float{animation:floatup 3.6s ease-out infinite}
+@keyframes floatup{0%,55%{opacity:0;transform:translate(-50%,10px)}65%{opacity:1}90%{opacity:0;transform:translate(-50%,-30px)}100%{opacity:0}}
+/* result */
+.result{align-items:center;text-align:center;padding:26px 18px;background:#fff}
+.result img{width:140px}
+.result h4{font-size:22px;margin:8px 0 4px}
+.sumrow{display:flex;gap:6px;margin-top:14px;width:100%}
+.sumrow div{flex:1;background:var(--app-bg);border-radius:12px;padding:10px 4px;font-size:11px;color:var(--app-sec)}
+.sumrow b{display:block;font-size:17px;color:var(--app-text)}
+.big{font-size:30px;font-weight:800;letter-spacing:-.02em;margin-top:12px}
+.confetti i{position:absolute;width:7px;height:12px;border-radius:2px}
+/* history */
+.hcard{background:#fff;border-radius:16px;padding:16px;margin-top:12px}
+.hcard small{color:var(--app-muted);font-size:11.5px}
+.forest{display:grid;grid-template-columns:repeat(6,minmax(0,40px));gap:2px;align-items:end}
+.forest img{width:100%}
+.forest-wrap{display:flex;align-items:flex-end;gap:6px;background:linear-gradient(#fff 70%,#F3EBDD 70%);border-radius:12px;padding:8px 8px 6px}
+.forest-wrap .tori{width:52px;flex:none}
+/* detail */
+.stages{display:flex;justify-content:space-between;margin:14px 4px 8px}
+.stages div{text-align:center;font-size:11px;color:var(--app-muted);font-weight:600}
+.stages img{width:44px;display:block;margin:0 auto 2px}
+.stages .dim2{opacity:.4}.stages .now{color:var(--app-blue)}
+.bar{height:6px;border-radius:3px;background:var(--app-blue-tint);overflow:hidden}.bar i{display:block;height:100%;width:62%;background:var(--app-blue)}
+/* timeline */
+.timeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.step .t{font-size:12px;font-weight:800;color:var(--accent)}
+.step img{height:64px;margin:6px 0}
+.step p{margin:0;font-size:13.5px;color:var(--ink2)}
+.prio{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.prio div{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 18px;font-size:14px}
+.prio b{display:block;font-size:13px;margin-bottom:6px}
+.prio ul{margin:0;padding-left:18px;color:var(--ink2)}
+footer{padding:36px 0 60px;color:var(--muted);font-size:13px}
+a{color:var(--accent)}
+@media (max-width:520px){.role{flex-direction:column;text-align:center}.asset.wide{grid-column:span 1}.hero .duo img{height:110px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+  <div class="kicker">하루만 · 캐릭터 인계</div>
+  <h1>모아가 담고, 토리가 묻어 두고,<br>때가 되면 같이 꺼내 봐요.</h1>
+  <p>기존 화면 구조는 그대로 두고 캐릭터 레이어와 ‘정리 시간’을 더하는 설계입니다. 아래 그림은 모두 이 폴더의 <code>assets/</code>에 있는 실제 자원이며, 화면 목업은 현재 앱 색상(AppColors)으로 그렸습니다.</p>
+  <div class="duo"><img class="breathe" src="assets/svg/mascot_moa_receive.svg" alt="햄스터 모아"><img class="breathe" style="animation-delay:.6s" src="assets/svg/mascot_tori_present.svg" alt="다람쥐 토리"></div>
+</div></header>
+
+<main class="wrap">
+<section>
+  <h2>두 캐릭터, 두 순간</h2>
+  <p class="lead">갖고 싶어진 순간은 빠르고 즐겁게, 며칠 뒤 다시 보는 순간은 재미있게. 사도 칭찬, 안 사도 칭찬하는 쇼핑 친구입니다.</p>
+  <div class="roles">
+    <div class="role"><img class="breathe" src="assets/svg/mascot_moa_idle.svg" alt=""><div><span class="tag">🐹 햄스터 · 담기</span><h3>모아</h3><p>호들갑스러운 수집가. 공유로 들어온 물건을 볼주머니에 쏙. 보관 중인 물건이 많을수록 볼이 빵빵해집니다.</p><q>받았다! 볼에 쏙 넣어 둘게!</q></div></div>
+    <div class="role"><img class="breathe" style="animation-delay:.8s" src="assets/svg/mascot_tori_idle.svg" alt=""><div><span class="tag">🐿️ 다람쥐 · 다시 보기</span><h3>토리</h3><p>차분한 정리 담당. 물건을 도토리로 묻어 두고(대기), 때가 되면 캐 와서 같이 정리합니다. 보낸 도토리는 절약 숲의 나무가 됩니다.</p><q>이거 기억나? 아직도 갖고 싶어?</q></div></div>
+  </div>
+  <div class="flowline">
+    <img src="assets/svg/mascot_moa_receive.svg" alt=""> 담기 <span class="arrow">→</span>
+    <img src="assets/svg/prop_acorn_buried.svg" alt=""> 묻음 <span class="arrow">→</span>
+    <img src="assets/svg/prop_acorn_sprout.svg" alt=""> 새싹 <span class="arrow">→</span>
+    <img src="assets/svg/prop_acorn_ready.svg" alt=""> 캐기 <span class="arrow">→</span>
+    <img src="assets/svg/mascot_tori_present.svg" alt=""> 정리 시간 <span class="arrow">→</span>
+    <img src="assets/svg/prop_tree_big.svg" alt=""> 절약 숲 / <img src="assets/svg/mascot_moa_happy.svg" alt=""> 사기로 칭찬
+  </div>
+</section>
+
+<section>
+  <h2>디자인 자원 18종</h2>
+  <p class="lead">SVG와 Android VectorDrawable이 같은 이름으로 짝지어 있습니다. <code>assets/android-drawable/</code>을 <code>res/drawable/</code>에 그대로 복사하면 <code>R.drawable.mascot_moa_idle</code>처럼 씁니다.</p>
+  <div class="toolbar" role="group" aria-label="배경">
+    <button type="button" aria-pressed="true" data-bg="light">라이트 배경</button>
+    <button type="button" aria-pressed="false" data-bg="dark">다크 배경</button>
+  </div>
+  <div class="sheet" id="sheet"></div>
+</section>
+
+<section>
+  <h2>기존 화면에 더해지는 모습</h2>
+  <p class="lead">레이아웃·필터·버튼·테스트 태그는 유지하고, 캐릭터 카드와 표시만 추가합니다. 각 목업의 R 번호는 <a href="implementation-requirements.md">구현 요구사항</a>의 항목입니다.</p>
+  <div class="phones">
+
+    <div class="mock">
+      <div class="req">R3 · R5 — 보관함</div><h3>모아의 방 + 도토리 대기 표시</h3>
+      <div class="phone"><div class="screen">
+        <div class="p-pad" style="padding-bottom:4px">
+          <div class="p-title">보관함 <span class="p-plus">+</span></div>
+          <div class="stage">
+            <img class="moa breathe" src="assets/svg/mascot_moa_stuffed.svg" alt="">
+            <div style="flex:1;min-width:0">
+              <div class="bubble left" style="max-width:150px">볼이 빵빵해… 같이 정리해 볼까?</div>
+              <span class="cta">정리 시간 시작 · 2개</span>
+            </div>
+            <img class="tori" src="assets/svg/mascot_tori_present.svg" alt="">
+          </div>
+          <div class="stats">지금 <b>5개</b>의 소비를 고민하고 있어요 · 이번 달 81,900원을 쓰지 않기로 했어요</div>
+          <div class="seg"><span class="on">전체</span><span>고민 중</span><span>결정 필요</span></div>
+        </div>
+        <div class="sec-h"><b>다시 결정할 시간이에요</b><a>한 번에 정리 ›</a></div>
+        <div class="row"><div class="art" style="background:#E8EDF3">🎧</div><div class="t"><b>노이즈 캔슬링 무선 헤드폰</b><span>329,000원 · 쿠팡</span></div><div class="r"><img src="assets/svg/prop_acorn_ready.svg" alt="캐기"><span class="pill">결정 필요</span></div></div>
+        <div class="row"><div class="art" style="background:#F7ECE2">💡</div><div class="t"><b>따뜻한 빛의 테이블 조명</b><span>58,000원 · 인스타그램</span></div><div class="r"><img src="assets/svg/prop_acorn_ready.svg" alt="캐기"><span class="pill">결정 필요</span></div></div>
+        <div class="sec-h"><b>고민 중이에요</b></div>
+        <div class="row"><div class="art" style="background:#EEEAF1">💨</div><div class="t"><b>컴팩트 고속 헤어드라이어</b><span>89,000원 · 인스타그램</span></div><div class="r"><img src="assets/svg/prop_acorn_sprout.svg" alt="새싹"><span>7시간 0분</span></div></div>
+        <div class="row"><div class="art" style="background:#F6E9E8">👟</div><div class="t"><b>데일리 러닝 스니커즈</b><span>129,000원 · 쿠팡</span></div><div class="r"><img src="assets/svg/prop_acorn_buried.svg" alt="묻힘"><span>18시간 0분</span></div></div>
+        <div class="tabs"><span class="on">보관함</span><span>기록</span><span>MY</span></div>
+      </div></div>
+      <p class="note">보관 0개 → <code>moa_sleep</code>, 1–4개 → <code>moa_idle</code>, 5개 이상 → <code>moa_stuffed</code>. 결정할 항목이 있으면 토리가 도토리를 들고 등장.</p>
+    </div>
+
+    <div class="mock">
+      <div class="req">R4 — 추가 시트</div><h3>모아가 받고, 갖고 싶은 정도를 한 번 탭</h3>
+      <div class="phone"><div class="screen" style="background:var(--app-bg)">
+        <div class="p-pad"><div class="p-title">보관함 <span class="p-plus">+</span></div></div>
+        <div class="dim"></div>
+        <div class="bsheet">
+          <div class="hd"><img src="assets/svg/mascot_moa_receive.svg" alt=""><div class="bubble left">링크 받았어! 이름만 알려 줘.</div></div>
+          <h4>보관함에 넣을까요?</h4>
+          <div style="font-size:12.5px;color:var(--app-sec)">사고 싶은 상품을 적고, 다시 볼 시간을 골라요</div>
+          <div class="field filled">따뜻한 빛의 테이블 조명</div>
+          <div class="field">가격 · 선택</div>
+          <div class="field filled" style="font-size:12px">https://www.instagram.com/p/…</div>
+          <div class="lbl">얼마나 갖고 싶어? <span style="font-weight:500;color:var(--app-muted);font-size:12px">선택</span></div>
+          <div class="chips"><span class="on">🔥 엄청</span><span>🙂 꽤</span><span>🤔 글쎄</span></div>
+          <div class="lbl">언제 다시 생각해 볼까요?</div>
+          <div class="chips"><span>3시간 뒤</span><span class="on">내일</span><span>3일 뒤</span><span>일주일 뒤</span></div>
+          <span class="btn">보관함에 넣기</span>
+        </div>
+      </div></div>
+      <p class="note">저장하면 시트가 닫히고 모아가 선물을 볼에 넣는 0.9초 연출 → 스낵바 “받았다! 토리가 내일 묻어 둘게.”</p>
+    </div>
+
+    <div class="mock">
+      <div class="req">R6 — 정리 시간 (핵심 장면)</div><h3>카드 넘기기로 한 번에 정리</h3>
+      <div class="phone swipe-demo"><div class="screen" style="background:var(--app-bg)">
+        <div class="topbar"><span>‹ 뒤로</span><span>1 / 2</span><span style="width:36px"></span></div>
+        <div class="review-head"><img src="assets/svg/mascot_tori_present.svg" alt=""><div class="bubble left" style="margin-bottom:34px">그땐 엄청 갖고 싶어 했지. 지금은 어때?</div></div>
+        <div class="stack">
+          <div class="rcard b2"></div>
+          <div class="rcard b1"><div class="art" style="background:#F7ECE2">💡</div><b>따뜻한 빛의 테이블 조명</b></div>
+          <div class="rcard top"><span class="stamp skip">안 살래요</span><span class="stamp buy">살래요</span>
+            <div class="art" style="background:#E8EDF3">🎧</div><b>노이즈 캔슬링 무선 헤드폰</b><div class="meta">329,000원 · 쿠팡 · 9월 28일에 담음</div><span class="desire">저장할 때 🔥 엄청</span></div>
+          <div class="float">+329,000원</div>
+        </div>
+        <div class="rbtns"><span class="s">안 살래요</span><span class="l">조금 더</span><span class="b">살래요</span></div>
+      </div></div>
+      <p class="note">← 안 살래요(SKIP) · → 살래요(BUY) · 버튼 ‘조금 더’(연장). 스와이프 없이 버튼만으로도 전부 가능. 판정 즉시 저장, 연출은 그 뒤.</p>
+    </div>
+
+    <div class="mock">
+      <div class="req">R6 — 정리 결과</div><h3>한 번의 축하와 공유</h3>
+      <div class="phone"><div class="screen result">
+        <div class="confetti" aria-hidden="true">
+          <i style="left:12%;top:8%;background:#FF6B73;transform:rotate(20deg)"></i><i style="left:30%;top:4%;background:#FFC83D"></i>
+          <i style="left:70%;top:6%;background:#F0A060;transform:rotate(-30deg)"></i><i style="left:86%;top:12%;background:#FF303B"></i>
+          <i style="left:52%;top:2%;background:#DB9550;transform:rotate(40deg)"></i><i style="left:8%;top:22%;background:#FFC83D;transform:rotate(-15deg)"></i>
+          <i style="left:90%;top:26%;background:#FF6B73;transform:rotate(60deg)"></i>
+        </div>
+        <img src="assets/svg/mascot_tori_cheer.svg" alt="" style="margin-top:14px">
+        <div class="bubble down" style="max-width:220px;margin:-4px auto 0">나무 1그루 심었어! 숲에 가 볼래?</div>
+        <h4 style="margin-top:14px">오늘의 정리 끝!</h4>
+        <div class="big">329,000원</div>
+        <div style="font-size:12.5px;color:var(--app-sec)">아낀 금액 · 예시 포함</div>
+        <div class="sumrow"><div><b>1</b>보냈어요</div><div><b>0</b>사기로</div><div><b>1</b>다시 묻음</div></div>
+        <span class="btn" style="width:100%;margin-top:auto">결과 공유하기</span>
+        <span class="btn weak" style="width:100%;margin-top:8px">보관함으로</span>
+      </div></div>
+      <p class="note">금액은 0부터 카운트업(400–650ms), confetti는 세션당 1회. 보낸 것이 없으면 “전부 진짜 갖고 싶었구나” 문구로 칭찬.</p>
+    </div>
+
+    <div class="mock">
+      <div class="req">R8 — 기록</div><h3>절약 숲</h3>
+      <div class="phone"><div class="screen">
+        <div class="p-pad">
+          <div class="p-title">소비 기록</div>
+          <div class="hcard">
+            <small>이번 달, 한 번 더 생각한 소비</small>
+            <div class="big" style="margin-top:6px">410,900원</div>
+            <div style="font-size:12px;color:var(--app-sec)">쓰지 않기로 결정한 금액이에요</div>
+            <div style="border-top:1px solid var(--app-border);margin:14px 0 10px"></div>
+            <div style="font-size:12.5px;font-weight:700;margin-bottom:4px">이번 달 절약 숲 🌳</div>
+            <div class="forest-wrap">
+              <div class="forest" style="flex:1">
+                <img src="assets/svg/prop_tree_small.svg" alt=""><img src="assets/svg/prop_tree_small.svg" alt=""><img src="assets/svg/prop_tree_big.svg" alt="">
+              </div>
+              <img class="tori" src="assets/svg/mascot_tori_idle.svg" alt="">
+            </div>
+            <div class="bubble" style="margin-top:8px;max-width:none">🐿️ 이번 달 숲에 나무 3그루!</div>
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--app-sec);margin-top:12px"><span>8개 저장</span><span>3개 포기 · 1개 구매 결정</span></div>
+          </div>
+        </div>
+        <div class="sec-h"><b>최근 결정</b></div>
+        <div class="row"><div class="art" style="background:#E8EDF3">🎧</div><div class="t"><b>노이즈 캔슬링 무선 헤드폰</b><span>329,000원 · 쿠팡</span></div><div class="r"><span class="pill" style="background:var(--app-green-tint);color:var(--app-green)">안 샀어요</span></div></div>
+        <div class="tabs"><span>보관함</span><span class="on">기록</span><span>MY</span></div>
+      </div></div>
+      <p class="note">SKIP 1건 = 나무 1그루(5만 원 이상은 큰 나무). 새 나무만 자라나는 모션. 나무를 누르면 그 상품 상세.</p>
+    </div>
+
+    <div class="mock">
+      <div class="req">R5 — 상세 · R7 결과</div><h3>기다리는 동안과 단일 결정 결과</h3>
+      <div class="phone"><div class="screen" style="background:#fff">
+        <div class="p-pad">
+          <div style="font-size:18px">‹</div>
+          <div style="display:flex;gap:12px;margin-top:8px"><div class="art" style="background:#EEEAF1;width:64px;height:64px">💨</div><div><b style="font-size:17px">컴팩트 고속 헤어드라이어</b><div style="font-size:12.5px;color:var(--app-sec)">89,000원 · 인스타그램</div></div></div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:10px"><img src="assets/svg/mascot_tori_bury.svg" alt="" style="width:72px"><div class="bubble left">싹이 났어! 조금만 더 기다려 보자.</div></div>
+          <div style="font-size:12.5px;color:var(--app-sec);margin-top:8px">다시 생각하기까지</div>
+          <div style="font-size:30px;font-weight:800">7시간 0분</div>
+          <div class="stages">
+            <div><img src="assets/svg/prop_acorn_buried.svg" alt="">묻음</div>
+            <div class="now"><img src="assets/svg/prop_acorn_sprout.svg" alt="">새싹</div>
+            <div class="dim2"><img src="assets/svg/prop_acorn_ready.svg" alt="">캐기</div>
+          </div>
+          <div class="bar"><i></i></div>
+          <div style="font-size:11.5px;color:var(--app-muted);margin-top:6px">지금까지 62% 지났어요</div>
+          <div style="border-top:1px solid var(--app-border);margin:18px 0 12px"></div>
+          <div style="display:flex;gap:10px;align-items:center;background:var(--app-bg);border-radius:14px;padding:10px">
+            <img src="assets/svg/mascot_moa_happy.svg" alt="" style="width:64px">
+            <div style="font-size:12.5px"><b>R7 구매 결정 결과</b><br><span style="color:var(--app-sec)">64dp 아이콘 대신 모아 120dp + “사기로 했구나! 원래 보던 곳에서 확인해 봐.”</span></div>
+          </div>
+        </div>
+      </div></div>
+      <p class="note">진행 0–49% 묻음, 50–99% 새싹, 대기 끝 캐기. 숫자·진행 막대는 그대로 유지.</p>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <h2>3분 시연 흐름</h2>
+  <p class="lead">기능 개수보다 ‘정리 시간’ 한 장면의 완성도가 기억에 남습니다. 자세한 대본은 요구사항 8절.</p>
+  <div class="timeline">
+    <div class="step"><div class="t">0:00 · 담기</div><img src="assets/svg/mascot_moa_receive.svg" alt=""><p>인스타그램 공유 → 모아 “링크 받았어!” → 🔥 → 볼에 쏙</p></div>
+    <div class="step"><div class="t">0:40 · 기다림</div><img src="assets/svg/prop_acorn_sprout.svg" alt=""><p>볼 빵빵한 모아, 행마다 도토리 단계, 토리 “2개 캐 왔어”</p></div>
+    <div class="step"><div class="t">1:10 · 정리 시간</div><img src="assets/svg/mascot_tori_wave.svg" alt=""><p>“그땐 엄청 갖고 싶어 했지” → 왼쪽으로 보내기 → +329,000원</p></div>
+    <div class="step"><div class="t">2:00 · 결과</div><img src="assets/svg/mascot_tori_cheer.svg" alt=""><p>축하 + 금액 카운트업 → 결과 공유</p></div>
+    <div class="step"><div class="t">2:30 · 절약 숲</div><img src="assets/svg/prop_tree_big.svg" alt=""><p>새 나무가 자라남. “사도 칭찬, 안 사도 칭찬.”</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>우선순위</h2>
+  <div class="prio">
+    <div><b>P0 · 시연 필수</b><ul><li>R1 캐릭터 컴포넌트·말풍선</li><li>R2 온보딩 장면</li><li>R3 보관함 헤더(모아의 방)</li><li>R4 추가 시트·받았다 연출</li><li>R5 도토리 대기 표시</li><li>R6 정리 시간·결과 카드</li><li>R7 결과 화면 캐릭터</li><li>R8 절약 숲</li><li>R9 빈 상태·스낵바 말투</li></ul></div>
+    <div><b>P1 · 완성도</b><ul><li>R10 정리 되돌리기</li><li>R11 캐릭터 탭 반응</li><li>R12 결정 화면 토리</li><li>R13 MY 캐릭터 설정</li></ul></div>
+    <div><b>P2 · 여유 있을 때</b><ul><li>R14 대기 완료 알림(토리 목소리)</li><li>R15 결과 이미지 공유</li><li>R16 마일스톤 배지</li></ul></div>
+  </div>
+</section>
+</main>
+<footer class="wrap">하루만 · 모아와 토리 인계 폴더 · 자원 원본은 <code>assets/generator/</code></footer>
+
+<script>
+const ASSETS = [
+  ['mascot_moa_idle','모아 · 기본'],['mascot_moa_receive','모아 · 받았다!'],['mascot_moa_stuffed','모아 · 볼 빵빵'],
+  ['mascot_moa_happy','모아 · 기뻐요'],['mascot_moa_sleep','모아 · 쿨쿨(빈 상태)'],
+  ['mascot_tori_idle','토리 · 기본'],['mascot_tori_present','토리 · 이거 기억나?'],['mascot_tori_bury','토리 · 묻어 둘게'],
+  ['mascot_tori_wave','토리 · 잘 가~'],['mascot_tori_cheer','토리 · 축하해!'],
+  ['prop_acorn_buried','도토리 1단계 · 묻힘'],['prop_acorn_sprout','도토리 2단계 · 새싹'],['prop_acorn_ready','도토리 3단계 · 캐기'],
+  ['prop_acorn','도토리 아이콘'],['prop_tree_small','절약 숲 · 어린 나무'],['prop_tree_big','절약 숲 · 큰 나무'],
+  ['prop_gift','담긴 물건'],['scene_duo_onboarding','온보딩 장면','wide']
+];
+const sheet = document.getElementById('sheet');
+sheet.innerHTML = ASSETS.map(([n,t,w]) =>
+  `<figure class="asset ${w||''}" style="margin:0"><img src="assets/svg/${n}.svg" alt="${t}" loading="lazy"><small>${t}</small><code>${n}</code></figure>`).join('');
+document.querySelectorAll('.toolbar button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.toolbar button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  sheet.classList.toggle('dark', b.dataset.bg === 'dark');
+}));
+</script>
+</body>
+</html>

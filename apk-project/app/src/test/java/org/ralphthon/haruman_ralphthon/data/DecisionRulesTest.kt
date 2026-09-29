@@ -55,12 +55,43 @@ class DecisionRulesTest {
     fun skippedTotalOnlyIncludesKnownNonnegativeSkippedAmounts() {
         assertEquals(25_000L, skippedTotal(listOf(
             item,
-            item.copy(id = "bought", priceWon = 100_000L, decision = Decision.BUY),
+            item.copy(id = "bought", priceWon = 100_000L, decision = Decision.BUY, decisionPriceWon = 100_000L),
             item.copy(id = "unknown", priceWon = null, decision = Decision.SKIP),
-            item.copy(id = "negative", priceWon = -1L, decision = Decision.SKIP),
-            item.copy(id = "skipped", decision = Decision.SKIP),
+            item.copy(id = "negative", priceWon = -1L, decision = Decision.SKIP, decisionPriceWon = -1L),
+            item.copy(id = "skipped", decision = Decision.SKIP, decisionPriceWon = 25_000L),
         )))
         assertEquals(0L, skippedTotal(emptyList()))
+    }
+
+    @Test
+    fun decisionAmountSurvivesPriceEditsAndSamplesNeverCount() {
+        val skipped = decide(item, Decision.SKIP, 11_000L)
+        val edited = skipped.copy(priceWon = 990_000L)
+        assertEquals(25_000L, edited.decisionPriceWon)
+        assertEquals(25_000L, skippedTotal(listOf(edited, edited.copy(id = "sample-record", isSample = true))))
+        val unknown = decide(item.copy(priceWon = null), Decision.SKIP, 11_000L).copy(priceWon = 50_000L)
+        assertEquals(0L, skippedTotal(listOf(unknown)))
+    }
+
+    @Test
+    fun zeroCooldownAndOverflowRemainSafe() {
+        assertEquals(123L, cooldownDeadline(123L, 0))
+        assertEquals(Long.MAX_VALUE, cooldownDeadline(Long.MAX_VALUE - 10L, 24))
+        assertEquals(Long.MAX_VALUE, skippedTotal(listOf(
+            item.copy(decision = Decision.SKIP, decisionPriceWon = Long.MAX_VALUE),
+            item.copy(decision = Decision.SKIP, decisionPriceWon = 1L),
+        )))
+    }
+
+    @Test
+    fun acornStagesRespectHalfwayDeadlineAndFinalDecisions() {
+        assertEquals(AcornStage.BURIED, acornStage(item, 5_900L))
+        assertEquals(AcornStage.SPROUT, acornStage(item, 6_000L))
+        assertEquals(AcornStage.SPROUT, acornStage(item, 10_999L))
+        assertEquals(AcornStage.READY, acornStage(item, 11_000L))
+        assertNull(acornStage(decide(item, Decision.SKIP, 11_000L), 11_000L))
+        assertNull(acornStage(decide(item, Decision.BUY, 11_000L), 11_000L))
+        assertEquals(AcornStage.READY, acornStage(item.copy(cooldownUntil = item.createdAt), item.createdAt))
     }
 
     @Test

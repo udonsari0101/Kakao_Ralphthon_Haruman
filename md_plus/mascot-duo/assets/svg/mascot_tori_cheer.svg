@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
+  <title>토리 · 축하해!</title>
+  <path id="shadow" d="M192,218 A70,8 0 1,1 52,218 A70,8 0 1,1 192,218 Z" fill="#3A2418" fill-opacity="0.1"/>
+  <g id="tail">
+    <path d="M150,204 C206,210 232,160 220,112 C210,70 172,40 146,62 C128,78 140,104 162,100 C182,96 190,122 180,146 C170,170 146,176 150,204 Z" fill="#B9662F" stroke="#5B3A22" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M160,190 C198,190 214,152 206,118 C198,86 172,64 156,74 C170,70 192,88 196,118 C200,150 184,178 160,190 Z" fill="#E39B5C" fill-opacity="0.85"/>
+  </g>
+  <g id="feet">
+    <path d="M114,208 A18,9 0 1,1 78,208 A18,9 0 1,1 114,208 Z" fill="#A85E2B" stroke="#5B3A22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M152,208 A18,9 0 1,1 116,208 A18,9 0 1,1 152,208 Z" fill="#A85E2B" stroke="#5B3A22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="body">
+    <path d="M158,162 A44,48 0 1,1 70,162 A44,48 0 1,1 158,162 Z" fill="#C9773D" stroke="#5B3A22" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M139,172 A27,33 0 1,1 85,172 A27,33 0 1,1 139,172 Z" fill="#FBE2C2"/>
+  </g>
+  <g id="head">
+    <g id="ear_left">
+      <path d="M76,82 C66,56 72,40 82,36 C90,48 96,62 96,76 Z" fill="#C9773D" stroke="#5B3A22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M80,74 C74,58 78,48 83,45 C88,54 91,64 90,74 Z" fill="#F7A7A0"/>
+      <path d="M82,36 C80,28 86,24 88,30 C86,32 84,34 82,36 Z" fill="#A85E2B" stroke="#5B3A22" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g id="ear_right">
+      <path d="M140,82 C150,56 144,40 134,36 C126,48 120,62 120,76 Z" fill="#C9773D" stroke="#5B3A22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M136,74 C142,58 138,48 133,45 C128,54 125,64 126,74 Z" fill="#F7A7A0"/>
+      <path d="M134,36 C136,28 130,24 128,30 C130,32 132,34 134,36 Z" fill="#A85E2B" stroke="#5B3A22" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <path d="M154,104 A46,40 0 1,1 62,104 A46,40 0 1,1 154,104 Z" fill="#C9773D" stroke="#5B3A22" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M133,118 A25,17 0 1,1 83,118 A25,17 0 1,1 133,118 Z" fill="#FBE2C2"/>
+    <path d="M90,116 A10,6.5 0 1,1 70,116 A10,6.5 0 1,1 90,116 Z" fill="#FF8F8F" fill-opacity="0.5"/>
+    <path d="M146,116 A10,6.5 0 1,1 126,116 A10,6.5 0 1,1 146,116 Z" fill="#FF8F8F" fill-opacity="0.5"/>
+    <g id="eyes">
+      <path d="M85,104 Q92,94 99,104" fill="none" stroke="#5B3A22" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M117,104 Q124,94 131,104" fill="none" stroke="#5B3A22" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <path id="nose" d="M113,112 A5,3.6 0 1,1 103,112 A5,3.6 0 1,1 113,112 Z" fill="#3A2418"/>
+    <g id="mouth">
+      <path d="M100,119 Q108,132 116,119 Z" fill="#9C3F43" stroke="#5B3A22" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+  <g id="paws">
+    <path d="M71.06,91.77 A10,11 -25 1,1 52.94,100.23 A10,11 -25 1,1 71.06,91.77 Z" fill="#A85E2B" stroke="#5B3A22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M165.06,96.23 A10,11 25 1,1 146.94,87.77 A10,11 25 1,1 165.06,96.23 Z" fill="#A85E2B" stroke="#5B3A22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="confetti">
+    <path d="M42,50 H46 A2,2 0 0,1 48,52 V62 A2,2 0 0,1 46,64 H42 A2,2 0 0,1 40,62 V52 A2,2 0 0,1 42,50 Z" fill="#FF6B73"/>
+    <path d="M186,40 H190 A2,2 0 0,1 192,42 V52 A2,2 0 0,1 190,54 H186 A2,2 0 0,1 184,52 V42 A2,2 0 0,1 186,40 Z" fill="#FFC83D"/>
+    <path d="M208,96 H212 A2,2 0 0,1 214,98 V108 A2,2 0 0,1 212,110 H208 A2,2 0 0,1 206,108 V98 A2,2 0 0,1 208,96 Z" fill="#7CC5F0"/>
+    <path d="M26,120 H30 A2,2 0 0,1 32,122 V132 A2,2 0 0,1 30,134 H26 A2,2 0 0,1 24,132 V122 A2,2 0 0,1 26,120 Z" fill="#78C166"/>
+    <path d="M60,22 Q62.24,27.76 68,30 Q62.24,32.24 60,38 Q57.76,32.24 52,30 Q57.76,27.76 60,22 Z" fill="#FFC83D"/>
+    <path d="M170,15 Q171.96,20.04 177,22 Q171.96,23.96 170,29 Q168.04,23.96 163,22 Q168.04,20.04 170,15 Z" fill="#FFC83D"/>
+  </g>
+</svg>

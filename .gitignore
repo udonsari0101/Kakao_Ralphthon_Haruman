@@ -43,3 +43,4 @@ Thumbs.db
 /releases/**/evidence/
 /releases/**/download-verification/
 /releases/**/staging/
+/md_plus/**/*.zip

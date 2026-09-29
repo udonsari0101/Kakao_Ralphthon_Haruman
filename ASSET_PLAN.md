@@ -1,7 +1,7 @@
 # 하루만 — 이미지 애셋 적용·생성 계획
 
 작성일: 2026-09-29 · GOAL_SPEC v3.1 부속 설계
-상태: **새 영수증 마스코트 자산의 원본 점검과 계획 갱신 완료. 이 자산의 앱 적용·파생 이미지 제작·이미지 생성은 아직 하지 않았다.**
+상태: **새 영수증 마스코트 자산 점검 완료. 구현 재개 후 공통 UI와 Android 브랜드 리소스를 준비했다. 빌드·실기기 적용 검증은 진행 전이며, 새 래스터 이미지는 생성하지 않았다.**
 
 ## 1. 실제 제공 파일과 점검 결과
 
@@ -122,4 +122,44 @@
 - [ ] 실제 폰의 홈 화면·공유 목록·앱 시작·각 배치 화면 확인.
 - [ ] 모션 녹화·320/360/412/600/840dp·글꼴 1.0/1.3/2.0·IME별 검수와 release APK 내 자산 확인.
 
-현재 이 새 원본으로 제작한 파생본·보조 생성 이미지·Android 적용 내역은 **없다**. 기존 앱 구현 상태와 혼동하지 않는다. 원본 확보, 파생본 제작, 앱 적용, 실기기 검증을 각각 구분하고 진행 시 이 표와 [todo](./todo.md)에 즉시 반영한다.
+초기 원본 점검 시점에는 파생본·보조 생성 이미지·Android 적용 내역이 없었다. 이후 구현 기록은 아래 6절에 남긴다. 원본 확보, 리소스 준비, 앱 적용, 실기기 검증을 각각 구분하고 진행 시 이 표와 [todo](./todo.md)에 반영한다.
+
+## 6. 구현 재개 후 적용 기록
+
+2026-09-29: 사용자의 구현 재개 지시에 따라 다음 리소스·공통 컴포넌트를 준비했다. **소스 연결 단계이며 앱 빌드 성공·실기기 표시 성공을 뜻하지 않는다.**
+
+| 준비한 항목 | 실제 파일/구현 | 현재 검증 |
+| --- | --- | --- |
+| 마스코트 | `drawable-nodpi/haruman_mascot.png` ← `img/haruman_app_icon_512.png` | 원본과 바이트·해시 동일 |
+| 컬러/화이트 워드마크 | `drawable-nodpi/haruman_wordmark_color.png`, `haruman_wordmark_white.png` | 각 제공 원본과 바이트·해시 동일 |
+| 공통 브랜드 UI | `ui/BrandAssets.kt`의 `BrandLogo`, `CharacterArt`, `ProductImage` | 호출 계약 연결, 컴파일/실기기 검수 대기 |
+| 테마 | `ui/theme/Color.kt`, `Theme.kt`; 빨강 기반 light/dark 팔레트, 기존 Blue 이름 호환 | SYSTEM 선택 판정은 앱 상태 담당, 화면별 대비 검수 대기 |
+| 누름 반응·모션 감소 | `PrimaryAction` 100ms 반응, `rememberReducedMotion()`으로 시스템 배율 0 관찰 | 실제 누름·전환·녹화 검수 대기 |
+| 적응형 런처 | `drawable-v26/ic_haruman.xml`, `ic_haruman_foreground.xml`, `mipmap-anydpi-v26/ic_launcher*.xml` | 원본 마스코트에 안전 여백 적용; 마스크 실기기 검수 대기 |
+| API 24–25 기본 아이콘 | `drawable/ic_haruman.xml` | 기존 바구니·종이 모티프의 코드 벡터. 해당 API에서 미검증 |
+| 단색 아이콘 | `drawable/ic_haruman_monochrome.xml` | 얼굴/슬롯 음각을 가진 코드 벡터. 테마 아이콘 실제 검수 대기 |
+| 시작 화면 | `drawable/haruman_splash_icon.xml`, `values/brand.xml` | 테마 연결과 시작 프레임 검수 대기 |
+
+시각 상태는 실제 처리 상태를 따른다. `loading`은 진행 표시(모션 감소 시 정적 시계), `needsReview`는 중립 확인 아이콘이며, 제공된 웃는 한 포즈를 완료되지 않은 요청의 성공 표현으로 쓰지 않는다. `success`/`celebrate`는 체크 배지를 더하되 축하 이벤트의 일회성 제어는 결정 화면이 담당한다.
+
+상품 썸네일은 API가 제공한 `imageUrl`을 읽고 `imageHidden`을 존중한다. HTTPS 검증, 응답 4MB·디코딩 768px·동시 3개·메모리 캐시 12MB 제한을 둔다. 실패/숨김은 중립 그림으로 표시하며 상품 저장 데이터는 변경하지 않는다. 샘플의 기존 카테고리 그림은 샘플에 한해 유지한다. 실서버 이미지 응답은 아직 검증하지 않았다.
+
+리소스 XML 8개가 파싱 가능한지 확인했고, 준비 후에도 `img/` 원본 45개의 SHA-256이 매니페스트와 일치했다. 새 PNG 생성·편집은 없으며 위 PNG 3개만 원본 그대로 복사했다. **실기기 라이트/다크·알파 경계·작은 크기·마스크·시작 화면·모션 결과는 후속 검수 기록으로 추가한다.**
+
+### 6.1. 모아·토리 가이드 수령 후 추가 적용
+
+새 출처는 `md_plus/mascot-duo/`다. README·구현 요구사항·캐릭터 설정·카피 덱·모션/토큰 5개 Markdown과 `preview.html`의 자원 시트/화면 목업 구조를 읽었다. PNG 18개의 크기·모드·해시를 조사했고, 모아 idle/receive/stuffed/sleep, 토리 present/cheer/bury, 온보딩 장면, 새싹 도토리, 큰 나무 **대표 10개를 직접 열어 확인**했다. PNG는 포즈 480×480, 소품 192×192, 온보딩 720×480의 투명 이미지다.
+
+| 적용 항목 | 실제 리소스/코드 | 검증 범위 |
+| --- | --- | --- |
+| 제공 캐릭터·소품·장면 | `md_plus/mascot-duo/assets/android-drawable/*.xml` 18개 → 앱 `res/drawable/`에 같은 파일명으로 복사 | 18개 XML 파싱, 원본과 바이트/해시 동일. 생성기 미실행 |
+| 포즈·호흡·말풍선 | `ui/mascot/Mascot.kt` | 10개 `MascotPose`, 2.4초 왕복 호흡, 포즈 전환, 탭 반응, 2줄 말풍선, 단일 접근성 발화 helper 준비 |
+| 모션/말풍선 설정 | `LocalReduceMotion`, `LocalShowBubbles` 및 `mascotMotionReduced()` | 앱 설정 또는 시스템 배율 0이면 정적 표시. root가 저장 설정 연결 |
+| 도토리·온보딩 | `AcornIcon`, `OnboardingScene` | 도토리는 실제 단계 변경 때만 220ms 전환, 장면은 원본 비율 유지 |
+| 친근한 문구 | `ui/mascot/MascotCopy.kt` | 사용자 최신 방향에 맞춰 전체 해요체, 쿠팡만 안내, 가격/개수는 저장 데이터에서 전달 |
+| 저장 직후 연출 | `ui/mascot/ReceivedOverlay.kt` | 저장 후에만 호출, 850ms 이하·탭 종료·회전 시 재재생 방지·모션 감소 생략. 저장과 무관한 시각 효과 |
+| 기존 6개 상태 | `CharacterArt` → 모아/토리 | idle=MOA_IDLE, loading=MOA_RECEIVE+진행 배지, success=MOA_HAPPY, needsReview=TORI_PRESENT+정보 배지, empty=MOA_SLEEP, celebrate=TORI_CHEER |
+
+영수증/바구니 이미지는 **런처·브랜드 로고용으로 유지**한다. 앱 안 캐릭터의 최신 기준은 제공된 모아·토리다. 원본 팩의 파란 테마·인스타그램/스크린샷 예시는 현재 범위를 재활성화하지 않는다. 빨강 라이트/다크 테마, 쿠팡 링크·직접 입력, 실제 결정 스냅샷 기준 합계를 유지한다.
+
+현재 단계는 소스 준비이며 **Android 벡터 실제 렌더링, 말풍선 큰 글자, 포즈 전환/받았다 연출 녹화, 모션 감소, 터치 비차단 검수는 root의 통합 빌드·실기기 결과를 기다린다.** R7 축하/금액 카운트업과 각 화면 연결은 화면 담당이 진행한다. 새 래스터 생성이나 원본 PNG/XML 편집은 하지 않았다.

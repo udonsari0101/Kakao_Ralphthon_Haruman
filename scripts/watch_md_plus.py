@@ -39,6 +39,14 @@ def main():
     folder.mkdir(parents=True, exist_ok=True)
     log.parent.mkdir(parents=True, exist_ok=True)
     seen, previous = {}, {}
+    if log.exists():
+        for line in log.read_text(encoding="utf-8").splitlines():
+            try:
+                event = json.loads(line)
+                relative = Path(event["path"]).relative_to(folder).as_posix()
+                seen[relative] = event["sha256"]
+            except (ValueError, KeyError, TypeError):
+                continue
     deadline = time.monotonic() + args.duration
     while True:
         current = scan(folder)

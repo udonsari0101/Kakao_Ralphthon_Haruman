@@ -1,110 +1,195 @@
-package org.ralphthon.haruman_ralphthon.ui
+﻿package org.ralphthon.haruman_ralphthon.ui
 
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import org.ralphthon.haruman_ralphthon.BuildConfig
 import org.ralphthon.haruman_ralphthon.data.*
-import java.util.UUID
+import org.ralphthon.haruman_ralphthon.ui.mascot.*
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HarumanApp(incomingShare: String? = null, onShareConsumed: () -> Unit = {}) {
+fun HarumanApp(model: HarumanViewModel = viewModel()) {
+    val reduced = rememberReducedMotion() || model.mascotReduceMotion
+    CompositionLocalProvider(LocalReduceMotion provides reduced, LocalShowBubbles provides model.mascotBubbles) {
+        HarumanContent(model)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HarumanContent(model: HarumanViewModel) {
     val context = LocalContext.current
-    val store = remember { LocalStore(context.applicationContext) }
-    var items by remember { mutableStateOf(store.items()) }
-    var route by rememberSaveable { mutableStateOf(if (store.onboardingDone) "vault" else "onboarding") }
-    var selectedId by rememberSaveable { mutableStateOf<String?>(null) }
-    var addOpen by rememberSaveable { mutableStateOf(false) }
-    var sharedUrl by rememberSaveable { mutableStateOf("") }
-    var defaultHours by remember { mutableIntStateOf(store.defaultCooldownHours) }
+    val snackbar = remember { SnackbarHostState() }
     var dialog by remember { mutableStateOf("") }
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
-    val snackbar = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-    val selected = items.find { it.id == selectedId }
-    fun notify(text: String) { scope.launch { snackbar.showSnackbar(text) } }
-    fun update(next: List<WishItem>) { items = next; store.saveItems(next) }
-    fun home() { route = "vault"; selectedId = null }
+    val selected = model.selected
+    val screenStates = rememberSaveableStateHolder()
     fun openOriginal(item: WishItem) {
-        if (item.url.isBlank()) { notify("예시 상품이에요. 링크를 저장하면 원본을 열 수 있어요."); return }
-        runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(item.url))) }
-            .onFailure { notify("링크를 열 수 있는 앱을 찾지 못했어요.") }
-    }
-    LaunchedEffect(Unit) { while (true) { now = System.currentTimeMillis(); delay(1_000) } }
-    LaunchedEffect(incomingShare) {
-        if (incomingShare != null) {
-            val parsed = parseSupportedUrl(incomingShare)
-            if (parsed == null) notify("쿠팡 또는 인스타그램 링크를 공유해 주세요.")
-            else { sharedUrl = parsed.second; store.onboardingDone = true; route = "vault"; addOpen = true }
-            onShareConsumed()
+        if (item.url.isBlank()) {
+            model.notifyUser(if (item.isSample) "둘러보기용 예시 상품이에요" else "직접 입력한 상품에는 링크가 없어요")
+            return
         }
+        runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(item.url))) }
+            .onFailure { model.notifyUser("링크를 열 수 있는 앱을 찾지 못했어요") }
     }
-    BackHandler(enabled = route !in listOf("vault", "onboarding") && !addOpen) { home() }
-    Scaffold(containerColor = AppColors.Background, contentWindowInsets = WindowInsets.safeDrawing,
+    LaunchedEffect(model) { model.notices.collect { snackbar.showSnackbar(it) } }
+    LaunchedEffect(Unit) { while (true) { now = System.currentTimeMillis(); delay(1_000) } }
+    BackHandler(enabled = model.route !in listOf("vault", "onboarding") && !model.sheetOpen) { model.home() }
+    Scaffold(
+        containerColor = AppColors.Background,
+        contentWindowInsets = WindowInsets.safeDrawing,
         snackbarHost = { SnackbarHost(snackbar) },
-        bottomBar = { if (route in listOf("vault", "history", "my")) BottomTabs(route) { route = it } }
+        bottomBar = { if (model.route in listOf("vault", "history", "my")) BottomTabs(model.route, model::navigate) },
     ) { insets ->
         Box(Modifier.fillMaxSize().padding(insets)) {
-            when (route) {
-                "onboarding" -> Onboarding { store.onboardingDone = true; route = "vault" }
-                "vault" -> VaultScreen(items, now, onAdd = { sharedUrl = ""; addOpen = true }) {
-                    selectedId = it.id; route = if (it.ready(now)) "decide" else "detail"
+          screenStates.SaveableStateProvider(model.route) {
+            when (model.route) {
+                "onboarding" -> Onboarding(model::finishOnboarding)
+                "vault" -> Column(Modifier.fillMaxSize()) {
+                    if (model.pendingSharedLinks.isNotEmpty()) ResumeBanner("공유한 링크가 기다리고 있어요", "이어서 추가") { model.acceptPendingShare() }
+                    if (model.hasHeldDraft()) ResumeBanner("작성 중이던 상품이 있어요", "이어서 작성", model::restoreHeldDraft)
+                    Box(Modifier.weight(1f)) { VaultScreen(model.items, now, model::openAdd, { model.select(it, now) }, onReview = model::startReview) }
                 }
-                "history" -> HistoryScreen(items, now) { selectedId = it.id; route = "detail" }
-                "my" -> MyScreen(defaultHours, { dialog = "cooldown" }, {
-                    val text = buildString {
-                        appendLine("하루만 · 나의 소비 기록")
-                        items.forEach { appendLine("${dateLabel(it.createdAt)} | ${it.name} | ${money(it.priceWon)} | ${it.platform.label} | ${when(it.decision) { Decision.BUY -> "구매 결정"; Decision.SKIP -> "구매 포기"; else -> "고민 중" }}") }
-                    }
-                    context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, text) }, "내 기록 내보내기"))
-                }, { dialog = "delete" })
-                "detail" -> selected?.let { DetailScreen(it, now, ::home, { openOriginal(it) }, { route = "decide" }) }
-                "decide" -> selected?.let { item -> DecideScreen(item, ::home, {
-                    update(items.map { if (it.id == item.id) extend(it, defaultHours, System.currentTimeMillis()) else it })
-                    home(); notify("${defaultHours}시간 더 고민해 보기로 했어요.")
-                }) { choice ->
-                    val changed = decide(item, choice, System.currentTimeMillis())
-                    if (changed.decision == Decision.PENDING) route = "detail"
-                    else { update(items.map { if (it.id == item.id) changed else it }); route = "result" }
-                } }
-                "result" -> selected?.let { ResultScreen(it, items, now, ::home) { openOriginal(it) } }
+                "history" -> HistoryScreen(model.items, now) { model.select(it, now, fromHistory = true) }
+                "my" -> MyScreen(
+                    hours = model.defaultHours, onDefault = { dialog = "cooldown" },
+                    onExport = {
+                        val text = buildString {
+                            appendLine("하루만 · 나의 소비 기록")
+                            model.items.filterNot { it.isSample }.forEach {
+                                val price = if (it.decision == Decision.PENDING) it.priceWon else it.decisionPriceWon
+                                appendLine("${dateLabel(it.createdAt)} | ${it.name} | ${money(price)} | ${it.platform.label} | ${when (it.decision) { Decision.BUY -> "구매 결정"; Decision.SKIP -> "구매 포기"; else -> "고민 중" }}")
+                                if (it.userMemo.isNotBlank()) appendLine("메모: ${it.userMemo}")
+                            }
+                        }
+                        runCatching {
+                            context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, text) }, "내 기록 내보내기"))
+                        }.onFailure { model.notifyUser("기록을 보낼 앱을 찾지 못했어요") }
+                    },
+                    onDelete = { dialog = "delete" }, themePreference = model.themePreference,
+                    onThemeChange = model::setTheme, appVersion = BuildConfig.VERSION_NAME,
+                    showMascotBubbles = model.mascotBubbles, onMascotBubblesChange = model::updateMascotBubbles,
+                    reduceMascotMotion = model.mascotReduceMotion, onReduceMascotMotionChange = model::updateMascotReduceMotion,
+                )
+                "detail" -> selected?.let { item -> DetailScreen(item, now, model::home, { openOriginal(item) }, model::openDecision, onEdit = { model.edit(item) }) }
+                "decide" -> selected?.let { item -> DecideScreen(item, model::home, model::extendSelected, model::decideSelected) }
+                "result" -> selected?.let { item -> ResultScreen(item, model.items, now, model::home, { openOriginal(item) }, celebrateEvent = model.celebrationId == item.id, onCelebrationConsumed = model::consumeCelebration) }
+                "added" -> selected?.let { item -> AddedScreen(item, model::home, { model.edit(item) }, { model.openDetail(item.id) }) }
+                "review" -> model.review?.let { session -> ReviewScreen(
+                    session, model.currentReviewItem(), model.defaultHours, now,
+                    onBack = model::home, onAction = model::reviewAction, onUndo = model::undoReview,
+                    onCelebrationConsumed = model::consumeReviewCelebration,
+                    onHistory = { model.navigate("history") },
+                    onShare = { text -> runCatching {
+                        context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"; putExtra(Intent.EXTRA_TEXT, text)
+                        }, "오늘의 선택 나누기"))
+                    }.onFailure { model.notifyUser("기록을 보낼 앱을 찾지 못했어요") } },
+                ) }
             }
+          }
+          model.receivedId?.let { id -> ReceivedOverlay(id, model::consumeReceived, Modifier.align(Alignment.BottomCenter)) }
         }
     }
-    if (addOpen) ModalBottomSheet(onDismissRequest = { addOpen = false },
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = AppColors.Surface, shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)) {
-        AddSheet(sharedUrl, defaultHours) { name, price, platform, url, hours ->
-            if (url.isNotBlank() && items.any { it.url == url && it.decision == Decision.PENDING }) notify("이미 보관함에 있는 링크예요.")
-            else {
-                val time = System.currentTimeMillis()
-                update(listOf(WishItem(UUID.randomUUID().toString(), name, price, platform, url, "default", time, time + hours * 3_600_000L)) + items)
-                addOpen = false; sharedUrl = ""; route = "vault"
-                notify(if (hours == 0) "보관함에 넣었어요." else "${hours}시간 뒤에 다시 생각해 봐요.")
-            }
+    val draft = model.draft
+    if (model.sheetOpen && draft != null) {
+        ModalBottomSheet(
+            onDismissRequest = model::closeDraft,
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            containerColor = AppColors.Surface,
+            shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        ) {
+            AddSheet(draft, model.processing, model.requestError, model.retryAllowed,
+                onChange = { value -> model.changeDraft { value } }, onModeChange = model::setMode,
+                onRequest = model::requestProduct, onSave = { model.saveDraft() }, onCancelRequest = model::cancelRequest)
         }
     }
-    if (dialog == "delete") AlertDialog(onDismissRequest = { dialog = "" },
-        title = { Text("모든 기록을 지울까요?") }, text = { Text("보관한 상품과 결정 기록이 모두 삭제돼요. 삭제한 기록은 되돌릴 수 없어요.") },
-        confirmButton = { TextButton(onClick = { update(emptyList()); dialog = ""; notify("모든 기록을 삭제했어요.") }) { Text("모두 삭제", color = AppColors.Red) } },
-        dismissButton = { TextButton(onClick = { dialog = "" }) { Text("취소") } })
-    if (dialog == "cooldown") AlertDialog(onDismissRequest = { dialog = "" }, title = { Text("기본 다시 보기 시간") },
+    if (model.sharedChoices.isNotEmpty()) AlertDialog(
+        onDismissRequest = model::dismissChoices,
+        title = { Text("어떤 상품을 담을까요?") },
+        text = { Column(Modifier.heightIn(max = 350.dp).verticalScroll(rememberScrollState())) {
+            Text("공유한 링크가 여러 개예요. 하나를 골라 주세요", color = AppColors.Secondary)
+            model.sharedChoices.forEachIndexed { index, url ->
+                TextButton(onClick = { model.chooseSharedLink(url) }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) {
+                    Text("${index + 1}. $url", maxLines = 3)
+                }
+            }
+        } },
+        confirmButton = { TextButton(onClick = model::dismissChoices) { Text("나중에") } },
+    )
+    if (model.shareConflict) AlertDialog(
+        onDismissRequest = model::keepCurrentDraft,
+        title = { Text("작성 중인 내용이 있어요") },
+        text = { Text("새로 공유한 링크를 먼저 볼까요? 지금 적은 내용도 보관해 둘게요.") },
+        confirmButton = { TextButton(onClick = model::acceptPendingShare) { Text("공유한 링크 보기") } },
+        dismissButton = { TextButton(onClick = model::keepCurrentDraft) { Text("작성 이어가기") } },
+    )
+    if (dialog == "delete") AlertDialog(
+        onDismissRequest = { dialog = "" }, title = { Text("모든 기록을 지울까요?") },
+        text = { Text("보관한 상품과 결정 기록이 모두 삭제돼요. 지운 기록은 되돌릴 수 없어요.") },
+        confirmButton = { TextButton(onClick = { model.deleteAll(); dialog = "" }) { Text("모두 삭제", color = AppColors.Red) } },
+        dismissButton = { TextButton(onClick = { dialog = "" }) { Text("취소") } },
+    )
+    if (dialog == "cooldown") AlertDialog(
+        onDismissRequest = { dialog = "" }, title = { Text("언제 다시 생각해 볼까요?") },
         text = { Column { listOf(3, 24, 72, 168).forEach { hours ->
-            Row(Modifier.fillMaxWidth().clickable { defaultHours = hours; store.defaultCooldownHours = hours; dialog = "" }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(selected = hours == defaultHours, onClick = null)
+            Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable { model.updateDefaultHours(hours); dialog = "" }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                RadioButton(selected = hours == model.defaultHours, onClick = null)
                 Text(cooldownLabel(hours), Modifier.padding(start = 12.dp))
             }
-        } } }, confirmButton = { TextButton(onClick = { dialog = "" }) { Text("닫기") } })
+        } } }, confirmButton = { TextButton(onClick = { dialog = "" }) { Text("닫기") } },
+    )
+}
+
+@Composable
+private fun ResumeBanner(message: String, action: String, onClick: () -> Unit) {
+    Row(Modifier.fillMaxWidth().background(AppColors.BlueTint).padding(horizontal = 16.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(message, Modifier.weight(1f), color = AppColors.Text, fontSize = 13.sp)
+        TextButton(onClick = onClick) { Text(action) }
+    }
+}
+
+@Composable
+private fun AddedScreen(item: WishItem, onHome: () -> Unit, onEdit: () -> Unit, onDetail: () -> Unit) {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+        Column(Modifier.widthIn(max = 600.dp).fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            CharacterArt("success", Modifier.padding(top = 20.dp).size(100.dp))
+            Text("보관함에 추가했어요", Modifier.padding(top = 20.dp).testTag("added_title"), fontSize = 26.sp, fontWeight = FontWeight.Bold, color = AppColors.Text)
+            Text("마음에 든 이유를 천천히 생각해 봐요", Modifier.padding(top = 8.dp), color = AppColors.Secondary, fontSize = 14.sp)
+            Column(Modifier.padding(top = 24.dp).fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(AppColors.Surface).padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                ProductImage(item, Modifier.size(112.dp))
+                Text(item.name, Modifier.padding(top = 16.dp), color = AppColors.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                Text(money(item.priceWon), Modifier.padding(top = 8.dp), color = AppColors.Secondary, fontSize = 16.sp)
+                HorizontalDivider(Modifier.padding(vertical = 18.dp), color = AppColors.Border)
+                Text("다시 볼 시간", color = AppColors.Secondary, fontSize = 12.sp)
+                Text(if (item.cooldownUntil <= item.createdAt) "지금 바로 생각할 수 있어요" else SimpleDateFormat("M월 d일 a h:mm", Locale.KOREAN).format(Date(item.cooldownUntil)), Modifier.padding(top = 6.dp), color = AppColors.Text, fontWeight = FontWeight.SemiBold)
+            }
+            PrimaryAction("보관함으로", onHome, Modifier.fillMaxWidth().padding(top = 24.dp))
+            OutlinedButton(onClick = onEdit, modifier = Modifier.fillMaxWidth().padding(top = 8.dp).heightIn(min = 52.dp).testTag("edit_added"), shape = RoundedCornerShape(12.dp)) { Text("정보 수정") }
+            TextButton(onClick = onDetail, modifier = Modifier.heightIn(min = 48.dp)) { Text("상품 자세히 보기") }
+        }
+    }
 }

@@ -1,40 +1,55 @@
-package org.ralphthon.haruman_ralphthon
+﻿package org.ralphthon.haruman_ralphthon
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import android.content.Intent
-import androidx.activity.SystemBarStyle
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.LaunchedEffect
+import org.ralphthon.haruman_ralphthon.data.ThemePreference
 import org.ralphthon.haruman_ralphthon.ui.HarumanApp
+import org.ralphthon.haruman_ralphthon.ui.HarumanViewModel
 import org.ralphthon.haruman_ralphthon.ui.theme.Haruman_RalphthonTheme
 
 class MainActivity : ComponentActivity() {
-    private var incomingShare by mutableStateOf<String?>(null)
+    private val model: HarumanViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.light(android.graphics.Color.WHITE, android.graphics.Color.WHITE)
-        )
-        receiveShare(intent)
+        enableEdgeToEdge()
+        if (savedInstanceState == null) receiveShare(intent)
         setContent {
-            Haruman_RalphthonTheme {
-                HarumanApp(incomingShare) { incomingShare = null }
+            val dark = when (model.themePreference) {
+                ThemePreference.SYSTEM -> isSystemInDarkTheme()
+                ThemePreference.DARK -> true
+                ThemePreference.LIGHT -> false
             }
+            LaunchedEffect(dark) {
+                val transparent = android.graphics.Color.TRANSPARENT
+                enableEdgeToEdge(
+                    statusBarStyle = if (dark) SystemBarStyle.dark(transparent) else SystemBarStyle.light(transparent, transparent),
+                    navigationBarStyle = if (dark) SystemBarStyle.dark(transparent) else SystemBarStyle.light(transparent, transparent),
+                )
+            }
+            Haruman_RalphthonTheme(darkTheme = dark) { HarumanApp(model) }
         }
     }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         receiveShare(intent)
     }
-    private fun receiveShare(intent: Intent?) {
-        if (intent?.action == Intent.ACTION_SEND && intent.type?.startsWith("text/") == true) {
-            incomingShare = intent.getStringExtra(Intent.EXTRA_TEXT)
-        }
+
+    private fun receiveShare(shared: Intent?) {
+        if (shared?.action != Intent.ACTION_SEND || shared.type != "text/plain") return
+        val text = shared.getStringExtra(Intent.EXTRA_TEXT).orEmpty()
+        // Consume the external event before any recreation; a new onNewIntent remains a new event.
+        shared.removeExtra(Intent.EXTRA_TEXT)
+        shared.action = Intent.ACTION_MAIN
+        model.receiveShare(text)
     }
 }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from the mascot handoff source. Edit the generator, not this file. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <group android:name="item" android:pivotX="48" android:pivotY="54">
+        <path
+            android:pathData="M29,34 H67 A6,6 0 0,1 73,40 V68 A6,6 0 0,1 67,74 H29 A6,6 0 0,1 23,68 V40 A6,6 0 0,1 29,34 Z"
+            android:fillColor="#FF8C7A"
+            android:strokeColor="#5B3A22"
+            android:strokeWidth="3"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <path
+            android:pathData="M44,34 H52 V74 H44 Z"
+            android:fillColor="#FFE08A" />
+        <path
+            android:pathData="M48,34 C34,20 30,36 48,34 Z"
+            android:fillColor="#FFE08A"
+            android:strokeColor="#5B3A22"
+            android:strokeWidth="2.4"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <path
+            android:pathData="M48,34 C62,20 66,36 48,34 Z"
+            android:fillColor="#FFE08A"
+            android:strokeColor="#5B3A22"
+            android:strokeWidth="2.4"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <path
+            android:pathData="M29,34 H67 A6,6 0 0,1 73,40 V68 A6,6 0 0,1 67,74 H29 A6,6 0 0,1 23,68 V40 A6,6 0 0,1 29,34 Z"
+            android:strokeColor="#5B3A22"
+            android:strokeWidth="3"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+    </group>
+</vector>

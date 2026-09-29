@@ -1,3 +1,6 @@
 <resources>
-    <color name="haruman_blue">#3182F6</color>
+    <color name="haruman_primary">#E60012</color>
+    <color name="haruman_blue">#E60012</color>
+    <color name="haruman_icon_background">#FFF4F3</color>
+    <color name="haruman_splash_background">#FAF9F9</color>
 </resources>

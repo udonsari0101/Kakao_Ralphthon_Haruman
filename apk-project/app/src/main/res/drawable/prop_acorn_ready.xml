@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from the mascot handoff source. Edit the generator, not this file. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <group android:name="mound">
+        <path
+            android:pathData="M14,88 C20,70 76,70 82,88 Z"
+            android:fillColor="#C29366"
+            android:strokeColor="#5B3A22"
+            android:strokeWidth="2.8"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <path
+            android:pathData="M30,78 q5,-5 10,-1 M54,76 q5,-5 10,-1"
+            android:strokeColor="#A57A52"
+            android:strokeWidth="2"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+    </group>
+    <group android:name="acorn" android:pivotX="48" android:pivotY="50">
+        <path
+            android:pathData="M62.5,55.8 A14.5,17.4 0 1,1 33.5,55.8 A14.5,17.4 0 1,1 62.5,55.8 Z"
+            android:fillColor="#DB9550"
+            android:strokeColor="#5B3A22"
+            android:strokeWidth="2.4"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <path
+            android:pathData="M47.13,51.77 A4.35,7.25 -15 1,1 38.72,54.03 A4.35,7.25 -15 1,1 47.13,51.77 Z"
+            android:fillColor="#F4C58A"
+            android:fillAlpha="0.9" />
+        <path
+            android:pathData="M29.15,45.65 Q48,25.35 66.85,45.65 Q48,51.45 29.15,45.65 Z"
+            android:fillColor="#8A5A2B"
+            android:strokeColor="#5B3A22"
+            android:strokeWidth="2.4"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <path
+            android:pathData="M39.3,38.4 L43.65,45.65 M49.45,35.5 L52.35,45.65 M58.15,38.4 L59.6,44.2"
+            android:strokeColor="#A87444"
+            android:strokeWidth="1.6"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <path
+            android:pathData="M48,34.05 Q49.45,26.8 55.25,25.35"
+            android:strokeColor="#5B3A22"
+            android:strokeWidth="2.4"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+    </group>
+    <group android:name="sparkles">
+        <path
+            android:pathData="M18,19 Q19.96,24.04 25,26 Q19.96,27.96 18,33 Q16.04,27.96 11,26 Q16.04,24.04 18,19 Z"
+            android:fillColor="#FFC83D" />
+        <path
+            android:pathData="M80,12 Q82.24,17.76 88,20 Q82.24,22.24 80,28 Q77.76,22.24 72,20 Q77.76,17.76 80,12 Z"
+            android:fillColor="#FFC83D" />
+        <path
+            android:pathData="M82,53 Q83.4,56.6 87,58 Q83.4,59.4 82,63 Q80.6,59.4 77,58 Q80.6,56.6 82,53 Z"
+            android:fillColor="#FFC83D" />
+    </group>
+</vector>
